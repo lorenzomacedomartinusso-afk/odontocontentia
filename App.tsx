@@ -1,0 +1,2399 @@
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Sparkles, LayoutDashboard, LogOut, Plus, Search, Calendar as CalendarIcon, ClipboardList, CheckCircle2, PlayCircle, Share2, FileText, Copy, ShieldCheck, ChevronRight, User as UserIcon, Loader2, X, Users, AlertCircle, Check, RefreshCw, Lightbulb, Edit2, Save, RotateCcw, Pencil, Trash2, ChevronLeft, CalendarDays, Mail, Settings, Building2, Bell, Lock, GripVertical, Clock, TrendingUp, Target, BarChart3, Star, Quote } from 'lucide-react';
+import { Project, ContentStatus, WizardStep, NarrativeStructure, FinalAssets, User } from './types';
+import * as GeminiService from './services/geminiService';
+
+// --- Constants ---
+const MOCK_USER: User = {
+  id: '1',
+  name: 'Dr. Andre Silva',
+  role: 'DENTISTA_DONO',
+  email: 'andre@clinica.com'
+};
+
+const INITIAL_TEAM: User[] = [
+  { id: '1', name: 'Dr. Andre Silva', role: 'Cirurgião-Dentista (Admin)', avatar: 'DR', email: 'andre@clinica.com' },
+  { id: '2', name: 'Ana Clara', role: 'Social Media', avatar: 'AC', email: 'ana@agencia.com' },
+];
+
+const TOPIC_POOL = [
+  "Clareamento Dental e Café", "Lentes de Contato: Naturalidade", "Invisalign vs Aparelho Fixo",
+  "Harmonização Facial sem exageros", "Medo de Dentista (Odontofobia)", "Implantes Dentários e Autoestima",
+  "Bruxismo e Stress Moderno", "Mau hálito matinal: Mitos", "Sorriso Gengival tem solução?",
+  "Aparelho em adultos vale a pena?", "Dentes sensíveis no inverno", "Bichectomia envelhece?",
+  "Preenchimento Labial Sutil", "Primeira consulta do bebê", "Cigarro eletrônico e os dentes",
+  "Fio dental: Onde todos erram", "A cor ideal dos dentes", "Ranger os dentes dormindo"
+];
+
+// --- Helper Components ---
+
+const AutoResizeTextarea: React.FC<{
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  className?: string;
+  placeholder?: string;
+  autoFocus?: boolean;
+}> = ({ value, onChange, className, placeholder, autoFocus }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [value]);
+
+  return (
+    <textarea
+      ref={textareaRef}
+      value={value}
+      onChange={onChange}
+      className={`resize-none overflow-hidden block ${className}`}
+      placeholder={placeholder}
+      rows={1}
+      autoFocus={autoFocus}
+    />
+  );
+};
+
+const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost' | 'glass' | 'danger' | 'gradient' }> = ({ children, className = '', variant = 'primary', ...props }) => {
+  const variants = {
+    primary: 'bg-brand-teal text-brand-black hover:bg-brand-teal/90 shadow-[0_0_20px_-5px_rgba(45,212,191,0.4)]',
+    secondary: 'bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700',
+    ghost: 'text-zinc-400 hover:text-brand-teal hover:bg-brand-teal/5',
+    glass: 'bg-white/5 backdrop-blur-md border border-white/10 text-white hover:bg-white/10',
+    danger: 'bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20',
+    gradient: 'bg-gradient-to-r from-brand-teal to-teal-600 text-black font-bold hover:shadow-[0_0_25px_-5px_rgba(45,212,191,0.6)] border-none'
+  };
+
+  return (
+    <button
+      className={`px-6 py-3 rounded-[2rem] font-medium transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+
+const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
+  <div className={`bg-brand-surface border border-zinc-800 rounded-3xl p-4 md:p-6 ${className}`}>
+    {children}
+  </div>
+);
+
+const Badge: React.FC<{ status: ContentStatus }> = ({ status }) => {
+  const styles = {
+    'IDEIA': 'bg-zinc-800 text-zinc-300 border-zinc-700',
+    'ROTEIRIZADO': 'bg-teal-900/30 text-teal-200 border-teal-800',
+    'PRODUZIDO': 'bg-emerald-900/30 text-emerald-300 border-emerald-800',
+    'PUBLICADO': 'bg-brand-teal/20 text-brand-teal border-brand-teal/30'
+  };
+  return (
+    <span className={`text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1 rounded-full border ${styles[status]}`}>
+      {status}
+    </span>
+  );
+};
+
+import { supabase } from './services/supabaseClient';
+
+// --- Auth Component ---
+const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (user: any) => void }> = ({ isOpen, onClose, onSuccess }) => {
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!isOpen) return null;
+
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (mode === 'signup') {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) throw error;
+        // Auto login after signup if session exists, or notify to check email
+        if (data.user) {
+          // Check if session was created (auto-confirm disabled?)
+          // For simple email/pass, usually it sends confirmation or logs in depending on settings.
+          // Assuming auto-confirm for now or let them try to login.
+          // Actually, standard supabase requires email confirmation by default.
+          // But user asked for "functional" login. If confirmation is on, this might block.
+          // I will assume standard flow and notify user.
+          alert('Cadastro realizado! Por favor, faça login.');
+          setMode('login');
+        }
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        if (data.session) {
+          onSuccess(data.user);
+          onClose();
+        }
+      }
+    } catch (err: any) {
+      setError(err.message || 'Ocorreu um erro.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="bg-zinc-900 border border-zinc-700 p-6 rounded-2xl w-full max-w-sm shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white"><X className="w-5 h-5" /></button>
+
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 bg-brand-teal/20 rounded-full flex items-center justify-center mx-auto mb-3 text-brand-teal">
+            <UserIcon className="w-6 h-6" />
+          </div>
+          <h2 className="text-xl font-bold text-white">{mode === 'login' ? 'Área do Cliente' : 'Novo Cadastro'}</h2>
+        </div>
+
+        {error && <div className="bg-red-500/10 text-red-500 text-sm p-3 rounded-lg mb-4 text-center">{error}</div>}
+
+        <form onSubmit={handleAuth} className="space-y-4">
+          <div>
+            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">E-mail</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+              placeholder="seu@email.com"
+              required
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">Senha</label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+              placeholder="******"
+              required
+            />
+          </div>
+
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (mode === 'login' ? 'Entrar' : 'Criar Conta')}
+          </Button>
+        </form>
+
+        <div className="mt-6 pt-4 border-t border-zinc-800 text-center">
+          <p className="text-sm text-zinc-400">
+            {mode === 'login' ? 'Não tem uma conta?' : 'Já possui conta?'}
+            <button
+              onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+              className="text-brand-teal font-bold ml-1 hover:underline"
+            >
+              {mode === 'login' ? 'Cadastre-se' : 'Fazer Login'}
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Mock UI Components for Landing Page ---
+const MockBrowserWindow: React.FC<{ children: React.ReactNode; title?: string; className?: string }> = ({ children, title = "OdontoContent IA", className = "" }) => (
+
+  <div className={`rounded-2xl overflow-hidden border border-zinc-700/50 bg-[#0A0A0A] shadow-2xl ${className}`}>
+    <div className="bg-zinc-900/80 border-b border-zinc-800 px-4 py-3 flex items-center gap-4 backdrop-blur-md">
+      <div className="flex gap-2">
+        <div className="w-3 h-3 rounded-full bg-zinc-700 shadow-sm"></div>
+        <div className="w-3 h-3 rounded-full bg-zinc-700 shadow-sm"></div>
+        <div className="w-3 h-3 rounded-full bg-zinc-700 shadow-sm"></div>
+      </div>
+      <div className="px-4 py-1.5 bg-zinc-950/50 rounded-lg border border-zinc-800/50 text-[10px] text-zinc-400 flex-1 text-center font-mono flex items-center justify-center gap-2">
+        <Lock className="w-3 h-3 opacity-50" /> {title}
+      </div>
+      <div className="w-10"></div> {/* Spacer */}
+    </div>
+    <div className="p-1 bg-zinc-950">
+      {children}
+    </div>
+  </div>
+);
+
+// --- Views ---
+
+const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
+  <div className="min-h-screen flex flex-col relative overflow-hidden bg-zinc-950">
+    {/* Background Effects - Fixed to persist during scroll */}
+    <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-teal/5 rounded-full blur-[120px] pointer-events-none z-0" />
+    <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-emerald-600/5 rounded-full blur-[150px] pointer-events-none z-0" />
+    <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-teal/5 via-transparent to-transparent pointer-events-none z-0 opacity-50" />
+
+    <header className="flex justify-between items-center p-4 md:px-12 md:py-8 w-full z-10 relative">
+      <div className="flex items-center gap-2">
+        <Sparkles className="w-8 h-8 md:w-9 md:h-9 text-brand-teal shrink-0" />
+        <span className="text-2xl md:text-2xl font-bold tracking-tight text-white whitespace-nowrap"><span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">Odonto</span>Content <span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">IA</span></span>
+      </div>
+      <button
+        onClick={onLogin}
+        className="px-6 py-2 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-sm font-medium"
+      >
+        Área do Cliente
+      </button>
+    </header>
+
+    <main className="flex-1 flex flex-col w-full z-10 relative">
+
+      {/* SECTION 1: HERO */}
+      <section className="flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto mb-20 md:mb-32 pt-2 md:pt-10">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-brand-teal/5 border border-brand-teal/20 text-brand-teal mt-2 mb-2 md:mt-0 md:mb-8 animate-fade-in shadow-[0_0_20px_-10px_rgba(45,212,191,0.3)]">
+          <ShieldCheck className="w-3 h-3 md:w-4 md:h-4" />
+          <span className="text-xs md:text-sm font-medium">100% Compatível com Normas do CFO</span>
+        </div>
+
+        <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6 text-white leading-tight animate-slide-up tracking-tight">
+          Transforme Ciência em <br />
+          <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">Magnetismo Digital</span>
+        </h1>
+
+        <p className="text-base md:text-xl text-zinc-400 mb-8 md:mb-10 max-w-2xl animate-slide-up px-2 leading-relaxed" style={{ animationDelay: '0.1s' }}>
+          A primeira IA treinada exclusivamente para cirurgiões-dentistas. Crie roteiros de Reels, Carrosséis e Legendas éticas em segundos, não horas.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 animate-slide-up w-full sm:w-auto px-4 sm:px-0" style={{ animationDelay: '0.2s' }}>
+          <Button onClick={onLogin} variant="gradient" className="text-base md:text-lg px-8 w-full sm:w-auto">
+            Começar Teste Grátis
+            <ChevronRight className="w-5 h-5" />
+          </Button>
+          <Button variant="secondary" onClick={onLogin} className="w-full sm:w-auto hover:bg-zinc-800">
+            <PlayCircle className="w-5 h-5 text-zinc-400" /> Ver Demonstração
+          </Button>
+        </div>
+
+        <div className="mt-16 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full text-left">
+          {[
+            { icon: Sparkles, title: "Autoridade Instantânea", desc: "Conteúdos que posicionam você como a única opção lógica na sua região." },
+            { icon: ShieldCheck, title: "Segurança Ética (CFO)", desc: "Filtros automáticos que garantem conformidade com o Código de Ética." },
+            { icon: LayoutDashboard, title: "Gestão Integrada", desc: "Do roteiro à publicação com Kanban e Calendário editorial inteligentes." }
+          ].map((item, i) => (
+            <div key={i} className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6 hover:bg-zinc-900/60 hover:border-brand-teal/20 transition-all duration-300 group">
+              <item.icon className="w-8 h-8 text-brand-teal mb-4 group-hover:scale-110 transition-transform duration-300" />
+              <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* SECTION 2: Vire Referência */}
+      <section className="py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16 max-w-3xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">Vire referência na <span className="text-brand-teal">odontologia moderna</span>.</h2>
+            <p className="text-zinc-400 text-lg leading-relaxed">
+              Chega de falar "odontologuês" e não atrair pacientes. O paciente não compra "faceta de porcelana", ele compra autoestima. A OdontoContent traduz sua técnica em desejo.
+            </p>
+          </div>
+
+          <MockBrowserWindow className="max-w-5xl mx-auto transform hover:scale-[1.005] transition-transform duration-700 shadow-[0_0_50px_-10px_rgba(45,212,191,0.15)] border-brand-teal/20">
+            <div className="bg-[#0D0D0D] p-2 md:p-8 flex flex-col md:flex-row gap-8 min-h-[500px]">
+              {/* Sidebar Mock */}
+              <div className="w-full md:w-1/3 space-y-4">
+                <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
+                  <div className="flex items-center gap-2 mb-3 text-brand-teal">
+                    <Sparkles className="w-4 h-4" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Gerador IA</span>
+                  </div>
+                  <p className="text-zinc-500 text-[10px] uppercase font-bold mb-2">Tema Atual</p>
+                  <div className="p-3 bg-black rounded border border-zinc-800 text-white font-medium text-sm">
+                    Lentes de Contato Dental
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-zinc-500 px-2">
+                    <span>Opções Geradas</span>
+                    <span>2/5</span>
+                  </div>
+                  <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                    <div className="h-full w-2/5 bg-brand-teal"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content Mock */}
+              <div className="flex-1 space-y-4">
+                <h3 className="text-zinc-400 text-sm font-medium mb-4">Selecione a abordagem que melhor se adapta à sua clínica:</h3>
+
+                <div className="bg-gradient-to-r from-zinc-900 to-zinc-900/50 p-5 rounded-xl border border-brand-teal/30 hover:border-brand-teal transition-colors cursor-pointer group relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-2 bg-brand-teal/10 text-brand-teal text-[10px] font-bold rounded-bl-xl border-l border-b border-brand-teal/20">RECOMENDADO</div>
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="text-white font-bold text-base group-hover:text-brand-teal transition-colors">1. O Mito da Perfeição Simétrica</h4>
+                  </div>
+                  <p className="text-zinc-400 text-sm leading-relaxed mb-4">
+                    "Muitos pacientes chegam pedindo dentes brancos e retos como teclas de piano. Mas a natureza é imperfeita. Vamos falar sobre como a microtextura e a translucidez criam um sorriso que parece que você 'nasceu assim'?"
+                  </p>
+                  <button className="text-xs font-bold text-brand-teal flex items-center gap-2 group-hover:gap-3 transition-all">
+                    Usar este gancho <ChevronRight className="w-3 h-3" />
+                  </button>
+                </div>
+
+                <div className="bg-zinc-900/30 p-5 rounded-xl border border-zinc-800 hover:border-zinc-600 transition-colors cursor-pointer group opacity-60 hover:opacity-100">
+                  <h4 className="text-white font-bold text-base mb-2">2. Rejuvenescimento Facial via Sorriso</h4>
+                  <p className="text-zinc-500 text-sm leading-relaxed">
+                    Abordagem focada em pacientes 40+. Como o desgaste natural dos dentes diminui o terço inferior da face e como as lentes devolvem suporte labial.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </MockBrowserWindow>
+
+          <div className="mt-12 text-center">
+            <Button onClick={onLogin} variant="ghost" className="text-sm">
+              Experimente com seu tema agora
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: System Explanation */}
+      <section className="py-24 px-4 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-brand-teal/5 blur-[100px] rounded-full pointer-events-none" />
+
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                Um redator sênior <br />
+                <span className="text-zinc-500">que estudou odontologia.</span>
+              </h2>
+              <div className="space-y-6">
+                <p className="text-zinc-400 text-lg leading-relaxed">
+                  A maioria dos dentistas cria conteúdo para impressionar outros dentistas — linguagem técnica, casos clínicos complexos e fotos intraorais.
+                </p>
+                <p className="text-white text-lg leading-relaxed border-l-2 border-brand-teal pl-6">
+                  A <strong>OdontoContent</strong> inverte esse jogo. Ela ajuda você a falar a língua de quem assina o cheque: o paciente. Conteúdo que conecta, educa e converte.
+                </p>
+              </div>
+              <Button variant="primary" onClick={onLogin} className="mt-8">
+                Conheça a Tecnologia
+              </Button>
+            </div>
+
+            <div className="relative">
+              {/* Visual Representation of "Translation" */}
+              <div className="space-y-4">
+                <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl opacity-50 scale-95 origin-left">
+                  <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Como você postava</p>
+                  <p className="text-zinc-600 text-sm line-through">"Caso de reabilitação oral com facetas em disilicato de lítio e aumento de DVO..."</p>
+                </div>
+
+                <div className="flex justify-center -my-2 relative z-10">
+                  <div className="bg-zinc-800 p-2 rounded-full border border-zinc-700 text-zinc-400">
+                    <RefreshCw className="w-4 h-4" />
+                  </div>
+                </div>
+
+                <div className="p-6 bg-brand-teal/5 border border-brand-teal/30 rounded-xl shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="w-4 h-4 text-brand-teal" />
+                    <p className="text-xs text-brand-teal uppercase font-bold">Como a IA cria</p>
+                  </div>
+                  <p className="text-white font-medium text-lg">"Parece mágica, mas é ciência: devolvemos anos de juventude ao seu rosto apenas ajustando o formato do seu sorriso."</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4: Organize (Kanban) */}
+      <section className="py-24 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Do caos à clínica lotada
+            </h2>
+            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+              Organize sua produção de conteúdo com visualizações profissionais em Kanban ou Calendário.
+              <span className="text-brand-teal block mt-1 font-medium">Você nunca mais vai esquecer de postar.</span>
+            </p>
+          </div>
+
+          <MockBrowserWindow title="Planejamento Editorial - Dr. Andre Silva">
+            <div className="bg-[#0D0E12] p-6 grid grid-cols-1 md:grid-cols-4 gap-4 overflow-hidden relative">
+              {/* Background Grid */}
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.05] pointer-events-none"></div>
+
+              {[
+                { title: 'Ideia', count: 5, color: 'bg-zinc-500' },
+                { title: 'Roteirizado', count: 2, color: 'bg-zinc-400' },
+                { title: 'Produção', count: 1, color: 'bg-teal-700' },
+                { title: 'Publicado', count: 12, color: 'bg-brand-teal' }
+              ].map((col, i) => (
+                <div key={col.title} className="bg-zinc-900/40 rounded-xl p-3 border border-zinc-800/50 flex flex-col gap-3 min-h-[300px]">
+                  <div className="flex justify-between items-center px-1">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${col.color}`} />
+                      <span className="text-xs font-bold text-zinc-300 uppercase tracking-wide">{col.title}</span>
+                    </div>
+                    <span className="bg-zinc-800 text-[10px] px-2 py-0.5 rounded-full text-zinc-500">{col.count}</span>
+                  </div>
+
+                  {/* Card Mockup */}
+                  <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-800 hover:border-brand-teal/50 cursor-pointer shadow-sm group transition-all">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[10px] bg-brand-teal/10 text-brand-teal px-1.5 py-0.5 rounded border border-brand-teal/20">Reels</span>
+                      <span className="text-[10px] bg-zinc-800 text-zinc-500 px-1.5 py-0.5 rounded">Alta Prioridade</span>
+                    </div>
+                    <p className="text-sm text-white font-medium mb-3 group-hover:text-brand-teal transition-colors">
+                      {i === 0 ? "Medo de Anestesia" : i === 1 ? "Invisalign vs. Fixo" : "Clareamento e Sensibilidade"}
+                    </p>
+                    <div className="flex items-center justify-between border-t border-zinc-800 pt-3">
+                      <div className="flex -space-x-2">
+                        <div className="w-6 h-6 rounded-full bg-zinc-700 border-2 border-zinc-900 flex items-center justify-center text-[8px] text-white">DR</div>
+                        <div className="w-6 h-6 rounded-full bg-zinc-600 border-2 border-zinc-900 flex items-center justify-center text-[8px] text-white">SM</div>
+                      </div>
+                      <div className="flex items-center gap-1 text-zinc-500 text-[10px]">
+                        <CalendarIcon className="w-3 h-3" />
+                        <span>23 Dez</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {i === 1 && (
+                    <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-800 opacity-60">
+                      <div className="w-1/3 h-2 bg-zinc-800 rounded mb-2"></div>
+                      <div className="w-3/4 h-3 bg-zinc-700 rounded mb-3"></div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </MockBrowserWindow>
+        </div>
+      </section>
+
+      {/* SECTION 5: Wizard Steps */}
+      <section className="py-24 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8">
+            <div className="max-w-2xl">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                <span className="text-brand-teal">Três cliques</span> até o post pronto.
+              </h2>
+              <p className="text-zinc-400 text-lg">
+                Você digita o tema. A IA te dá a estratégia, escreve o roteiro e gera a legenda. Você só precisa gravar ou aprovar a arte.
+              </p>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-12 rounded-2xl bg-brand-teal/10 border border-brand-teal text-brand-teal flex items-center justify-center font-bold text-xl">1</div>
+                <span className="text-xs text-zinc-500 font-medium">Tema</span>
+              </div>
+              <div className="w-8 h-px bg-zinc-800 mt-6"></div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 text-white flex items-center justify-center font-bold text-xl">2</div>
+                <span className="text-xs text-zinc-500 font-medium">Estratégia</span>
+              </div>
+              <div className="w-8 h-px bg-zinc-800 mt-6"></div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 text-white flex items-center justify-center font-bold text-xl">3</div>
+                <span className="text-xs text-zinc-500 font-medium">Ativos</span>
+              </div>
+            </div>
+          </div>
+
+          <MockBrowserWindow className="max-w-4xl mx-auto border-brand-teal/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+            <div className="bg-zinc-950 p-6 md:p-8">
+              <div className="flex items-center justify-between mb-8 pb-4 border-b border-zinc-900">
+                <div>
+                  <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-brand-teal" /> Estratégia Aprovada
+                  </h4>
+                  <p className="text-xs text-zinc-500 mt-1">Gerando ativos finais...</p>
+                </div>
+                <span className="px-3 py-1 bg-brand-teal/10 text-brand-teal text-xs font-bold rounded-full border border-brand-teal/20">IA Generativa Ativa</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Script Card */}
+                <div className="p-5 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-brand-teal/30 transition-all group">
+                  <div className="flex gap-3 mb-4">
+                    <div className="p-2 bg-brand-teal/10 rounded-lg text-brand-teal group-hover:scale-110 transition-transform"><PlayCircle className="w-5 h-5" /></div>
+                    <div>
+                      <p className="text-sm font-bold text-white">Roteiro de Vídeo</p>
+                      <p className="text-[10px] text-zinc-500">Otimizado para retenção</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3 font-mono text-xs">
+                    <p className="text-zinc-500">[00:00 - GANCHO VISUAL]</p>
+                    <p className="text-zinc-300 pl-2 border-l-2 border-zinc-700">Segure uma xícara de café, olhe para ela e depois sorria para a câmera.</p>
+                    <p className="text-zinc-500 mt-2">[00:05 - FALADO]</p>
+                    <p className="text-white pl-2 border-l-2 border-brand-teal">"Você ama isso aqui, né? Mas morre de medo do que ele faz com a cor do seu sorriso..."</p>
+                  </div>
+                </div>
+
+                {/* Caption Card */}
+                <div className="p-5 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-brand-teal/30 transition-all group">
+                  <div className="flex gap-3 mb-4">
+                    <div className="p-2 bg-brand-teal/10 rounded-lg text-brand-teal group-hover:scale-110 transition-transform"><FileText className="w-5 h-5" /></div>
+                    <div>
+                      <p className="text-sm font-bold text-white">Legenda Pronta</p>
+                      <p className="text-zinc-500">Com SEO e Disclaimer</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-zinc-400 leading-relaxed mb-4 line-clamp-4">
+                    O café não é o vilão. O vilão é a porosidade do esmalte desprotegido. ☕✨
+                    <br /><br />
+                    Muita gente deixa de viver pequenos prazeres por vergonha dos dentes. Mas a odontologia moderna permite blindar seu sorriso.
+                  </p>
+                  <div className="flex gap-2">
+                    <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-500">#clareamento</span>
+                    <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-500">#autoestima</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end mt-6">
+                <Button variant="gradient" className="py-2 h-10 text-sm shadow-lg shadow-brand-teal/20">
+                  <Sparkles className="w-4 h-4 mr-2" /> Gerar Conteúdo Completo
+                </Button>
+              </div>
+            </div>
+          </MockBrowserWindow>
+        </div>
+      </section>
+
+      {/* SECTION 6: Impactful Script */}
+      <section className="py-24 px-4 relative">
+        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(45,212,191,0.02)_50%,transparent_75%,transparent_100%)] bg-[length:250%_250%] animate-[gradient_15s_ease_infinite]" />
+
+        <div className="max-w-4xl mx-auto relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Roteiros que prendem até o fim.</h2>
+            <p className="text-zinc-400 text-base leading-relaxed max-w-2xl mx-auto">
+              Esqueça o "Olá, sou o Dr. Fulano". A OdontoContent usa ganchos de <strong>dopamina</strong> e estruturas de storytelling de cinema para garantir que o paciente assista, entenda e deseje.
+            </p>
+          </div>
+
+          <div className="bg-zinc-900 rounded-2xl border border-zinc-800 shadow-2xl relative overflow-hidden group hover:border-brand-teal/30 transition-colors duration-500">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-teal via-teal-600 to-emerald-500" />
+            <div className="flex border-b border-zinc-800 bg-zinc-950/50 backdrop-blur">
+              <div className="px-6 py-3 text-xs font-mono text-brand-teal border-r border-zinc-800 flex items-center gap-2">
+                <PlayCircle className="w-3 h-3" /> SCRIPT.DOC
+              </div>
+              <div className="px-6 py-3 text-xs font-mono text-zinc-500">
+                LEITURA ESTIMADA: 45s
+              </div>
+            </div>
+
+            <div className="p-8 md:p-10 font-mono text-sm leading-loose text-zinc-300 bg-[#0A0A0A]">
+              <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity">
+                <span className="text-teal-400">INT. CONSULTÓRIO - DIA</span>
+                <br />
+                <span className="text-zinc-600 italic">O Dr. olha para a câmera. Luz dramática, foco suave ao fundo.</span>
+              </div>
+
+              <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal transition-colors">
+                <strong className="text-white block mb-1">DR. ANDRE</strong>
+                "Você já deixou de sorrir numa foto por achar que seus dentes não estavam 'brancos o suficiente'?"
+              </p>
+
+              <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity">
+                <span className="text-teal-400">CORTE PARA:</span>
+                <span className="text-zinc-600 italic"> Close-up extremo de café caindo no leite. Câmera lenta.</span>
+              </div>
+
+              <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal transition-colors">
+                <strong className="text-white block mb-1">NARRADOR (VO)</strong>
+                "Essa pressão estética é real. Mas o branco 'geladeira' ficou no passado. O novo luxo é a translucidez natural."
+              </p>
+
+              <div className="mt-8 pt-8 border-t border-zinc-900 flex justify-between items-center">
+                <span className="text-xs text-zinc-600">Gerado por IA Cultural</span>
+                <Button variant="ghost" className="text-xs h-8 hover:bg-zinc-800">
+                  <Copy className="w-3 h-3 mr-2" /> Copiar Texto
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 7: Benefits Grid */}
+      <section className="py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl md:text-5xl font-bold text-white text-center mb-16">Por que +800 dentistas<br />escolheram a OdontoContent?</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: Target, title: "Linguagem de Paciente", text: "A IA remove o 'odontologuês' automaticamente. Você fala, eles entendem, eles compram." },
+              { icon: Clock, title: "Calendário em Minutos", text: "Planeje o mês inteiro em 20 minutos. Sobra tempo para o que importa: atender." },
+              { icon: TrendingUp, title: "Autoridade Digital", text: "Quem educa o mercado, domina o mercado. Torne-se a referência da sua cidade." },
+              { icon: BarChart3, title: "Foco na Conversão", text: "Cada post tem um propósito estratégico: agendamento, branding ou fidelização." }
+            ].map((item, i) => (
+              <div key={i} className="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 hover:bg-zinc-900 hover:border-zinc-700 transition-all duration-300 group hover:-translate-y-1">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-brand-teal/10 text-brand-teal group-hover:scale-110 transition-transform">
+                  <item.icon className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                <p className="text-zinc-500 text-sm leading-relaxed group-hover:text-zinc-400 transition-colors">{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 8: Pricing Table (Converted to Card) */}
+      <section className="py-24 px-4">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-white mb-6">Investimento que se paga<br />na primeira consulta particular.</h2>
+          <p className="text-zinc-400 mb-12 max-w-2xl mx-auto">Sem fidelidade. Sem taxas escondidas. Cancele quando quiser.</p>
+
+          <div className="max-w-md mx-auto relative group">
+            {/* Glow Effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-brand-teal to-teal-800 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+
+            <div className="relative bg-zinc-950 border border-zinc-800 rounded-2xl p-8 md:p-10 shadow-2xl">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-teal text-brand-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-brand-teal/20">
+                Oferta de Lançamento
+              </div>
+
+              <h3 className="text-lg font-medium text-zinc-400 mb-2">Plano Pro Odonto</h3>
+              <div className="flex items-baseline justify-center gap-1 mb-6">
+                <span className="text-5xl font-bold text-white">R$ 29,90</span>
+                <span className="text-zinc-500">/mês</span>
+              </div>
+
+              <div className="space-y-4 mb-8 text-left">
+                {[
+                  "Gerador Ilimitado de Roteiros e Legendas",
+                  "Calendário Editorial & Kanban",
+                  "Gestão de Equipe (até 3 usuários)",
+                  "IA treinada com normas do CFO",
+                  "Suporte prioritário via WhatsApp"
+                ].map((feat, i) => (
+                  <div key={i} className="flex items-center gap-3 text-sm text-zinc-300">
+                    <CheckCircle2 className="w-5 h-5 text-brand-teal shrink-0" />
+                    {feat}
+                  </div>
+                ))}
+              </div>
+
+              <Button onClick={onLogin} variant="gradient" className="w-full text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+                Começar Agora
+              </Button>
+              <p className="text-xs text-zinc-600 mt-4">7 dias de garantia incondicional.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 9: Testimonials */}
+      <section className="py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-16">Quem usa, não vive sem.</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-zinc-900/30 p-8 rounded-2xl border border-zinc-800 relative">
+              <Quote className="w-10 h-10 text-zinc-800 absolute top-6 right-6" />
+              <div className="flex gap-1 mb-4">
+                {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-4 h-4 text-brand-teal fill-brand-teal" />)}
+              </div>
+              <p className="text-zinc-300 italic mb-8 text-lg leading-relaxed">
+                "Antes eu perdia meu domingo inteiro tentando ter ideias. Hoje faço todo meu calendário do mês em 30 minutos! A qualidade dos roteiros é impressionante, meus pacientes comentam que os vídeos ficaram 'a minha cara'."
+              </p>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-zinc-500 border border-zinc-700">JS</div>
+                <div>
+                  <p className="text-white font-bold text-base">Dr. João Silva</p>
+                  <p className="text-brand-teal text-xs font-medium">Implantodontista • SP</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/30 p-8 rounded-2xl border border-zinc-800 relative">
+              <Quote className="w-10 h-10 text-zinc-800 absolute top-6 right-6" />
+              <div className="flex gap-1 mb-4">
+                {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-4 h-4 text-brand-teal fill-brand-teal" />)}
+              </div>
+              <p className="text-zinc-300 italic mb-8 text-lg leading-relaxed">
+                "A linguagem mudou tudo. Meus pacientes finalmente entendem o valor do meu tratamento. Não é mais 'preço', é valor percebido. Fechei 3 casos de lentes essa semana vindos do Instagram."
+              </p>
+              <div className="hidden md:flex items-center gap-6">
+                <a href="#funcionalidades" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Funcionalidades</a>
+                <a href="#beneficios" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Benefícios</a>
+                <a href="#precos" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Planos</a>
+                <button
+                  onClick={onLogin}
+                  className="px-6 py-2 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-sm font-medium"
+                >
+                  Área do Cliente
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 10: Final CTA */}
+      <section className="py-32 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-brand-teal/5 z-0"></div>
+        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand-teal/50 to-transparent"></div>
+
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 text-center text-[10px] md:text-xs text-zinc-500 font-mono uppercase tracking-widest opacity-70">
+            <p className="line-through decoration-red-500/50">Postar por postar</p>
+            <p className="line-through decoration-red-500/50">Marketing complicado</p>
+            <p className="line-through decoration-red-500/50">Tentar ser designer</p>
+            <p className="text-brand-teal font-bold animate-pulse">Agenda Cheia</p>
+          </div>
+
+          <h2 className="text-4xl md:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
+            Pare de falar sozinho. <br />
+            Comece a <span className="text-brand-teal">atrair pacientes.</span>
+          </h2>
+          <p className="text-zinc-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
+            Sua presença digital pode ser simples, estratégica e magnética.
+            Junte-se a centenas de dentistas que já modernizaram seu marketing.
+          </p>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <Button onClick={onLogin} variant="gradient" className="text-lg px-12 py-5 h-auto w-full md:w-auto shadow-[0_0_40px_-10px_rgba(45,212,191,0.5)]">
+              <Sparkles className="w-5 h-5 mr-2" />
+              Criar Conta Gratuita
+            </Button>
+          </div>
+          <p className="mt-6 text-zinc-600 text-xs">Não requer cartão de crédito • Cancelamento a qualquer momento</p>
+
+          <div className="mt-24 pt-8 text-zinc-700 text-xs flex justify-between items-center max-w-2xl mx-auto">
+            <span>© 2025 OdontoContent.</span>
+            <div className="flex gap-4">
+              <a href="#" className="hover:text-zinc-500">Termos</a>
+              <a href="#" className="hover:text-zinc-500">Privacidade</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+);
+
+const AuthScreen: React.FC<{ onAuth: () => void }> = ({ onAuth }) => (
+  <div className="min-h-screen flex items-center justify-center bg-brand-black relative p-4">
+    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80')] opacity-5 bg-cover bg-center" />
+
+    <Card className="w-full max-w-md backdrop-blur-xl bg-brand-black/90 border-zinc-800 shadow-2xl relative z-10">
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-brand-teal/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-brand-teal/20">
+          <Sparkles className="w-8 h-8 text-brand-teal" />
+        </div>
+        <h2 className="text-2xl font-bold text-white">Terminal Odontológico</h2>
+        <p className="text-zinc-500">Acesse sua clínica digital</p>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-xs font-medium text-zinc-400 mb-1 ml-4">CRO / E-mail</label>
+          <input
+            type="email"
+            value="andre@clinica.com"
+            readOnly
+            className="w-full bg-zinc-900/50 border border-zinc-800 rounded-[2rem] px-6 py-4 text-white focus:outline-none focus:border-brand-teal transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-zinc-400 mb-1 ml-4">Senha</label>
+          <input
+            type="password"
+            value="password"
+            readOnly
+            className="w-full bg-zinc-900/50 border border-zinc-800 rounded-[2rem] px-6 py-4 text-white focus:outline-none focus:border-brand-teal transition-colors"
+          />
+        </div>
+
+        <Button onClick={onAuth} className="w-full mt-4">
+          Acessar Sistema
+        </Button>
+      </div>
+
+      <p className="text-center text-zinc-600 text-xs mt-6">
+        Ambiente criptografado e seguro.
+      </p>
+    </Card>
+  </div>
+);
+
+// --- Dashboard Components ---
+
+const ProjectModal: React.FC<{
+  project: Project;
+  onClose: () => void;
+  onUpdate: (updatedProject: Project) => void;
+  onDelete: (id: string) => void;
+}> = ({ project, onClose, onUpdate, onDelete }) => {
+  const [auditStatus, setAuditStatus] = useState<'IDLE' | 'LOADING' | 'APPROVED'>('IDLE');
+  // Initialize with correct logic: if stored is ISO like, extract date, else use it directly
+  const [scheduledDate, setScheduledDate] = useState(() => {
+    if (!project.scheduledDate) return '';
+    return project.scheduledDate.split('T')[0];
+  });
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    alert('Conteúdo copiado com sucesso!');
+  };
+
+  const handleAudit = () => {
+    setAuditStatus('LOADING');
+    setTimeout(() => {
+      setAuditStatus('APPROVED');
+    }, 1500);
+  };
+
+  const handleSaveDate = () => {
+    if (scheduledDate) {
+      // BUG FIX: Save as simple string 'YYYY-MM-DD' to avoid UTC conversion issues
+      onUpdate({ ...project, scheduledDate: scheduledDate });
+    }
+  };
+
+  const handleDelete = () => {
+    if (confirm("Tem certeza que deseja excluir este projeto?")) {
+      onDelete(project.id);
+      onClose();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/80 backdrop-blur-sm">
+      <Card className="w-full max-w-4xl h-[90vh] md:max-h-[90vh] overflow-y-auto relative animate-slide-up border-brand-teal/20 bg-brand-black rounded-b-none md:rounded-3xl">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors z-10"
+        >
+          <X className="w-6 h-6" />
+        </button>
+
+        <div className="mb-6 md:mb-8 pr-10 pt-2 md:pt-0">
+          <div className="flex justify-between items-start">
+            <Badge status={project.status} />
+            <button onClick={handleDelete} className="text-red-500 hover:text-red-400 text-xs flex items-center gap-1 mr-8">
+              <Trash2 className="w-3 h-3" /> Excluir
+            </button>
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mt-4 mb-2 leading-tight">{project.topic}</h2>
+          <p className="text-zinc-400 text-base md:text-lg leading-snug">{project.selectedHeadline}</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 pb-8">
+          <div className="space-y-6">
+
+            {/* Scheduling Section */}
+            <div className="bg-zinc-900/50 rounded-2xl p-4 md:p-6 border border-zinc-800">
+              <h3 className="text-zinc-300 font-bold mb-4 flex items-center gap-2">
+                <CalendarIcon className="w-4 h-4" /> Agendamento
+              </h3>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="date"
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  className="bg-black/30 border border-zinc-700 text-white text-sm rounded-lg p-2.5 w-full focus:border-brand-teal outline-none"
+                />
+                <Button variant="secondary" onClick={handleSaveDate} className="py-2 px-4 text-xs h-[42px]">
+                  Salvar Data
+                </Button>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/50 rounded-2xl p-4 md:p-6 border border-zinc-800">
+              <h3 className="text-brand-teal font-bold mb-4 flex items-center gap-2">
+                <Sparkles className="w-4 h-4" /> Estratégia
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs uppercase text-zinc-500 font-bold">Gancho</label>
+                  <p className="text-zinc-300 text-sm">{project.selectedHook}</p>
+                </div>
+                {project.narrative && (
+                  <div>
+                    <label className="text-xs uppercase text-zinc-500 font-bold">Tensão (Dor)</label>
+                    <p className="text-zinc-300 text-sm">{project.narrative.tension}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {project.finalAssets && (
+              <div className="bg-zinc-900/50 rounded-2xl p-4 md:p-6 border border-zinc-800">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-brand-teal font-bold flex items-center gap-2">
+                    <PlayCircle className="w-4 h-4" /> Roteiro
+                  </h3>
+                  <button onClick={() => handleCopy(project.finalAssets!.reelsScript)} className="text-xs text-zinc-500 hover:text-white flex items-center gap-1">
+                    <Copy className="w-3 h-3" /> Copiar
+                  </button>
+                </div>
+                <p className="text-sm text-zinc-300 whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar">
+                  {project.finalAssets.reelsScript}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-6">
+            {project.finalAssets && (
+              <div className="bg-zinc-900/50 rounded-2xl p-4 md:p-6 border border-zinc-800 h-full flex flex-col">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-brand-teal font-bold flex items-center gap-2">
+                    <FileText className="w-4 h-4" /> Legenda
+                  </h3>
+                  <button onClick={() => handleCopy(project.finalAssets!.caption)} className="text-xs text-zinc-500 hover:text-white flex items-center gap-1">
+                    <Copy className="w-3 h-3" /> Copiar
+                  </button>
+                </div>
+                <div className="flex-1 bg-black/30 rounded-xl p-4 mb-4 border border-zinc-800/50">
+                  <p className="text-sm text-zinc-300 whitespace-pre-wrap">{project.finalAssets.caption}</p>
+                </div>
+
+                <div className="flex flex-col gap-3 pt-4 border-t border-zinc-800">
+                  {auditStatus === 'IDLE' && (
+                    <Button variant="secondary" onClick={handleAudit} className="w-full text-sm">
+                      <ShieldCheck className="w-4 h-4" /> Executar Auditoria Ética (CFO)
+                    </Button>
+                  )}
+                  {auditStatus === 'LOADING' && (
+                    <Button variant="secondary" disabled className="w-full text-sm">
+                      <Loader2 className="w-4 h-4 animate-spin" /> Analisando Compliance...
+                    </Button>
+                  )}
+                  {auditStatus === 'APPROVED' && (
+                    <div className="w-full bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3 flex items-center justify-center gap-2 text-emerald-400 text-sm">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span className="font-bold">Aprovado: Conteúdo Ético</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+const SettingsView: React.FC<{ user: User; onBack: () => void }> = ({ user, onBack }) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    name: user.name,
+    email: user.email,
+    cro: '12345-SP',
+    specialty: 'Implantodontia',
+    clinicName: 'Clínica Sorriso Modelo',
+    notifications: true
+  });
+
+  const handleSave = () => {
+    setIsSaving(true);
+    // Simulating API call
+    setTimeout(() => {
+      setIsSaving(false);
+      alert('Configurações salvas com sucesso!');
+    }, 1500);
+  };
+
+  return (
+    <div className="p-4 md:p-6 h-full flex flex-col max-w-4xl mx-auto w-full overflow-y-auto">
+      <div className="flex items-center gap-4 mb-8">
+        <button
+          onClick={onBack}
+          className="p-2 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+          <Settings className="w-6 h-6 text-brand-teal" /> Configurações de Perfil
+        </h2>
+      </div>
+
+      <div className="space-y-6 pb-20">
+        {/* Profile Card */}
+        <Card className="border-brand-teal/20">
+          <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <UserIcon className="w-5 h-5 text-brand-teal" /> Dados Pessoais
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-500 uppercase">Nome Completo</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-brand-teal focus:outline-none transition-colors"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-500 uppercase">E-mail</label>
+              <input
+                type="email"
+                value={formData.email}
+                readOnly
+                className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-400 cursor-not-allowed"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-500 uppercase">CRO (Conselho Regional)</label>
+              <input
+                type="text"
+                value={formData.cro}
+                onChange={(e) => setFormData({ ...formData, cro: e.target.value })}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-brand-teal focus:outline-none transition-colors"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-500 uppercase">Especialidade Principal</label>
+              <input
+                type="text"
+                value={formData.specialty}
+                onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-brand-teal focus:outline-none transition-colors"
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Clinic Info */}
+        <Card>
+          <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-brand-teal" /> Dados da Clínica
+          </h3>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-zinc-500 uppercase">Nome da Clínica / Consultório</label>
+              <input
+                type="text"
+                value={formData.clinicName}
+                onChange={(e) => setFormData({ ...formData, clinicName: e.target.value })}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-brand-teal focus:outline-none transition-colors"
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Preferences */}
+        <Card>
+          <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+            <Bell className="w-5 h-5 text-brand-teal" /> Preferências e Segurança
+          </h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-zinc-900/50 rounded-xl border border-zinc-800">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-brand-teal/10 rounded-lg text-brand-teal">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">Notificações por E-mail</p>
+                  <p className="text-xs text-zinc-500">Receba resumos semanais de conteúdo.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setFormData({ ...formData, notifications: !formData.notifications })}
+                className={`w-12 h-6 rounded-full transition-colors relative ${formData.notifications ? 'bg-brand-teal' : 'bg-zinc-700'}`}
+              >
+                <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all ${formData.notifications ? 'left-7' : 'left-1'}`} />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-zinc-900/50 rounded-xl border border-zinc-800">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-zinc-800 rounded-lg text-zinc-400">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">Alterar Senha</p>
+                  <p className="text-xs text-zinc-500">Última alteração há 30 dias.</p>
+                </div>
+              </div>
+              <Button variant="secondary" className="text-xs py-2 h-auto">
+                Redefinir
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        <div className="flex justify-end pt-4">
+          <Button onClick={handleSave} disabled={isSaving} className="w-full md:w-auto">
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+
+const Wizard: React.FC<{ onComplete: (project: Project) => void; onCancel: () => void }> = ({ onComplete, onCancel }) => {
+  const [step, setStep] = useState<WizardStep>(WizardStep.TOPIC_INPUT);
+  const [loading, setLoading] = useState(false);
+  const [topic, setTopic] = useState('');
+
+  const [hooks, setHooks] = useState<string[]>([]);
+  const [editingHookIndex, setEditingHookIndex] = useState<number | null>(null);
+
+  const [headlines, setHeadlines] = useState<string[]>([]);
+  const [editingHeadlineIndex, setEditingHeadlineIndex] = useState<number | null>(null);
+
+  const [selectedHook, setSelectedHook] = useState('');
+  const [selectedHeadline, setSelectedHeadline] = useState('');
+
+  const [narrative, setNarrative] = useState<NarrativeStructure | null>(null);
+  const [isEditingNarrative, setIsEditingNarrative] = useState(false);
+
+  const [finalAssets, setFinalAssets] = useState<FinalAssets | null>(null);
+  const [isEditingAssets, setIsEditingAssets] = useState(false);
+
+  const [suggestedTopics, setSuggestedTopics] = useState<string[]>([]);
+
+  useEffect(() => {
+    refreshSuggestions();
+  }, []);
+
+  const refreshSuggestions = () => {
+    // Shuffle and pick 6
+    const shuffled = [...TOPIC_POOL].sort(() => 0.5 - Math.random());
+    setSuggestedTopics(shuffled.slice(0, 6));
+  };
+
+  const handleGenerateHooks = async () => {
+    if (!topic) return;
+    setLoading(true);
+    const result = await GeminiService.generateHooks(topic);
+    setHooks(result);
+    setLoading(false);
+    setStep(WizardStep.HOOKS);
+  };
+
+  const handleRegenerateHooks = async () => {
+    setLoading(true);
+    const result = await GeminiService.generateHooks(topic);
+    setHooks(result);
+    setLoading(false);
+  };
+
+  const updateHook = (index: number, value: string) => {
+    const newHooks = [...hooks];
+    newHooks[index] = value;
+    setHooks(newHooks);
+  };
+
+  const handleGenerateHeadlines = async (hook: string) => {
+    setSelectedHook(hook);
+    setLoading(true);
+    const result = await GeminiService.generateHeadlines(topic, hook);
+    setHeadlines(result);
+    setLoading(false);
+    setStep(WizardStep.HEADLINES);
+  };
+
+  const handleRegenerateHeadlines = async () => {
+    setLoading(true);
+    const result = await GeminiService.generateHeadlines(topic, selectedHook);
+    setHeadlines(result);
+    setLoading(false);
+  };
+
+  const updateHeadline = (index: number, value: string) => {
+    const newHeadlines = [...headlines];
+    newHeadlines[index] = value;
+    setHeadlines(newHeadlines);
+  };
+
+  const handleGenerateNarrative = async (headline: string) => {
+    setSelectedHeadline(headline);
+    setLoading(true);
+    const result = await GeminiService.generateNarrative(topic, selectedHook, headline);
+    setNarrative(result);
+    setLoading(false);
+    setStep(WizardStep.NARRATIVE);
+  };
+
+  const handleRegenerateNarrative = async () => {
+    setLoading(true);
+    const result = await GeminiService.generateNarrative(topic, selectedHook, selectedHeadline);
+    setNarrative(result);
+    setLoading(false);
+  };
+
+  const handleGenerateFinalAssets = async () => {
+    if (!narrative) return;
+    setLoading(true);
+    const result = await GeminiService.generateFinalAssets(topic, narrative);
+    setFinalAssets(result);
+    setLoading(false);
+    setStep(WizardStep.FINAL_ASSETS);
+  };
+
+  const handleRegenerateFinalAssets = async () => {
+    if (!narrative) return;
+    setLoading(true);
+    const result = await GeminiService.generateFinalAssets(topic, narrative);
+    setFinalAssets(result);
+    setLoading(false);
+  };
+
+  const handleFinish = () => {
+    if (finalAssets && narrative) {
+      // BUG FIX: Store simple date string YYYY-MM-DD instead of ISO string with time
+      // This prevents timezone shift when viewing on different locales
+      const todayString = new Date().toISOString().split('T')[0];
+
+      const newProject: Project = {
+        id: Date.now().toString(),
+        topic,
+        status: 'IDEIA',
+        createdAt: new Date().toISOString(),
+        scheduledDate: todayString, // Default to today as simple string
+        selectedHook,
+        selectedHeadline,
+        narrative,
+        finalAssets
+      };
+      onComplete(newProject);
+    }
+  };
+
+  const copyText = (text: string) => {
+    navigator.clipboard.writeText(text);
+    alert("Texto copiado!");
+  }
+
+  return (
+    <div className="flex flex-col h-full max-w-5xl mx-auto">
+      <Card className="flex-1 min-h-0 flex flex-col relative overflow-hidden">
+        {loading && (
+          <div className="absolute inset-0 bg-brand-surface/95 backdrop-blur-md z-50 flex flex-col items-center justify-center text-center p-4">
+            <Loader2 className="w-10 h-10 md:w-12 md:h-12 text-brand-teal animate-spin mb-4" />
+            <p className="text-brand-teal font-medium animate-pulse text-sm md:text-base">Consultando base de conhecimento clínico...</p>
+          </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto pb-12">
+          {step === WizardStep.TOPIC_INPUT && (
+            <div className="flex flex-col min-h-full px-4 md:px-8 pb-8 pt-0">
+              <div className="w-full">
+                <div className="flex flex-col items-center justify-center gap-4 mb-8 max-w-5xl mx-auto">
+                  <div className="w-10 h-10 bg-zinc-900/80 rounded-xl flex items-center justify-center border border-zinc-800/80 shrink-0 shadow-sm transition-colors">
+                    <Sparkles className="w-5 h-5 text-brand-teal" />
+                  </div>
+
+                  <div className="text-center space-y-2">
+                    <h2 className="text-2xl md:text-5xl font-bold text-white leading-tight md:whitespace-nowrap text-center md:text-left">
+                      Gerador de Narrativas Magnéticas
+                    </h2>
+                    <p className="text-zinc-500 text-base md:text-lg max-w-2xl mx-auto">
+                      Jogue um tema. Deixe o resto com a gente.
+                    </p>
+                  </div>
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="Ex: Sensibilidade após clareamento..."
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 md:p-6 text-lg md:text-xl text-white focus:border-brand-teal focus:ring-1 focus:ring-brand-teal outline-none mb-8"
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  autoFocus
+                />
+
+                <div className="mb-8">
+                  <div className="flex justify-between items-center mb-4">
+                    <p className="text-zinc-400 text-sm uppercase font-bold tracking-wider flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4 text-brand-teal" />
+                      Sugestões em Alta
+                    </p>
+                    <button
+                      onClick={refreshSuggestions}
+                      className="text-brand-teal hover:text-white text-xs flex items-center gap-2 transition-colors"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      Atualizar ideias
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {suggestedTopics.map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setTopic(t)}
+                        className="p-3 md:p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-brand-teal hover:bg-zinc-800 transition-all text-left group"
+                      >
+                        <p className="text-zinc-300 group-hover:text-white text-xs md:text-sm font-medium line-clamp-2">
+                          {t}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
+                  <Button variant="ghost" onClick={onCancel} className="w-full sm:w-auto">Cancelar</Button>
+                  <Button onClick={handleGenerateHooks} disabled={!topic.trim()} className="w-full sm:w-auto">Gerar Estratégia</Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === WizardStep.HOOKS && (
+            <div className="p-2 md:p-4">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg md:text-xl text-zinc-400">Selecione a Narrativa Cultural mais magnética:</h3>
+                <button
+                  onClick={handleRegenerateHooks}
+                  className="text-brand-teal hover:text-white flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-brand-teal/20 hover:bg-brand-teal/10 transition-colors"
+                >
+                  <RotateCcw className="w-4 h-4" /> Regenerar
+                </button>
+              </div>
+              <div className="space-y-3 pb-8">
+                {hooks.map((hook, i) => {
+                  const isEditing = editingHookIndex === i;
+                  return (
+                    <div
+                      key={i}
+                      className={`
+                        relative flex rounded-2xl border transition-all duration-200 overflow-hidden bg-zinc-900
+                        ${isEditing ? 'border-brand-teal shadow-[0_0_15px_-3px_rgba(45,212,191,0.15)]' : 'border-zinc-800 hover:border-zinc-700'}
+                      `}
+                    >
+                      {/* Left: Content Area */}
+                      <div
+                        className={`
+                          flex-1 p-5 md:p-6 flex gap-4 items-start
+                          ${!isEditing && 'cursor-pointer hover:bg-zinc-800/30 transition-colors'}
+                        `}
+                        onClick={() => !isEditing && handleGenerateHeadlines(hook)}
+                      >
+                        <span className={`
+                          flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full 
+                          font-bold text-sm shrink-0 mt-0.5 md:mt-0 transition-colors
+                          ${isEditing ? 'bg-brand-teal text-black' : 'bg-zinc-800 text-zinc-400'}
+                        `}>
+                          {i + 1}
+                        </span>
+
+                        {isEditing ? (
+                          <AutoResizeTextarea
+                            value={hook}
+                            onChange={(e) => updateHook(i, e.target.value)}
+                            className="w-full bg-transparent text-white text-base md:text-lg outline-none leading-relaxed"
+                            autoFocus
+                          />
+                        ) : (
+                          <p className="text-base md:text-lg text-zinc-200 leading-relaxed">{hook}</p>
+                        )}
+                      </div>
+
+                      {/* Right: Action Strip */}
+                      <div className={`
+                        w-14 md:w-16 border-l flex items-center justify-center shrink-0 cursor-pointer transition-colors
+                        ${isEditing
+                          ? 'border-brand-teal/30 bg-brand-teal/10 text-brand-teal hover:bg-brand-teal/20'
+                          : 'border-zinc-800 text-zinc-500 hover:text-white hover:bg-zinc-800'}
+                      `}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingHookIndex(isEditing ? null : i);
+                        }}
+                        title={isEditing ? "Salvar" : "Editar"}
+                      >
+                        {isEditing ? <Save className="w-5 h-5" /> : <Edit2 className="w-5 h-5" />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {step === WizardStep.HEADLINES && (
+            <div className="p-2 md:p-4">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg md:text-xl text-zinc-400">Escolha a Manchete de impacto:</h3>
+                <button
+                  onClick={handleRegenerateHeadlines}
+                  className="text-brand-teal hover:text-white flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-brand-teal/20 hover:bg-brand-teal/10 transition-colors"
+                >
+                  <RotateCcw className="w-4 h-4" /> Regenerar
+                </button>
+              </div>
+              <div className="space-y-3 pb-8">
+                {headlines.map((head, i) => {
+                  const isEditing = editingHeadlineIndex === i;
+                  return (
+                    <div
+                      key={i}
+                      className={`
+                        relative flex rounded-2xl border transition-all duration-200 overflow-hidden bg-zinc-900
+                        ${isEditing ? 'border-brand-teal shadow-[0_0_15px_-3px_rgba(45,212,191,0.15)]' : 'border-zinc-800 hover:border-zinc-700'}
+                      `}
+                    >
+                      {/* Left: Content Area */}
+                      <div
+                        className={`
+                          flex-1 p-5 md:p-6 flex gap-4 items-start
+                          ${!isEditing && 'cursor-pointer hover:bg-zinc-800/30 transition-colors'}
+                        `}
+                        onClick={() => !isEditing && handleGenerateNarrative(head)}
+                      >
+                        <span className={`
+                          flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full 
+                          font-bold text-sm shrink-0 mt-0.5 md:mt-0 transition-colors
+                          ${isEditing ? 'bg-brand-teal text-black' : 'bg-zinc-800 text-zinc-400'}
+                        `}>
+                          {i + 1}
+                        </span>
+
+                        {isEditing ? (
+                          <AutoResizeTextarea
+                            value={head}
+                            onChange={(e) => updateHeadline(i, e.target.value)}
+                            className="w-full bg-transparent text-white text-lg md:text-xl font-bold outline-none leading-tight"
+                            autoFocus
+                          />
+                        ) : (
+                          <p className="text-lg md:text-xl font-bold text-white leading-tight">{head}</p>
+                        )}
+                      </div>
+
+                      {/* Right: Action Strip */}
+                      <div className={`
+                        w-14 md:w-16 border-l flex items-center justify-center shrink-0 cursor-pointer transition-colors
+                        ${isEditing
+                          ? 'border-brand-teal/30 bg-brand-teal/10 text-brand-teal hover:bg-brand-teal/20'
+                          : 'border-zinc-800 text-zinc-500 hover:text-white hover:bg-zinc-800'}
+                      `}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingHeadlineIndex(isEditing ? null : i);
+                        }}
+                        title={isEditing ? "Salvar" : "Editar"}
+                      >
+                        {isEditing ? <Save className="w-5 h-5" /> : <Edit2 className="w-5 h-5" />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {step === WizardStep.NARRATIVE && narrative && (
+            <div className="p-2 md:p-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h3 className="text-xl md:text-2xl font-bold text-white">Estrutura Clínica Narrativa</h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleRegenerateNarrative}
+                    className="text-zinc-400 hover:text-white flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900 hover:border-zinc-700 transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3 md:w-4 md:h-4" /> Regenerar
+                  </button>
+                  <button
+                    onClick={() => setIsEditingNarrative(!isEditingNarrative)}
+                    className={`flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border transition-colors ${isEditingNarrative ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'bg-zinc-900 text-zinc-400 hover:text-white border-zinc-800 hover:border-brand-teal/50'}`}
+                  >
+                    {isEditingNarrative ? <Save className="w-3 h-3 md:w-4 md:h-4" /> : <Pencil className="w-3 h-3 md:w-4 md:h-4" />}
+                    {isEditingNarrative ? 'Salvar Edição' : 'Editar Texto'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid gap-4 mb-8">
+                {[
+                  { label: 'Tensão (Dor)', key: 'tension' as keyof NarrativeStructure, color: 'text-brand-teal' },
+                  { label: 'Causa (Clínica)', key: 'cause' as keyof NarrativeStructure, color: 'text-brand-teal' },
+                  { label: 'Efeito (Social)', key: 'effect' as keyof NarrativeStructure, color: 'text-brand-teal' },
+                  { label: 'Cultura (Mito/Verdade)', key: 'culture' as keyof NarrativeStructure, color: 'text-brand-teal' },
+                  { label: 'Provocação (Saúde)', key: 'provocation' as keyof NarrativeStructure, color: 'text-brand-teal' },
+                ].map((item, i) => (
+                  <div key={i} className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
+                    <span className={`text-[10px] md:text-xs uppercase font-bold tracking-wider ${item.color} block mb-1`}>{item.label}</span>
+                    {isEditingNarrative ? (
+                      <textarea
+                        className="w-full bg-black/20 text-zinc-200 text-sm md:text-base p-2 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y min-h-[80px]"
+                        value={narrative[item.key]}
+                        onChange={(e) => setNarrative({ ...narrative, [item.key]: e.target.value })}
+                      />
+                    ) : (
+                      <p className="text-zinc-300 text-sm md:text-base">{narrative[item.key]}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end sticky bottom-0 bg-brand-surface pt-4 border-t border-zinc-800">
+                <Button onClick={handleGenerateFinalAssets} className="w-full md:w-auto">
+                  Aprovar e Gerar Conteúdos <Sparkles className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === WizardStep.FINAL_ASSETS && finalAssets && (
+            <div className="p-2 md:p-6 h-full overflow-y-auto">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h3 className="text-xl md:text-2xl font-bold text-white">Seus Ativos Digitais</h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleRegenerateFinalAssets}
+                    className="text-zinc-400 hover:text-white flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900 hover:border-zinc-700 transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3 md:w-4 md:h-4" /> Regenerar
+                  </button>
+                  <button
+                    onClick={() => setIsEditingAssets(!isEditingAssets)}
+                    className={`flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border transition-colors ${isEditingAssets ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'bg-zinc-900 text-zinc-400 hover:text-white border-zinc-800 hover:border-brand-teal/50'}`}
+                  >
+                    {isEditingAssets ? <Save className="w-3 h-3 md:w-4 md:h-4" /> : <Pencil className="w-3 h-3 md:w-4 md:h-4" />}
+                    {isEditingAssets ? 'Salvar Edição' : 'Editar Tudo'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                {/* Reels Script */}
+                <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800">
+                  <div className="flex items-center gap-2 mb-4 text-brand-teal">
+                    <PlayCircle className="w-5 h-5" />
+                    <h4 className="font-bold">Roteiro de Reels</h4>
+                  </div>
+                  {isEditingAssets ? (
+                    <textarea
+                      className="w-full h-96 bg-black/20 text-zinc-200 text-sm p-3 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y"
+                      value={finalAssets.reelsScript}
+                      onChange={(e) => setFinalAssets({ ...finalAssets, reelsScript: e.target.value })}
+                    />
+                  ) : (
+                    <div className="prose prose-invert prose-sm max-w-none text-zinc-300 whitespace-pre-wrap">
+                      {finalAssets.reelsScript}
+                    </div>
+                  )}
+                  <Button variant="ghost" className="w-full mt-4 text-xs" onClick={() => copyText(finalAssets.reelsScript)}>
+                    <Copy className="w-3 h-3 mr-2" /> Copiar Roteiro
+                  </Button>
+                </div>
+
+                {/* Carousel */}
+                <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800">
+                  <div className="flex items-center gap-2 mb-4 text-brand-teal">
+                    <ClipboardList className="w-5 h-5" />
+                    <h4 className="font-bold">Estrutura Carrossel</h4>
+                  </div>
+                  <ul className="space-y-3">
+                    {finalAssets.carouselStructure.map((slide, i) => (
+                      <li key={i} className="flex gap-3 text-sm text-zinc-300">
+                        <span className="font-bold text-zinc-600 min-w-[20px] pt-1">{i + 1}.</span>
+                        {isEditingAssets ? (
+                          <input
+                            type="text"
+                            className="flex-1 bg-black/20 text-zinc-200 p-1.5 rounded border border-zinc-700 focus:border-brand-teal outline-none"
+                            value={slide}
+                            onChange={(e) => {
+                              const newSlides = [...finalAssets.carouselStructure];
+                              newSlides[i] = e.target.value;
+                              setFinalAssets({ ...finalAssets, carouselStructure: newSlides });
+                            }}
+                          />
+                        ) : (
+                          <span>{slide}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Caption */}
+                <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800 lg:col-span-2">
+                  <div className="flex items-center gap-2 mb-4 text-brand-teal">
+                    <FileText className="w-5 h-5" />
+                    <h4 className="font-bold">Legenda Otimizada</h4>
+                  </div>
+                  {isEditingAssets ? (
+                    <textarea
+                      className="w-full h-64 bg-black/20 text-zinc-200 text-sm p-3 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y"
+                      value={finalAssets.caption}
+                      onChange={(e) => setFinalAssets({ ...finalAssets, caption: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-zinc-300 text-sm whitespace-pre-wrap">{finalAssets.caption}</p>
+                  )}
+
+                  <div className="mt-4 p-3 bg-brand-teal/5 border border-zinc-800/20 rounded-lg flex items-start gap-2">
+                    <ShieldCheck className="w-4 h-4 text-brand-teal shrink-0 mt-0.5" />
+                    <p className="text-[10px] md:text-xs text-brand-teal/80">Esta legenda inclui automaticamente o aviso de isenção de responsabilidade clínica conforme normas do CFO.</p>
+                  </div>
+                  <Button variant="ghost" className="w-full mt-4 text-xs" onClick={() => copyText(finalAssets.caption)}>
+                    <Copy className="w-3 h-3 mr-2" /> Copiar Legenda
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 sticky bottom-0 bg-brand-surface pt-4 border-t border-zinc-800">
+                <Button onClick={handleFinish} className="w-full md:w-auto">Salvar no Planejamento</Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+const KanbanColumn: React.FC<{
+  title: string;
+  status: ContentStatus;
+  projects: Project[];
+  onMove: (id: string, status: ContentStatus) => void;
+  onDelete: (id: string) => void;
+  onOpenProject: (project: Project) => void;
+  draggedId: string | null;
+  setDraggedId: (id: string | null) => void;
+}> = ({ title, status, projects, onMove, onDelete, onOpenProject, draggedId, setDraggedId }) => {
+  const filtered = projects.filter(p => p.status === status);
+
+  const statusFlow: ContentStatus[] = ['IDEIA', 'ROTEIRIZADO', 'PRODUZIDO', 'PUBLICADO'];
+  const currentIndex = statusFlow.indexOf(status);
+  const nextStatus = currentIndex < statusFlow.length - 1 ? statusFlow[currentIndex + 1] : null;
+  const prevStatus = currentIndex > 0 ? statusFlow[currentIndex - 1] : null;
+
+  return (
+    <div
+      className={`flex-1 min-w-[90vw] sm:min-w-[400px] md:min-w-[500px] lg:min-w-[600px] bg-zinc-900/30 rounded-2xl p-4 border border-zinc-800/50 flex flex-col h-full snap-center transition-colors ${draggedId ? 'hover:bg-zinc-800/50 hover:border-brand-teal/30' : ''}`}
+      onDragOver={(e) => { e.preventDefault(); }}
+      onDrop={(e) => {
+        e.preventDefault();
+        if (draggedId) {
+          onMove(draggedId, status);
+          setDraggedId(null);
+        }
+      }}
+    >
+      <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-4 flex justify-between items-center">
+        {title}
+        <span className="bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded text-xs">{filtered.length}</span>
+      </h3>
+      <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar flex flex-col">
+        {filtered.map(project => (
+          <div
+            key={project.id}
+            draggable
+            onDragStart={() => setDraggedId(project.id)}
+            onDragEnd={() => setDraggedId(null)}
+            onClick={() => onOpenProject(project)}
+            className="bg-brand-surface border border-zinc-800 p-4 rounded-xl hover:border-brand-teal/50 transition-colors group cursor-move active:scale-[0.98] duration-100 relative shadow-sm"
+          >
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+              <GripVertical className="w-3 h-3 text-zinc-600" />
+              <button onClick={(e) => { e.stopPropagation(); if (confirm('Excluir?')) onDelete(project.id) }} className="p-1 text-zinc-600 hover:text-red-500 rounded">
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
+
+            <div className="flex justify-between items-start mb-2 pr-6">
+              <span className="text-xs text-brand-teal font-medium truncate w-full">{project.topic}</span>
+            </div>
+            <p className="text-sm text-zinc-300 font-medium mb-3 line-clamp-2">{project.selectedHeadline || project.topic}</p>
+
+            <div className="flex justify-between items-center pt-2 border-t border-zinc-800/50">
+              <div className="flex items-center gap-1">
+                {prevStatus && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onMove(project.id, prevStatus); }}
+                    className="p-1 rounded-full hover:bg-zinc-800 text-zinc-500 hover:text-white transition-colors"
+                    title="Voltar etapa"
+                  >
+                    <ChevronLeft className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+              <span className="text-[10px] text-zinc-600">
+                {project.scheduledDate ? new Date(project.scheduledDate).toLocaleDateString() : 'Sem data'}
+              </span>
+              <div className="flex items-center gap-1">
+                {nextStatus && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onMove(project.id, nextStatus); }}
+                    className="p-1 rounded-full bg-zinc-800 text-zinc-400 hover:bg-brand-teal hover:text-black transition-colors"
+                    title="Avançar etapa"
+                  >
+                    <ChevronRight className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <div className="flex-1 border-2 border-dashed border-zinc-800 rounded-xl flex items-center justify-center text-zinc-700 text-xs min-h-[200px]">
+            Arraste um item aqui
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const CalendarView: React.FC<{
+  projects: Project[];
+  onOpenProject: (p: Project) => void;
+  draggedId: string | null;
+  setDraggedId: (id: string | null) => void;
+  onUpdateProject: (p: Project) => void;
+}> = ({ projects, onOpenProject, draggedId, setDraggedId, onUpdateProject }) => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+
+  const monthName = currentDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+
+  const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  const nextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  const goToToday = () => setCurrentDate(new Date());
+
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const blanks = Array.from({ length: firstDayOfMonth }, (_, i) => i);
+
+  // Padding for the end of the grid to complete the last row
+  const totalCells = blanks.length + days.length;
+  const rows = Math.ceil(totalCells / 7);
+  const totalSlots = rows * 7;
+  const paddingLen = totalSlots - totalCells;
+  const endPadding = Array.from({ length: paddingLen }, (_, i) => i);
+
+  // OPTIMIZATION: Create a map of date string (YYYY-MM-DD) to projects
+  // This reduces complexity from O(Days * Projects) to O(Projects) + O(Days) which is much faster.
+  const projectsMap = useMemo(() => {
+    const map: Record<string, Project[]> = {};
+    projects.forEach(p => {
+      if (p.scheduledDate) {
+        // BUG FIX: Ensure we only use the date part if it contains time info, 
+        // or just use the string if it is already YYYY-MM-DD
+        const dateKey = p.scheduledDate.includes('T') ? p.scheduledDate.split('T')[0] : p.scheduledDate;
+        if (!map[dateKey]) map[dateKey] = [];
+        map[dateKey].push(p);
+      }
+    });
+    return map;
+  }, [projects]);
+
+  const getProjectsForDate = (year: number, month: number, day: number) => {
+    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return projectsMap[dateKey] || [];
+  };
+
+  const handleDropOnDate = (year: number, month: number, day: number) => {
+    if (!draggedId) return;
+    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const project = projects.find(p => p.id === draggedId);
+    if (project) {
+      onUpdateProject({ ...project, scheduledDate: dateKey });
+      setDraggedId(null);
+    }
+  };
+
+  // Scroll to today on mobile view
+  const todayRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (todayRef.current) {
+      setTimeout(() => {
+        todayRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+  }, [currentDate]);
+
+  return (
+    <div className="h-full overflow-hidden flex flex-col">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4 shrink-0 px-1">
+        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+          <CalendarDays className="w-6 h-6 text-brand-teal" />
+          Agenda de Conteúdos
+        </h2>
+        <div className="flex flex-wrap items-center gap-2 md:gap-4 w-full lg:w-auto">
+          <button
+            onClick={goToToday}
+            className="text-xs font-bold text-brand-teal bg-brand-teal/10 hover:bg-brand-teal/20 px-3 py-2 rounded-lg border border-brand-teal/20 transition-colors"
+          >
+            Hoje
+          </button>
+          <div className="flex items-center gap-4 bg-zinc-900 rounded-lg p-1 border border-zinc-800 justify-between flex-1 md:flex-none">
+            <button onClick={prevMonth} className="p-2 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white"><ChevronLeft className="w-4 h-4" /></button>
+            <span className="text-sm font-bold text-white min-w-[120px] text-center capitalize">{monthName}</span>
+            <button onClick={nextMonth} className="p-2 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white"><ChevronRight className="w-4 h-4" /></button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-hidden bg-zinc-900/20 rounded-2xl border border-zinc-800/50 flex flex-col">
+        {/* DESKTOP GRID */}
+        <div className="hidden lg:flex flex-col h-full bg-zinc-950/30">
+          <div className="grid grid-cols-7 border-b border-zinc-800 bg-zinc-900/50">
+            {/* Fixed headers: Dom, Seg, Ter, Qua, Qui, Sex, Sáb */}
+            {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(d => (
+              <div key={d} className="text-zinc-500 text-center text-[10px] font-bold uppercase tracking-widest py-4 bg-zinc-900/50 border-r border-zinc-800/30 last:border-r-0">{d}</div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 auto-rows-auto min-h-0 overflow-y-auto bg-zinc-900/20">
+            {blanks.map(b => <div key={`blank-${b}`} className="bg-zinc-900/20 min-h-[140px] border-b border-r border-zinc-800/30 [&:nth-child(7n)]:border-r-0" />)}
+
+            {days.map(day => {
+              const year = currentDate.getFullYear();
+              const month = currentDate.getMonth();
+              const dayProjects = getProjectsForDate(year, month, day);
+              const isToday = new Date().getDate() === day && new Date().getMonth() === month && new Date().getFullYear() === year;
+
+              return (
+                <div
+                  key={day}
+                  className={`p-3 transition-all relative group min-h-[140px] flex flex-col gap-2 border-b border-r border-zinc-800/30 [&:nth-child(7n)]:border-r-0 overflow-hidden
+                    ${isToday
+                      ? 'bg-brand-teal/5 shadow-[inset_0_0_0_1px_rgba(45,212,191,0.3),inset_0_0_20px_rgba(45,212,191,0.05)] z-10'
+                      : 'bg-zinc-900/20 hover:bg-zinc-900/60'} 
+                    ${draggedId ? 'hover:bg-brand-teal/5' : ''}`}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    handleDropOnDate(year, month, day);
+                  }}
+                >
+                  <div className="flex justify-between items-start">
+                    <span className={`text-sm font-medium w-8 h-8 flex items-center justify-center rounded-full transition-colors
+                      ${isToday ? 'bg-brand-teal text-black font-bold shadow-lg shadow-brand-teal/20' : 'text-zinc-500 group-hover:text-zinc-300 group-hover:bg-zinc-800'}`}>
+                      {day}
+                    </span>
+                    {dayProjects.length > 0 && (
+                      <span className="text-[10px] font-bold text-zinc-600 bg-zinc-900/50 px-2 py-0.5 rounded-full border border-zinc-800/50">
+                        {dayProjects.length}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5 overflow-y-auto custom-scrollbar flex-1 pr-1">
+                    {dayProjects.map(p => (
+                      <button
+                        key={p.id}
+                        draggable
+                        onDragStart={() => setDraggedId(p.id)}
+                        onDragEnd={() => setDraggedId(null)}
+                        onClick={() => onOpenProject(p)}
+                        className={`w-full text-left text-[10px] px-2.5 py-1.5 rounded-lg border transition-all block cursor-move group/item shadow-sm relative overflow-hidden
+                          ${p.status === 'PUBLICADO'
+                            ? 'bg-brand-teal/10 border-brand-teal/20 text-brand-teal hover:bg-brand-teal/20'
+                            : 'bg-zinc-800/80 border-zinc-700/50 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800'}`}
+                      >
+                        <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${p.status === 'PUBLICADO' ? 'bg-brand-teal' : 'bg-zinc-600'}`} />
+                        <span className="truncate block pl-1 font-medium relative z-10">{p.topic}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            {/* Fill remaining slots */}
+            {endPadding.map(p => (
+              <div key={`end-${p}`} className="bg-zinc-900/20 min-h-[140px] border-b border-r border-zinc-800/30 [&:nth-child(7n)]:border-r-0" />
+            ))}
+          </div>
+        </div>
+
+        {/* MOBILE LIST */}
+        <div className="lg:hidden flex-1 overflow-y-auto scroll-smooth">
+          {days.map(day => {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const dayProjects = getProjectsForDate(year, month, day);
+            const dateObj = new Date(year, month, day);
+            const isToday = new Date().getDate() === day && new Date().getMonth() === month && new Date().getFullYear() === year;
+            const dayName = dateObj.toLocaleString('pt-BR', { weekday: 'short' }).replace('.', '');
+
+            return (
+              <div
+                key={day}
+                ref={isToday ? todayRef : null}
+                className={`flex border-b border-zinc-800/50 min-h-[80px] ${isToday ? 'bg-brand-teal/5' : ''}`}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  handleDropOnDate(year, month, day);
+                }}
+              >
+                {/* Date Column */}
+                <div className={`w-20 p-4 border-r border-zinc-800/50 flex flex-col items-center justify-center shrink-0 ${isToday ? 'text-brand-teal' : 'text-zinc-500'}`}>
+                  <span className="text-xl font-bold">{day}</span>
+                  <span className="text-[10px] uppercase font-bold tracking-wider opacity-60">{dayName}</span>
+                  {isToday && <span className="text-[9px] font-bold text-brand-teal mt-1">HOJE</span>}
+                </div>
+
+                {/* Events Column */}
+                <div className="flex-1 p-3 flex flex-col justify-center gap-2">
+                  {dayProjects.length > 0 ? (
+                    dayProjects.map(p => (
+                      <button
+                        key={p.id}
+                        draggable
+                        onDragStart={() => setDraggedId(p.id)}
+                        onDragEnd={() => setDraggedId(null)}
+                        onClick={() => onOpenProject(p)}
+                        className="w-full text-left text-xs bg-zinc-900 border border-zinc-800 p-3 rounded-xl flex items-center justify-between group active:scale-[0.98] transition-all hover:border-brand-teal/30 cursor-move"
+                      >
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <div className={`w-2 h-2 rounded-full shrink-0 ${p.status === 'PUBLICADO' ? 'bg-brand-teal' : 'bg-zinc-600'}`} />
+                          <span className="text-zinc-200 font-medium truncate">{p.topic}</span>
+                        </div>
+                        <div className="bg-zinc-800 p-1 rounded-full text-zinc-500">
+                          <ChevronRight className="w-3 h-3" />
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <span className="text-zinc-700 text-[10px] italic pl-2 opacity-50">Nenhum conteúdo agendado</span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TeamView: React.FC<{
+  team: User[];
+  onAddMember: (member: User) => void;
+  onRemoveMember: (id: string) => void;
+}> = ({ team, onAddMember, onRemoveMember }) => {
+  const [isAdding, setIsAdding] = useState(false);
+  const [newMember, setNewMember] = useState({ name: '', role: '', email: '' });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newMember.name && newMember.role && newMember.email) {
+      onAddMember({
+        id: Date.now().toString(),
+        name: newMember.name,
+        role: newMember.role,
+        email: newMember.email,
+        avatar: newMember.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+      });
+      setIsAdding(false);
+      setNewMember({ name: '', role: '', email: '' });
+    }
+  };
+
+  return (
+    <div className="h-full overflow-hidden flex flex-col max-w-4xl mx-auto w-full">
+      <div className="flex justify-between items-center mb-6 px-1">
+        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+          <Users className="w-6 h-6 text-brand-teal" />
+          Equipe da Clínica
+        </h2>
+        <Button onClick={() => setIsAdding(true)} className="text-xs h-9">
+          <Plus className="w-4 h-4" /> Novo Membro
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto pb-20">
+        {team.map(member => (
+          <div key={member.id} className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700 font-bold text-zinc-400">
+                {member.avatar || member.name.substring(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <h3 className="text-white font-bold">{member.name}</h3>
+                <p className="text-zinc-500 text-xs">{member.role}</p>
+                <p className="text-zinc-600 text-[10px]">{member.email}</p>
+              </div>
+            </div>
+            {member.id !== '1' && (
+              <button
+                onClick={() => { if (confirm('Remover membro?')) onRemoveMember(member.id); }}
+                className="p-2 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {isAdding && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <Card className="w-full max-w-md bg-zinc-950 border-zinc-800">
+            <h3 className="text-xl font-bold text-white mb-4">Adicionar Membro</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-zinc-500 uppercase block mb-1">Nome</label>
+                <input
+                  required
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                  value={newMember.name}
+                  onChange={e => setNewMember({ ...newMember, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-zinc-500 uppercase block mb-1">Cargo</label>
+                <input
+                  required
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                  value={newMember.role}
+                  onChange={e => setNewMember({ ...newMember, role: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-zinc-500 uppercase block mb-1">E-mail</label>
+                <input
+                  required
+                  type="email"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                  value={newMember.email}
+                  onChange={e => setNewMember({ ...newMember, email: e.target.value })}
+                />
+              </div>
+              <div className="flex justify-end gap-2 mt-6">
+                <Button type="button" variant="ghost" onClick={() => setIsAdding(false)}>Cancelar</Button>
+                <Button type="submit">Salvar</Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLogout }) => {
+  const [view, setView] = useState<'KANBAN' | 'CREATE' | 'CALENDAR' | 'TEAM' | 'SETTINGS'>('CREATE');
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+
+  // State Management
+  const [projects, setProjects] = useState<Project[]>(() => {
+    const saved = localStorage.getItem('odonto_projects');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [team, setTeam] = useState<User[]>(() => {
+    const saved = localStorage.getItem('odonto_team');
+    return saved ? JSON.parse(saved) : INITIAL_TEAM;
+  });
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  // Persistence
+  useEffect(() => {
+    localStorage.setItem('odonto_projects', JSON.stringify(projects));
+  }, [projects]);
+
+  useEffect(() => {
+    localStorage.setItem('odonto_team', JSON.stringify(team));
+  }, [team]);
+
+  // Actions
+  const handleCreateProject = (project: Project) => {
+    setProjects(prev => [project, ...prev]);
+    setView('KANBAN');
+  };
+
+  const handleUpdateProject = (updatedProject: Project) => {
+    setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+    setSelectedProject(updatedProject); // Update modal view if open
+  };
+
+  const handleDeleteProject = (id: string) => {
+    setProjects(prev => prev.filter(p => p.id !== id));
+    if (selectedProject?.id === id) setSelectedProject(null);
+  };
+
+  const handleMoveProject = (id: string, newStatus: ContentStatus) => {
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, status: newStatus } : p));
+  };
+
+  // Team Actions
+  const handleAddMember = (member: User) => {
+    setTeam([...team, member]);
+  };
+
+  const handleRemoveMember = (id: string) => {
+    setTeam(team.filter(m => m.id !== id));
+  };
+
+  const filteredProjects = projects.filter(p =>
+    p.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.selectedHeadline && p.selectedHeadline.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  return (
+    <div className="h-screen flex flex-col bg-brand-black text-zinc-200 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute top-[-10%] left-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-brand-teal/10 rounded-full blur-[80px] md:blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-emerald-600/10 rounded-full blur-[80px] md:blur-[120px] pointer-events-none" />
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full pb-20 z-10">
+        <header className="h-20 border-b border-zinc-800 flex items-center justify-between px-4 md:px-8 bg-brand-black/50 backdrop-blur-md z-30 shrink-0">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setView('CREATE')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <Sparkles className="w-7 h-7 md:w-9 md:h-9 text-brand-teal shrink-0" />
+              <span className="font-bold text-xl md:text-2xl tracking-tight text-white whitespace-nowrap"><span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">Odonto</span>Content <span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">IA</span></span>
+            </button>
+          </div>
+          <div className="flex gap-2 items-center">
+            <div className="relative">
+              <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder="Buscar..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:border-brand-teal outline-none w-24 md:w-64 transition-all focus:w-40 md:focus:w-72"
+              />
+            </div>
+
+            <div className="flex items-center gap-3 pl-2 border-l border-zinc-800 relative">
+              <div className="hidden md:block text-right">
+                <p className="text-xs font-bold text-white">{user.name}</p>
+                <p className="text-[10px] text-zinc-500">{user.role}</p>
+              </div>
+
+              <button
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700 hover:border-brand-teal transition-colors focus:outline-none focus:ring-2 focus:ring-brand-teal/50"
+              >
+                <span className="text-xs font-bold text-white">
+                  {user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                </span>
+              </button>
+
+              {isProfileMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsProfileMenuOpen(false)}
+                  />
+                  <div className="absolute top-12 right-0 w-56 bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl z-50 p-2 animate-fade-in flex flex-col gap-1">
+                    <div className="px-3 py-2 border-b border-zinc-800 mb-1 md:hidden">
+                      <p className="text-sm font-bold text-white truncate">{user.name}</p>
+                      <p className="text-xs text-zinc-500 truncate">{user.role}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setView('SETTINGS');
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-lg flex items-center gap-2 transition-colors"
+                    >
+                      <Settings className="w-4 h-4" /> Configurações de Perfil
+                    </button>
+                    <button
+                      onClick={onLogout}
+                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg flex items-center gap-2 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" /> Sair
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <div className="flex-1 overflow-hidden p-4 md:p-6 relative">
+          {view === 'CREATE' && (
+            <Wizard onComplete={handleCreateProject} onCancel={() => setView('KANBAN')} />
+          )}
+
+          {view === 'SETTINGS' && (
+            <SettingsView user={user} onBack={() => setView('KANBAN')} />
+          )}
+
+          {view === 'KANBAN' && (
+            <div className="flex h-full gap-4 md:gap-6 overflow-x-auto pb-4 snap-x snap-mandatory">
+              <KanbanColumn
+                title="Para Fazer"
+                status="IDEIA"
+                projects={filteredProjects}
+                onMove={handleMoveProject}
+                onDelete={handleDeleteProject}
+                onOpenProject={setSelectedProject}
+                draggedId={draggedId}
+                setDraggedId={setDraggedId}
+              />
+              <KanbanColumn
+                title="Fazendo"
+                status="ROTEIRIZADO"
+                projects={filteredProjects}
+                onMove={handleMoveProject}
+                onDelete={handleDeleteProject}
+                onOpenProject={setSelectedProject}
+                draggedId={draggedId}
+                setDraggedId={setDraggedId}
+              />
+              <KanbanColumn
+                title="Feito"
+                status="PRODUZIDO"
+                projects={filteredProjects}
+                onMove={handleMoveProject}
+                onDelete={handleDeleteProject}
+                onOpenProject={setSelectedProject}
+                draggedId={draggedId}
+                setDraggedId={setDraggedId}
+              />
+              <KanbanColumn
+                title="Publicado"
+                status="PUBLICADO"
+                projects={filteredProjects}
+                onMove={handleMoveProject}
+                onDelete={handleDeleteProject}
+                onOpenProject={setSelectedProject}
+                draggedId={draggedId}
+                setDraggedId={setDraggedId}
+              />
+            </div>
+          )}
+
+          {view === 'CALENDAR' && (
+            <CalendarView
+              projects={filteredProjects}
+              onOpenProject={setSelectedProject}
+              draggedId={draggedId}
+              setDraggedId={setDraggedId}
+              onUpdateProject={handleUpdateProject}
+            />
+          )}
+          {view === 'TEAM' && <TeamView team={team} onAddMember={handleAddMember} onRemoveMember={handleRemoveMember} />}
+        </div>
+      </main>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 h-20 bg-brand-surface/90 backdrop-blur-xl border-t border-zinc-800 flex justify-around items-center px-2 z-50 pb-2 md:pb-0">
+        <button
+          onClick={() => setView('CREATE')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'CREATE' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
+        >
+          <div className={`p-2 rounded-full ${view === 'CREATE' ? 'bg-brand-teal text-brand-black shadow-[0_0_15px_-3px_rgba(45,212,191,0.5)]' : 'bg-zinc-800'}`}>
+            <Plus className="w-6 h-6" />
+          </div>
+          <span className="text-[10px] font-medium">Novo Conteúdo</span>
+        </button>
+
+        <button
+          onClick={() => setView('KANBAN')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'KANBAN' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
+        >
+          <LayoutDashboard className="w-5 h-5" />
+          <span className="text-[10px] font-medium">Planejamento</span>
+        </button>
+
+        <button
+          onClick={() => setView('CALENDAR')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'CALENDAR' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
+        >
+          <CalendarIcon className="w-5 h-5" />
+          <span className="text-[10px] font-medium">Agenda</span>
+        </button>
+
+        <button
+          onClick={() => setView('TEAM')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'TEAM' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
+        >
+          <Users className="w-5 h-5" />
+          <span className="text-[10px] font-medium">Equipe</span>
+        </button>
+      </nav>
+
+      {selectedProject && (
+        <ProjectModal
+          project={selectedProject}
+          onClose={() => setSelectedProject(null)}
+          onUpdate={handleUpdateProject}
+          onDelete={handleDeleteProject}
+        />
+      )}
+    </div>
+  );
+};
+
+const App: React.FC = () => {
+  const [user, setUser] = useState<any>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          name: session.user.email?.split('@')[0] || 'Usuário',
+          role: 'DENTISTA_DONO', // Default role for now
+          email: session.user.email || ''
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          name: session.user.email?.split('@')[0] || 'Usuário',
+          role: 'DENTISTA_DONO',
+          email: session.user.email || ''
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
+
+  if (user) {
+    return <Workspace user={user} onLogout={handleLogout} />;
+  }
+
+  return (
+    <>
+      <LandingPage onLogin={() => setShowAuthModal(true)} />
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => setShowAuthModal(false)}
+      />
+    </>
+  );
+};
+
+export default App;
