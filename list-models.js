@@ -1,5 +1,4 @@
-import fs from 'fs';
-const API_KEY = "AIzaSyASarnIcmLmWxvzoMrXG5I891al0GtXE2Y";
+const API_KEY = "AIzaSyBggDFT_VlnRgHoH5yzXa6mwvigh3nm7p0";
 const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
 
 // Simple fetch and log
