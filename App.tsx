@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Sparkles, LayoutDashboard, LogOut, Plus, Search, Calendar as CalendarIcon, ClipboardList, CheckCircle2, PlayCircle, Share2, FileText, Copy, ShieldCheck, ChevronRight, User as UserIcon, Loader2, X, Users, AlertCircle, Check, RefreshCw, Lightbulb, Edit2, Save, RotateCcw, Pencil, Trash2, ChevronLeft, CalendarDays, Mail, Settings, Building2, Bell, Lock, GripVertical, Clock, TrendingUp, Target, BarChart3, Star, Quote } from 'lucide-react';
 import { Project, ContentStatus, WizardStep, NarrativeStructure, FinalAssets, User } from './types';
 import * as GeminiService from './services/geminiService';
+import { projectService } from './services/projectService';
 
 // --- Constants ---
 const MOCK_USER: User = {
@@ -2131,12 +2132,11 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
   const [draggedId, setDraggedId] = useState<string | null>(null);
 
   // State Management
-  const [projects, setProjects] = useState<Project[]>(() => {
-    const saved = localStorage.getItem('odonto_projects');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
 
   const [team, setTeam] = useState<User[]>(() => {
+    // Keep team in localstorage for now as requested only "contents" saved
     const saved = localStorage.getItem('odonto_team');
     return saved ? JSON.parse(saved) : INITIAL_TEAM;
   });
@@ -2146,31 +2146,76 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
   // Persistence
   useEffect(() => {
-    localStorage.setItem('odonto_projects', JSON.stringify(projects));
-  }, [projects]);
+    loadProjects();
+  }, [user.id]); // Reload if user changes
+
+  const loadProjects = async () => {
+    try {
+      setIsLoadingProjects(true);
+      const data = await projectService.fetchProjects();
+      setProjects(data);
+    } catch (error) {
+      console.error("Failed to fetch projects", error);
+    } finally {
+      setIsLoadingProjects(false);
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('odonto_team', JSON.stringify(team));
   }, [team]);
 
   // Actions
-  const handleCreateProject = (project: Project) => {
-    setProjects(prev => [project, ...prev]);
-    setView('KANBAN');
+  const handleCreateProject = async (project: Project) => {
+    try {
+      // Optimistic update (with temp ID) or wait? 
+      // Better wait to get real ID from DB to avoid sync issues
+      const newProject = await projectService.createProject(project);
+      setProjects(prev => [newProject, ...prev]);
+      setView('KANBAN');
+    } catch (error) {
+      console.error("Error creating project", error);
+      alert("Erro ao salvar projeto no banco de dados.");
+    }
   };
 
-  const handleUpdateProject = (updatedProject: Project) => {
-    setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
-    setSelectedProject(updatedProject); // Update modal view if open
+  const handleUpdateProject = async (updatedProject: Project) => {
+    try {
+      // Optimistic UI
+      setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+      setSelectedProject(updatedProject);
+
+      // DB Update
+      await projectService.updateProject(updatedProject.id, updatedProject);
+    } catch (error) {
+      console.error("Error updating project", error);
+      // Revert on error? For now just log
+      loadProjects();
+    }
   };
 
-  const handleDeleteProject = (id: string) => {
-    setProjects(prev => prev.filter(p => p.id !== id));
-    if (selectedProject?.id === id) setSelectedProject(null);
+  const handleDeleteProject = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir?')) return;
+    try {
+      setProjects(prev => prev.filter(p => p.id !== id));
+      if (selectedProject?.id === id) setSelectedProject(null);
+      await projectService.deleteProject(id);
+    } catch (error) {
+      console.error("Error deleting project", error);
+      loadProjects();
+    }
   };
 
-  const handleMoveProject = (id: string, newStatus: ContentStatus) => {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, status: newStatus } : p));
+  const handleMoveProject = async (id: string, newStatus: ContentStatus) => {
+    try {
+      // Optimistic
+      setProjects(prev => prev.map(p => p.id === id ? { ...p, status: newStatus } : p));
+
+      await projectService.updateProject(id, { status: newStatus });
+    } catch (error) {
+      console.error("Error moving project", error);
+      loadProjects();
+    }
   };
 
   // Team Actions
@@ -2368,6 +2413,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
       {selectedProject && (
         <ProjectModal
+          key={selectedProject.id}
           project={selectedProject}
           onClose={() => setSelectedProject(null)}
           onUpdate={handleUpdateProject}
