@@ -2,7 +2,7 @@ import { NarrativeStructure, FinalAssets } from "../types";
 
 // TODO: Voltaremos para variáveis de ambiente assim que estabilizar
 const API_KEY = "AIzaSyASarnIcmLmWxvzoMrXG5I891al0GtXE2Y";
-const MODEL = "gemini-1.5-flash";
+const MODEL = "gemini-2.0-flash";
 
 const SYSTEM_INSTRUCTION = `
 Você é uma IA estrategista de conteúdo e especialista em copywriting cultural. Seu público são dentistas que desejam se comunicar com pessoas comuns — pacientes, sociedade e audiência geral — e não com outros profissionais da saúde. 
