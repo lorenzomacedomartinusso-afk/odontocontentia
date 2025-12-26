@@ -748,7 +748,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
       {/* SECTION 10: Final CTA */}
       <section className="py-32 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-brand-teal/5 z-0"></div>
+        <div className="absolute inset-0 z-0"></div>
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand-teal/50 to-transparent"></div>
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
