@@ -703,48 +703,76 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       </section>
 
       {/* SECTION 9: Testimonials */}
-      <section className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-24 px-4 overflow-hidden relative">
+        <style>{`
+          @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-infinite-scroll {
+            animation: scroll 120s linear infinite;
+          }
+          .animate-infinite-scroll:hover {
+            animation-play-state: paused;
+          }
+        `}</style>
+
+        <div className="max-w-full mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-16">Quem usa, não vive sem.</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-zinc-900/30 p-8 rounded-2xl border border-zinc-800 relative">
-              <Quote className="w-10 h-10 text-zinc-800 absolute top-6 right-6" />
-              <div className="flex gap-1 mb-4">
-                {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-4 h-4 text-brand-teal fill-brand-teal" />)}
-              </div>
-              <p className="text-zinc-300 italic mb-8 text-lg leading-relaxed">
-                "Antes eu perdia meu domingo inteiro tentando ter ideias. Hoje faço todo meu calendário do mês em 30 minutos! A qualidade dos roteiros é impressionante, meus pacientes comentam que os vídeos ficaram 'a minha cara'."
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-zinc-500 border border-zinc-700">JS</div>
-                <div>
-                  <p className="text-white font-bold text-base">Dr. João Silva</p>
-                  <p className="text-brand-teal text-xs font-medium">Implantodontista • SP</p>
+          <div className="flex w-max animate-infinite-scroll gap-6">
+            {[
+              { text: "Antes eu perdia meu domingo inteiro tentando ter ideias. Hoje faço todo meu calendário do mês em 30 minutos! A qualidade dos roteiros é impressionante.", name: "Dr. João Silva", role: "Implantodontista • SP" },
+              { text: "A linguagem mudou tudo. Meus pacientes finalmente entendem o valor do meu tratamento. Não é mais 'preço', é valor percebido.", name: "Dra. Mariana Costa", role: "Estética • RJ" },
+              { text: "Finalmente consigo explicar Invisalign de forma que o paciente entenda. O visual e o texto casam perfeitamente.", name: "Dra. Ana Clara", role: "Ortodontista • MG" },
+              { text: "Meus seguidores pararam de pular meus stories. A retenção aumentou 300% com os roteiros de conexão que a plataforma gera.", name: "Dr. Lucas Mendes", role: "Cirurgião • SP" },
+              { text: "As mães amam a linguagem acolhedora. Não preciso mais forçar vendas, elas vêm prontas para agendar.", name: "Dra. Fernanda L.", role: "Odontopediatria • PR" },
+              { text: "Fechei 2 protocolos na primeira semana usando a estratégia de 'Autoridade Silenciosa'. Pagou o ano todo da plataforma.", name: "Dr. Rafael Torres", role: "Implantodontista • SC" },
+              { text: "O calendário editorial me deu paz mental. Sei exatamente o que postar e quando, sem aquele desespero diário.", name: "Dra. Beatriz Santos", role: "Harmonização • BA" },
+              { text: "Antes parecia que eu falava grego. A IA traduziu minha técnica para 'desejo do paciente'. Genial.", name: "Dr. Thiago O.", role: "Clínico Geral • RS" },
+              { text: "Nunca imaginei que canal pudesse ser um assunto interessante. Meus reels estão bombando e trazendo pacientes particulares.", name: "Dra. Camila R.", role: "Endodontista • SP" },
+              { text: "A consistência que eu buscava há anos. 3 posts por semana, religiosamente, em 15 minutos de dedicação.", name: "Dr. Renato V.", role: "Prótese • RJ" },
+              { text: "Explicar doença periodontal era chato. Agora é educativo e engajador. Os pacientes chegam já sabendo da importância.", name: "Dra. Juliana M.", role: "Periodontista • MG" },
+              { text: "A ferramenta de 'quebra de objeção' é incrível. O paciente já chega tirando dúvidas que a IA previu nos posts.", name: "Dr. Marcelo D.", role: "Ortodontista • ES" },
+              { text: "Stories criativos que conectam com a rotina das famílias. Sensacional, as crianças adoram os vídeos.", name: "Dra. Patrícia G.", role: "Odontopediatria • PE" },
+              { text: "Menos dancinha, mais autoridade. Exatamente o que eu precisava para me posicionar como referência.", name: "Dr. Felipe A.", role: "Cirurgia Oral • GO" },
+              { text: "Minha agenda de avaliação triplicou. O tráfego pago funciona muito melhor com esses copys persuasivos.", name: "Dra. Larissa C.", role: "Estética • DF" },
+              // Duplicate list for seamless infinite scroll
+              { text: "Antes eu perdia meu domingo inteiro tentando ter ideias. Hoje faço todo meu calendário do mês em 30 minutos! A qualidade dos roteiros é impressionante.", name: "Dr. João Silva", role: "Implantodontista • SP" },
+              { text: "A linguagem mudou tudo. Meus pacientes finalmente entendem o valor do meu tratamento. Não é mais 'preço', é valor percebido.", name: "Dra. Mariana Costa", role: "Estética • RJ" },
+              { text: "Finalmente consigo explicar Invisalign de forma que o paciente entenda. O visual e o texto casam perfeitamente.", name: "Dra. Ana Clara", role: "Ortodontista • MG" },
+              { text: "Meus seguidores pararam de pular meus stories. A retenção aumentou 300% com os roteiros de conexão que a plataforma gera.", name: "Dr. Lucas Mendes", role: "Cirurgião • SP" },
+              { text: "As mães amam a linguagem acolhedora. Não preciso mais forçar vendas, elas vêm prontas para agendar.", name: "Dra. Fernanda L.", role: "Odontopediatria • PR" },
+              { text: "Fechei 2 protocolos na primeira semana usando a estratégia de 'Autoridade Silenciosa'. Pagou o ano todo da plataforma.", name: "Dr. Rafael Torres", role: "Implantodontista • SC" },
+              { text: "O calendário editorial me deu paz mental. Sei exatamente o que postar e quando, sem aquele desespero diário.", name: "Dra. Beatriz Santos", role: "Harmonização • BA" },
+              { text: "Antes parecia que eu falava grego. A IA traduziu minha técnica para 'desejo do paciente'. Genial.", name: "Dr. Thiago O.", role: "Clínico Geral • RS" },
+              { text: "Nunca imaginei que canal pudesse ser um assunto interessante. Meus reels estão bombando e trazendo pacientes particulares.", name: "Dra. Camila R.", role: "Endodontista • SP" },
+              { text: "A consistência que eu buscava há anos. 3 posts por semana, religiosamente, em 15 minutos de dedicação.", name: "Dr. Renato V.", role: "Prótese • RJ" },
+              { text: "Explicar doença periodontal era chato. Agora é educativo e engajador. Os pacientes chegam já sabendo da importância.", name: "Dra. Juliana M.", role: "Periodontista • MG" },
+              { text: "A ferramenta de 'quebra de objeção' é incrível. O paciente já chega tirando dúvidas que a IA previu nos posts.", name: "Dr. Marcelo D.", role: "Ortodontista • ES" },
+              { text: "Stories criativos que conectam com a rotina das famílias. Sensacional, as crianças adoram os vídeos.", name: "Dra. Patrícia G.", role: "Odontopediatria • PE" },
+              { text: "Menos dancinha, mais autoridade. Exatamente o que eu precisava para me posicionar como referência.", name: "Dr. Felipe A.", role: "Cirurgia Oral • GO" },
+              { text: "Minha agenda de avaliação triplicou. O tráfego pago funciona muito melhor com esses copys persuasivos.", name: "Dra. Larissa C.", role: "Estética • DF" },
+            ].map((item, i) => (
+              <div key={i} className="w-[400px] bg-zinc-900/40 p-8 rounded-2xl border border-zinc-800 relative flex-shrink-0 hover:border-brand-teal/30 transition-colors group">
+                <Quote className="w-8 h-8 text-zinc-800 absolute top-6 right-6 group-hover:text-brand-teal/20 transition-colors" />
+                <div className="flex gap-1 mb-4">
+                  {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-4 h-4 text-brand-teal fill-brand-teal" />)}
+                </div>
+                <p className="text-zinc-300 italic mb-6 text-base leading-relaxed line-clamp-4">
+                  "{item.text}"
+                </p>
+                <div className="flex items-center gap-4 mt-auto">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center font-bold text-zinc-500 border border-zinc-700 text-xs">
+                    {item.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                  </div>
+                  <div>
+                    <p className="text-white font-bold text-sm">{item.name}</p>
+                    <p className="text-brand-teal text-xs font-medium">{item.role}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-zinc-900/30 p-8 rounded-2xl border border-zinc-800 relative">
-              <Quote className="w-10 h-10 text-zinc-800 absolute top-6 right-6" />
-              <div className="flex gap-1 mb-4">
-                {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-4 h-4 text-brand-teal fill-brand-teal" />)}
-              </div>
-              <p className="text-zinc-300 italic mb-8 text-lg leading-relaxed">
-                "A linguagem mudou tudo. Meus pacientes finalmente entendem o valor do meu tratamento. Não é mais 'preço', é valor percebido. Fechei 3 casos de lentes essa semana vindos do Instagram."
-              </p>
-              <div className="hidden md:flex items-center gap-6">
-                <a href="#funcionalidades" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Funcionalidades</a>
-                <a href="#beneficios" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Benefícios</a>
-                <a href="#precos" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Planos</a>
-                <button
-                  onClick={onLogin}
-                  className="px-6 py-2 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-sm font-medium"
-                >
-                  Área do Cliente
-                </button>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
