@@ -1719,7 +1719,7 @@ const KanbanColumn: React.FC<{
 
   return (
     <div
-      className={`flex-1 min-w-[90vw] sm:min-w-[400px] md:min-w-[500px] lg:min-w-[600px] bg-zinc-900/30 rounded-2xl p-4 border border-zinc-800/50 flex flex-col h-full snap-center transition-colors ${draggedId ? 'hover:bg-zinc-800/50 hover:border-brand-teal/30' : ''}`}
+      className={`flex-1 min-w-[85vw] sm:min-w-[320px] md:min-w-[380px] lg:min-w-[450px] bg-zinc-900/30 rounded-2xl p-4 border border-zinc-800/50 flex flex-col h-full snap-center transition-colors ${draggedId ? 'hover:bg-zinc-800/50 hover:border-brand-teal/30' : ''}`}
       onDragOver={(e) => { e.preventDefault(); }}
       onDrop={(e) => {
         e.preventDefault();
