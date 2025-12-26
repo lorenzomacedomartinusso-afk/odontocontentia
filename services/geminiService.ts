@@ -8,7 +8,7 @@ const getApiKey = () => {
 
 const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
-const MODEL_NAME = 'gemini-2.0-flash-exp';
+const MODEL_NAME = 'gemini-1.5-flash';
 
 // Configuração da Persona: Estrategista Cultural e Copywriter
 const SYSTEM_INSTRUCTION = `
