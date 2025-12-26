@@ -1,10 +1,10 @@
 const API_KEY = "AIzaSyBggDFT_VlnRgHoH5yzXa6mwvigh3nm7p0";
 const MODELS = [
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-001",
-    "gemini-2.0-flash-exp",
-    "gemini-2.5-flash",
-    "gemini-2.5-pro"
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-pro",
+    "gemini-1.5-pro-latest",
+    "gemini-1.0-pro"
 ];
 
 async function testModel(model) {
@@ -23,7 +23,11 @@ async function testModel(model) {
             console.log(`SUCCESS with ${model}!`);
             return true;
         } else {
+            const txt = await res.text();
             console.log(`FAILED ${model}: ${res.status} ${res.statusText}`);
+            if (res.status === 429) console.log("Rate Limit Hit");
+            else if (res.status === 404) console.log("Model Not Found");
+            else console.log(txt.substring(0, 100));
             return false;
         }
     } catch (e) {
@@ -34,11 +38,7 @@ async function testModel(model) {
 
 async function run() {
     for (const model of MODELS) {
-        const success = await testModel(model);
-        if (success) {
-            console.log(`\n>>> WINNER: ${model} <<<`);
-            break;
-        }
+        await testModel(model);
     }
 }
 
