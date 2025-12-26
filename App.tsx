@@ -774,6 +774,13 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
               </div>
             ))}
           </div>
+
+          <div className="mt-16 flex justify-center">
+            <Button onClick={onLogin} variant="gradient" className="text-lg px-10 py-4 h-auto shadow-[0_0_30px_-5px_rgba(45,212,191,0.3)] hover:shadow-[0_0_50px_-10px_rgba(45,212,191,0.6)] hover:scale-105 transition-all duration-300">
+              Quero resultados assim
+              <ChevronRight className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
         </div>
       </section>
 
