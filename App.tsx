@@ -261,12 +261,12 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         </div>
 
         <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6 text-white leading-tight animate-slide-up tracking-tight">
-          Vire referência na <br />
-          <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">Odontologia.</span>
+          Um sistema de criação de <br />
+          conteúdo especializado para <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">atrair pacientes.</span>
         </h1>
 
         <p className="text-base md:text-xl text-zinc-400 mb-8 md:mb-10 max-w-2xl animate-slide-up px-2 leading-relaxed" style={{ animationDelay: '0.1s' }}>
-          Chega de falar difícil e não atrair pacientes. De pouco adianta ter a "técnica" se ninguém sabe que você a possui. Agora, seus Reels, Stories e Carrosséis terão conteúdo especializado em gerar interesse VERDADEIRO que atrai e converte pacientes.
+          A maioria dos dentistas cria conteúdo para impressionar outros dentistas — linguagem técnica, posts engessados e distantes da realidade. A OdontoContent ajuda você a falar a língua de quem compra.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 animate-slide-up w-full sm:w-auto px-4 sm:px-0" style={{ animationDelay: '0.2s' }}>
