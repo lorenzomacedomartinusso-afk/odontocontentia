@@ -360,7 +360,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             </div>
           </MockBrowserWindow>
 
-          <div className="mt-12 text-center">
+          <div className="mt-12 flex justify-center">
             <Button onClick={onLogin} variant="gradient" className="text-base px-8 py-3 h-auto shadow-[0_0_30px_-5px_rgba(45,212,191,0.3)] hover:shadow-[0_0_50px_-10px_rgba(45,212,191,0.6)] hover:scale-105 transition-all duration-300">
               <Sparkles className="w-4 h-4 mr-2" />
               Experimente com seu tema agora
