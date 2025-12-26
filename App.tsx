@@ -245,7 +245,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       </div>
       <button
         onClick={onLogin}
-        className="px-6 py-2 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-sm font-medium"
+        className="px-3 py-1.5 md:px-6 md:py-2 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-xs md:text-sm font-medium"
       >
         Área do Cliente
       </button>
