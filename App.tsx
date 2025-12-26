@@ -657,51 +657,6 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         </div>
       </section>
 
-      {/* SECTION 8: Pricing Table (Converted to Card) */}
-      <section className="py-24 px-4">
-        <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">Investimento que se paga<br />na primeira consulta particular.</h2>
-          <p className="text-zinc-400 mb-12 max-w-2xl mx-auto">Sem fidelidade. Sem taxas escondidas. Cancele quando quiser.</p>
-
-          <div className="max-w-md mx-auto relative group">
-            {/* Glow Effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-brand-teal to-teal-800 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-
-            <div className="relative bg-zinc-950 border border-zinc-800 rounded-2xl p-8 md:p-10 shadow-2xl">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-teal text-brand-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-brand-teal/20">
-                Oferta de Lançamento
-              </div>
-
-              <h3 className="text-lg font-medium text-zinc-400 mb-2">Plano Pro Odonto</h3>
-              <div className="flex items-baseline justify-center gap-1 mb-6">
-                <span className="text-5xl font-bold text-white">R$ 29,90</span>
-                <span className="text-zinc-500">/mês</span>
-              </div>
-
-              <div className="space-y-4 mb-8 text-left">
-                {[
-                  "Gerador Ilimitado de Roteiros e Legendas",
-                  "Calendário Editorial & Kanban",
-                  "Gestão de Equipe (até 3 usuários)",
-                  "IA treinada com normas do CFO",
-                  "Suporte prioritário via WhatsApp"
-                ].map((feat, i) => (
-                  <div key={i} className="flex items-center gap-3 text-sm text-zinc-300">
-                    <CheckCircle2 className="w-5 h-5 text-brand-teal shrink-0" />
-                    {feat}
-                  </div>
-                ))}
-              </div>
-
-              <Button onClick={onLogin} variant="gradient" className="w-full text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
-                Começar Agora
-              </Button>
-              <p className="text-xs text-zinc-600 mt-4">7 dias de garantia incondicional.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* SECTION 9: Testimonials */}
       <section className="py-24 px-4 overflow-hidden relative">
         <style>{`
@@ -780,6 +735,51 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
               Quero resultados assim
               <ChevronRight className="w-5 h-5 ml-2" />
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 8: Pricing Table (Converted to Card) */}
+      <section className="py-24 px-4">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-white mb-6">Investimento que se paga<br />na primeira consulta particular.</h2>
+          <p className="text-zinc-400 mb-12 max-w-2xl mx-auto">Sem fidelidade. Sem taxas escondidas. Cancele quando quiser.</p>
+
+          <div className="max-w-md mx-auto relative group">
+            {/* Glow Effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-brand-teal to-teal-800 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+
+            <div className="relative bg-zinc-950 border border-zinc-800 rounded-2xl p-8 md:p-10 shadow-2xl">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-teal text-brand-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-brand-teal/20">
+                Oferta de Lançamento
+              </div>
+
+              <h3 className="text-lg font-medium text-zinc-400 mb-2">Plano Pro Odonto</h3>
+              <div className="flex items-baseline justify-center gap-1 mb-6">
+                <span className="text-5xl font-bold text-white">R$ 29,90</span>
+                <span className="text-zinc-500">/mês</span>
+              </div>
+
+              <div className="space-y-4 mb-8 text-left">
+                {[
+                  "Gerador Ilimitado de Roteiros e Legendas",
+                  "Calendário Editorial & Kanban",
+                  "Gestão de Equipe (até 3 usuários)",
+                  "IA treinada com normas do CFO",
+                  "Suporte prioritário via WhatsApp"
+                ].map((feat, i) => (
+                  <div key={i} className="flex items-center gap-3 text-sm text-zinc-300">
+                    <CheckCircle2 className="w-5 h-5 text-brand-teal shrink-0" />
+                    {feat}
+                  </div>
+                ))}
+              </div>
+
+              <Button onClick={onLogin} variant="gradient" className="w-full text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+                Começar Agora
+              </Button>
+              <p className="text-xs text-zinc-600 mt-4">7 dias de garantia incondicional.</p>
+            </div>
           </div>
         </div>
       </section>
