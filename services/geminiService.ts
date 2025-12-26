@@ -2,13 +2,8 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { NarrativeStructure, FinalAssets } from "../types";
 
 const getApiKey = () => {
-  const key = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-  if (!key) return '';
-  // Remove possible quotes and whitespace
-  const clean = key.replace(/["']/g, "").trim();
-  // Check for placeholders
-  if (clean === 'YOUR_API_KEY' || clean.includes('INSERT_KEY')) return '';
-  return clean;
+  // TODO: Move back to env variables after verification
+  return "AIzaSyCHduE9DFESs4OWpGPhcLtDKFqK1gbjHaA";
 };
 
 const ai = new GoogleGenAI({ apiKey: getApiKey() });
