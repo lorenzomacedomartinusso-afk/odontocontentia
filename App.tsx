@@ -261,12 +261,12 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         </div>
 
         <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6 text-white leading-tight animate-slide-up tracking-tight">
-          Transforme Ciência em <br />
-          <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">Magnetismo Digital</span>
+          Vire referência na <br />
+          <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">Odontologia.</span>
         </h1>
 
         <p className="text-base md:text-xl text-zinc-400 mb-8 md:mb-10 max-w-2xl animate-slide-up px-2 leading-relaxed" style={{ animationDelay: '0.1s' }}>
-          A primeira IA treinada exclusivamente para cirurgiões-dentistas. Crie roteiros de Reels, Carrosséis e Legendas éticas em segundos, não horas.
+          Chega de falar difícil e não atrair pacientes. De pouco adianta ter a "técnica" se ninguém sabe que você a possui. Agora, seus Reels, Stories e Carrosséis terão conteúdo especializado em gerar interesse VERDADEIRO que atrai e converte pacientes.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 animate-slide-up w-full sm:w-auto px-4 sm:px-0" style={{ animationDelay: '0.2s' }}>
