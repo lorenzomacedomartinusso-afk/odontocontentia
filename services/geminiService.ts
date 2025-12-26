@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { NarrativeStructure, FinalAssets } from "../types";
 
 const getApiKey = () => {
-  const key = import.meta.env.VITE_API_KEY;
+  const key = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
   if (!key) return '';
   // Remove possible quotes and whitespace
   const clean = key.replace(/["']/g, "").trim();
@@ -13,7 +13,7 @@ const getApiKey = () => {
 
 const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
-const MODEL_NAME = 'gemini-3-flash-preview';
+const MODEL_NAME = 'gemini-2.0-flash-exp';
 
 // Configuração da Persona: Estrategista Cultural e Copywriter
 const SYSTEM_INSTRUCTION = `
@@ -84,8 +84,8 @@ export const generateHooks = async (topic: string): Promise<string[]> => {
 
   } catch (error: any) {
     console.error("Erro ao gerar narrativas:", error);
-    if (!import.meta.env.VITE_API_KEY) {
-      return ["ERRO: API Key não configurada. Verifique se VITE_API_KEY está no arquivo .env.local"];
+    if (!getApiKey()) {
+      return ["ERRO: API Key não configurada. Verifique se VITE_GEMINI_API_KEY ou VITE_API_KEY está no arquivo .env.local"];
     }
     return [`ERRO: ${error.message || 'Erro desconhecido'}`];
   }
