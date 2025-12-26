@@ -1,5 +1,5 @@
 import fs from 'fs';
-const API_KEY = "AIzaSyCHduE9DFESs4OWpGPhcLtDKFqK1gbjHaA";
+const API_KEY = "AIzaSyASarnIcmLmWxvzoMrXG5I891al0GtXE2Y";
 const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
 
 const response = await fetch(url);
