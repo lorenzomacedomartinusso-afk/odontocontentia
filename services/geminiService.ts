@@ -47,24 +47,46 @@ async function callGemini(prompt: string, schema?: any, isJson = false): Promise
     }
   }
 
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body)
-    });
+  // Retry logic with exponential backoff (Auto-Queue)
+  let attempt = 0;
+  const maxRetries = 5; // More aggressive retries for "unlimited feel"
+  let response;
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Gemini API Error: ${errorData.error?.message || response.statusText}`);
+  while (attempt < maxRetries) {
+    try {
+      response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body)
+      });
+
+      // If Rate Limit (429), wait and retry
+      if (response.status === 429) {
+        attempt++;
+        const delay = 2000 * Math.pow(1.5, attempt); // 3s, 4.5s, 6.75s...
+        console.warn(`⏳ Cota atingida. Entrando na fila de espera automática... (${delay / 1000}s)`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Gemini API Error: ${errorData.error?.message || response.statusText}`);
+      }
+
+      // Success
+      const data = await response.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    } catch (error) {
+      console.error("Fetch error:", error);
+      if (attempt === maxRetries - 1) throw error;
+      attempt++;
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
-
-    const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  } catch (error) {
-    console.error("Fetch error:", error);
-    throw error;
   }
+
+  throw new Error("Falha na conexão após várias tentativas.");
 }
 
 // Helper para limpar JSON
