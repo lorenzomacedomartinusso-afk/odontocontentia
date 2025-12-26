@@ -755,7 +755,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand-teal/50 to-transparent"></div>
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 text-center text-[10px] md:text-xs text-zinc-500 font-mono uppercase tracking-widest opacity-70">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 text-center text-xs md:text-base text-zinc-500 font-mono uppercase tracking-widest opacity-70">
             <p className="line-through decoration-red-500/50">Postar por postar</p>
             <p className="line-through decoration-red-500/50">Marketing complicado</p>
             <p className="line-through decoration-red-500/50">Tentar ser designer</p>
@@ -773,7 +773,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           <div className="flex flex-col md:flex-row items-center justify-center gap-4">
             <Button onClick={onLogin} variant="gradient" className="text-lg px-12 py-5 h-auto w-full md:w-auto shadow-[0_0_40px_-10px_rgba(45,212,191,0.5)]">
               <Sparkles className="w-5 h-5 mr-2" />
-              Criar Conta Gratuita
+              Teste por você. É grátis
             </Button>
           </div>
           <p className="mt-6 text-zinc-600 text-xs">Não requer cartão de crédito • Cancelamento a qualquer momento</p>
