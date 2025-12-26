@@ -1,8 +1,8 @@
 import { NarrativeStructure, FinalAssets } from "../types";
 
 // TODO: Voltaremos para variáveis de ambiente assim que estabilizar
-const API_KEY = "AIzaSyBggDFT_VlnRgHoH5yzXa6mwvigh3nm7p0";
-const MODEL = "gemini-2.5-flash";
+const API_KEY = "AIzaSyCUPWONSV_ST_DuI8RxYx-7y2-oAS1ZuHU";
+const MODEL = "gemini-2.0-flash";
 
 const SYSTEM_INSTRUCTION = `
 Você é uma IA estrategista de conteúdo e especialista em copywriting cultural. Seu público são dentistas que desejam se comunicar com pessoas comuns — pacientes, sociedade e audiência geral — e não com outros profissionais da saúde. 
@@ -19,7 +19,7 @@ REGRAS DE OURO (RULES):
 7. Evite linguagem de marketing direto.
 `;
 
-async function callGemini(prompt: string, schema?: any, isJson = false): Promise<string> {
+async function callGemini(prompt: string, schema?: any, isJson = false, onWait?: (msg: string) => void): Promise<string> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
   const headers = {
@@ -47,9 +47,9 @@ async function callGemini(prompt: string, schema?: any, isJson = false): Promise
     }
   }
 
-  // Retry logic with exponential backoff (Auto-Queue)
+  // INFINITE RETRY LOGIC (The "Unlimited" Simulator)
   let attempt = 0;
-  const maxRetries = 5; // More aggressive retries for "unlimited feel"
+  const maxRetries = 100; // Virtually infinite for user perception
   let response;
 
   while (attempt < maxRetries) {
@@ -63,9 +63,26 @@ async function callGemini(prompt: string, schema?: any, isJson = false): Promise
       // If Rate Limit (429), wait and retry
       if (response.status === 429) {
         attempt++;
-        const delay = 2000 * Math.pow(1.5, attempt); // 3s, 4.5s, 6.75s...
-        console.warn(`⏳ Cota atingida. Entrando na fila de espera automática... (${delay / 1000}s)`);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        const errorText = await response.text();
+
+        // Try to parse "retry in X s"
+        const match = errorText.match(/retry in ([0-9.]+)s/);
+        let waitTime = 5000 * attempt;
+
+        if (match && match[1]) {
+          waitTime = Math.ceil(parseFloat(match[1])) * 1000 + 2000; // time + 2s padding
+          const msg = `⏳ Cota do Google atingida. Aguardando ${match[1]}s...`;
+          console.warn(msg);
+          if (onWait) onWait(msg);
+        } else {
+          // Default fallback wait if google doesn't say time
+          waitTime = 30000; // 30s fixed wait
+          const msg = `⏳ Cota atingida. Aguardando liberação do servidor (30s)...`;
+          console.warn(msg);
+          if (onWait) onWait(msg);
+        }
+
+        await new Promise(resolve => setTimeout(resolve, waitTime));
         continue;
       }
 
@@ -74,19 +91,19 @@ async function callGemini(prompt: string, schema?: any, isJson = false): Promise
         throw new Error(`Gemini API Error: ${errorData.error?.message || response.statusText}`);
       }
 
-      // Success
       const data = await response.json();
       return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Fetch error:", error);
       if (attempt === maxRetries - 1) throw error;
+      const msg = `⚠️ Erro de conexão. Tentando novamente em 5s...`;
+      if (onWait) onWait(msg);
       attempt++;
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
-
-  throw new Error("Falha na conexão após várias tentativas.");
+  return "";
 }
 
 // Helper para limpar JSON
@@ -100,7 +117,7 @@ const cleanJson = (text: string): string => {
   return clean.substring(start);
 };
 
-export const generateHooks = async (topic: string): Promise<string[]> => {
+export const generateHooks = async (topic: string, onWait?: (msg: string) => void): Promise<string[]> => {
   const prompt = `Tema: "${topic}". Produza 5 narrativas culturais baseadas neste tema.`;
 
   try {
@@ -117,7 +134,7 @@ export const generateHooks = async (topic: string): Promise<string[]> => {
       }
     };
 
-    const text = await callGemini(prompt, schema, true);
+    const text = await callGemini(prompt, schema, true, onWait);
     const cleanText = cleanJson(text);
     const data = JSON.parse(cleanText);
     return data.map((item: any) => `${item.title.toUpperCase()}: ${item.thesis}`);
@@ -127,7 +144,7 @@ export const generateHooks = async (topic: string): Promise<string[]> => {
   }
 };
 
-export const generateHeadlines = async (topic: string, selectedHook: string): Promise<string[]> => {
+export const generateHeadlines = async (topic: string, selectedHook: string, onWait?: (msg: string) => void): Promise<string[]> => {
   const prompt = `Tema: "${topic}". Narrativa: "${selectedHook}". Gere 5 Headlines provocativas.`;
 
   try {
@@ -135,14 +152,14 @@ export const generateHeadlines = async (topic: string, selectedHook: string): Pr
       type: "ARRAY",
       items: { type: "STRING" }
     };
-    const text = await callGemini(prompt, schema, true);
+    const text = await callGemini(prompt, schema, true, onWait);
     return JSON.parse(cleanJson(text));
   } catch (error) {
     return ["Erro ao gerar manchetes."];
   }
 };
 
-export const generateNarrative = async (topic: string, hook: string, headline: string): Promise<NarrativeStructure> => {
+export const generateNarrative = async (topic: string, hook: string, headline: string, onWait?: (msg: string) => void): Promise<NarrativeStructure> => {
   const prompt = `Construa a estrutura profunda. Tema: ${topic}. Narrativa: ${hook}. Manchete: ${headline}`;
 
   const schema = {
@@ -158,14 +175,14 @@ export const generateNarrative = async (topic: string, hook: string, headline: s
   };
 
   try {
-    const text = await callGemini(prompt, schema, true);
+    const text = await callGemini(prompt, schema, true, onWait);
     return JSON.parse(cleanJson(text)) as NarrativeStructure;
   } catch (error) {
     throw new Error("Falha na narrativa");
   }
 };
 
-export const generateFinalAssets = async (topic: string, narrative: NarrativeStructure): Promise<FinalAssets> => {
+export const generateFinalAssets = async (topic: string, narrative: NarrativeStructure, onWait?: (msg: string) => void): Promise<FinalAssets> => {
   const prompt = `Produza ativos finais. Tema: ${topic}. Estratégia: ${JSON.stringify(narrative)}`;
 
   const schema = {
@@ -179,7 +196,7 @@ export const generateFinalAssets = async (topic: string, narrative: NarrativeStr
   };
 
   try {
-    const text = await callGemini(prompt, schema, true);
+    const text = await callGemini(prompt, schema, true, onWait);
     return JSON.parse(cleanJson(text)) as FinalAssets;
   } catch (error) {
     throw new Error("Falha nos ativos finais");
