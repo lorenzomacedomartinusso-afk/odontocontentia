@@ -1583,7 +1583,8 @@ const Wizard: React.FC<{ onComplete: (project: Project) => void; onCancel: () =>
                   </div>
                 ))}
               </div>
-              <div className="flex justify-end sticky bottom-0 bg-brand-surface pt-4 border-t border-zinc-800">
+              </div>
+              <div className="mt-8 flex justify-end pt-4 border-t border-zinc-800">
                 <Button onClick={handleGenerateFinalAssets} className="w-full md:w-auto">
                   Aprovar e Gerar Conteúdos <Sparkles className="w-4 h-4 ml-2" />
                 </Button>
@@ -1591,113 +1592,113 @@ const Wizard: React.FC<{ onComplete: (project: Project) => void; onCancel: () =>
             </div>
           )}
 
-          {step === WizardStep.FINAL_ASSETS && finalAssets && (
-            <div className="p-2 md:p-6 h-full overflow-y-auto">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                <h3 className="text-xl md:text-2xl font-bold text-white">Seus Ativos Digitais</h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleRegenerateFinalAssets}
-                    className="text-zinc-400 hover:text-white flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900 hover:border-zinc-700 transition-colors"
-                  >
-                    <RotateCcw className="w-3 h-3 md:w-4 md:h-4" /> Regenerar
-                  </button>
-                  <button
-                    onClick={() => setIsEditingAssets(!isEditingAssets)}
-                    className={`flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border transition-colors ${isEditingAssets ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'bg-zinc-900 text-zinc-400 hover:text-white border-zinc-800 hover:border-brand-teal/50'}`}
-                  >
-                    {isEditingAssets ? <Save className="w-3 h-3 md:w-4 md:h-4" /> : <Pencil className="w-3 h-3 md:w-4 md:h-4" />}
-                    {isEditingAssets ? 'Salvar Edição' : 'Editar Tudo'}
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                {/* Reels Script */}
-                <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800">
-                  <div className="flex items-center gap-2 mb-4 text-brand-teal">
-                    <PlayCircle className="w-5 h-5" />
-                    <h4 className="font-bold">Roteiro de Reels</h4>
-                  </div>
-                  {isEditingAssets ? (
-                    <textarea
-                      className="w-full h-96 bg-black/20 text-zinc-200 text-sm p-3 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y"
-                      value={finalAssets.reelsScript}
-                      onChange={(e) => setFinalAssets({ ...finalAssets, reelsScript: e.target.value })}
-                    />
-                  ) : (
-                    <div className="prose prose-invert prose-sm max-w-none text-zinc-300 whitespace-pre-wrap">
-                      {finalAssets.reelsScript}
-                    </div>
-                  )}
-                  <Button variant="ghost" className="w-full mt-4 text-xs" onClick={() => copyText(finalAssets.reelsScript)}>
-                    <Copy className="w-3 h-3 mr-2" /> Copiar Roteiro
-                  </Button>
-                </div>
-
-                {/* Carousel */}
-                <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800">
-                  <div className="flex items-center gap-2 mb-4 text-brand-teal">
-                    <ClipboardList className="w-5 h-5" />
-                    <h4 className="font-bold">Estrutura Carrossel</h4>
-                  </div>
-                  <ul className="space-y-3">
-                    {finalAssets.carouselStructure.map((slide, i) => (
-                      <li key={i} className="flex gap-3 text-sm text-zinc-300">
-                        <span className="font-bold text-zinc-600 min-w-[20px] pt-1">{i + 1}.</span>
-                        {isEditingAssets ? (
-                          <input
-                            type="text"
-                            className="flex-1 bg-black/20 text-zinc-200 p-1.5 rounded border border-zinc-700 focus:border-brand-teal outline-none"
-                            value={slide}
-                            onChange={(e) => {
-                              const newSlides = [...finalAssets.carouselStructure];
-                              newSlides[i] = e.target.value;
-                              setFinalAssets({ ...finalAssets, carouselStructure: newSlides });
-                            }}
-                          />
-                        ) : (
-                          <span>{slide}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Caption */}
-                <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800 lg:col-span-2">
-                  <div className="flex items-center gap-2 mb-4 text-brand-teal">
-                    <FileText className="w-5 h-5" />
-                    <h4 className="font-bold">Legenda Otimizada</h4>
-                  </div>
-                  {isEditingAssets ? (
-                    <textarea
-                      className="w-full h-64 bg-black/20 text-zinc-200 text-sm p-3 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y"
-                      value={finalAssets.caption}
-                      onChange={(e) => setFinalAssets({ ...finalAssets, caption: e.target.value })}
-                    />
-                  ) : (
-                    <p className="text-zinc-300 text-sm whitespace-pre-wrap">{finalAssets.caption}</p>
-                  )}
-
-                  <div className="mt-4 p-3 bg-brand-teal/5 border border-zinc-800/20 rounded-lg flex items-start gap-2">
-                    <ShieldCheck className="w-4 h-4 text-brand-teal shrink-0 mt-0.5" />
-                    <p className="text-[10px] md:text-xs text-brand-teal/80">Esta legenda inclui automaticamente o aviso de isenção de responsabilidade clínica conforme normas do CFO.</p>
-                  </div>
-                  <Button variant="ghost" className="w-full mt-4 text-xs" onClick={() => copyText(finalAssets.caption)}>
-                    <Copy className="w-3 h-3 mr-2" /> Copiar Legenda
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 sticky bottom-0 bg-brand-surface pt-4 border-t border-zinc-800">
-                <Button onClick={handleFinish} className="w-full md:w-auto">Salvar no Planejamento</Button>
+        {step === WizardStep.FINAL_ASSETS && finalAssets && (
+          <div className="p-2 md:p-6 h-full overflow-y-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+              <h3 className="text-xl md:text-2xl font-bold text-white">Seus Ativos Digitais</h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleRegenerateFinalAssets}
+                  className="text-zinc-400 hover:text-white flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900 hover:border-zinc-700 transition-colors"
+                >
+                  <RotateCcw className="w-3 h-3 md:w-4 md:h-4" /> Regenerar
+                </button>
+                <button
+                  onClick={() => setIsEditingAssets(!isEditingAssets)}
+                  className={`flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border transition-colors ${isEditingAssets ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'bg-zinc-900 text-zinc-400 hover:text-white border-zinc-800 hover:border-brand-teal/50'}`}
+                >
+                  {isEditingAssets ? <Save className="w-3 h-3 md:w-4 md:h-4" /> : <Pencil className="w-3 h-3 md:w-4 md:h-4" />}
+                  {isEditingAssets ? 'Salvar Edição' : 'Editar Tudo'}
+                </button>
               </div>
             </div>
-          )}
-        </div>
-      </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Reels Script */}
+              <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800">
+                <div className="flex items-center gap-2 mb-4 text-brand-teal">
+                  <PlayCircle className="w-5 h-5" />
+                  <h4 className="font-bold">Roteiro de Reels</h4>
+                </div>
+                {isEditingAssets ? (
+                  <textarea
+                    className="w-full h-96 bg-black/20 text-zinc-200 text-sm p-3 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y"
+                    value={finalAssets.reelsScript}
+                    onChange={(e) => setFinalAssets({ ...finalAssets, reelsScript: e.target.value })}
+                  />
+                ) : (
+                  <div className="prose prose-invert prose-sm max-w-none text-zinc-300 whitespace-pre-wrap">
+                    {finalAssets.reelsScript}
+                  </div>
+                )}
+                <Button variant="ghost" className="w-full mt-4 text-xs" onClick={() => copyText(finalAssets.reelsScript)}>
+                  <Copy className="w-3 h-3 mr-2" /> Copiar Roteiro
+                </Button>
+              </div>
+
+              {/* Carousel */}
+              <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800">
+                <div className="flex items-center gap-2 mb-4 text-brand-teal">
+                  <ClipboardList className="w-5 h-5" />
+                  <h4 className="font-bold">Estrutura Carrossel</h4>
+                </div>
+                <ul className="space-y-3">
+                  {finalAssets.carouselStructure.map((slide, i) => (
+                    <li key={i} className="flex gap-3 text-sm text-zinc-300">
+                      <span className="font-bold text-zinc-600 min-w-[20px] pt-1">{i + 1}.</span>
+                      {isEditingAssets ? (
+                        <input
+                          type="text"
+                          className="flex-1 bg-black/20 text-zinc-200 p-1.5 rounded border border-zinc-700 focus:border-brand-teal outline-none"
+                          value={slide}
+                          onChange={(e) => {
+                            const newSlides = [...finalAssets.carouselStructure];
+                            newSlides[i] = e.target.value;
+                            setFinalAssets({ ...finalAssets, carouselStructure: newSlides });
+                          }}
+                        />
+                      ) : (
+                        <span>{slide}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Caption */}
+              <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800 lg:col-span-2">
+                <div className="flex items-center gap-2 mb-4 text-brand-teal">
+                  <FileText className="w-5 h-5" />
+                  <h4 className="font-bold">Legenda Otimizada</h4>
+                </div>
+                {isEditingAssets ? (
+                  <textarea
+                    className="w-full h-64 bg-black/20 text-zinc-200 text-sm p-3 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y"
+                    value={finalAssets.caption}
+                    onChange={(e) => setFinalAssets({ ...finalAssets, caption: e.target.value })}
+                  />
+                ) : (
+                  <p className="text-zinc-300 text-sm whitespace-pre-wrap">{finalAssets.caption}</p>
+                )}
+
+                <div className="mt-4 p-3 bg-brand-teal/5 border border-zinc-800/20 rounded-lg flex items-start gap-2">
+                  <ShieldCheck className="w-4 h-4 text-brand-teal shrink-0 mt-0.5" />
+                  <p className="text-[10px] md:text-xs text-brand-teal/80">Esta legenda inclui automaticamente o aviso de isenção de responsabilidade clínica conforme normas do CFO.</p>
+                </div>
+                <Button variant="ghost" className="w-full mt-4 text-xs" onClick={() => copyText(finalAssets.caption)}>
+                  <Copy className="w-3 h-3 mr-2" /> Copiar Legenda
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-zinc-800">
+              <Button onClick={handleFinish} className="w-full md:w-auto">Salvar no Planejamento</Button>
+            </div>
+          </div>
+        )}
     </div>
+      </Card >
+    </div >
   );
 };
 
