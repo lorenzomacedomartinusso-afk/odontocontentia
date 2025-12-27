@@ -24,8 +24,6 @@ const TOPIC_POOL = [
   "Aparelho em adultos vale a pena?", "Dentes sensíveis no inverno", "Bichectomia envelhece?",
   "Preenchimento Labial Sutil", "Primeira consulta do bebê", "Cigarro eletrônico e os dentes",
   "Fio dental: Onde todos erram", "A cor ideal dos dentes", "Ranger os dentes dormindo"
-  "Preenchimento Labial Sutil", "Primeira consulta do bebê", "Cigarro eletrônico e os dentes",
-  "Fio dental: Onde todos erram", "A cor ideal dos dentes", "Ranger os dentes dormindo"
 ];
 
 // --- Helper Components ---
