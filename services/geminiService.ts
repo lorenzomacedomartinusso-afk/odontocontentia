@@ -62,9 +62,9 @@ async function callGemini(prompt: string, schema?: any, isJson = false, onWait?:
     }
   }
 
-  // INFINITE RETRY LOGIC (The "Unlimited" Simulator)
+  // INFINITE RETRY LOGIC (Simulation Adjusted)
   let attempt = 0;
-  const maxRetries = 100; // Virtually infinite for user perception
+  const maxRetries = 5; // Reduced from 100 to prevent infinite hanging
   let response;
 
   while (attempt < maxRetries) {
@@ -79,19 +79,15 @@ async function callGemini(prompt: string, schema?: any, isJson = false, onWait?:
       if (response.status === 429) {
         attempt++;
         const errorText = await response.text();
-
-        // Try to parse "retry in X s" - OpenRouter might send different bodies
-        // but often standard OpenAI format or just check headers.
         const match = errorText.match(/retry in ([0-9.]+)s/);
         let waitTime = 5000 * attempt;
 
         if (match && match[1]) {
-          waitTime = Math.ceil(parseFloat(match[1])) * 1000 + 2000; // time + 2s padding
+          waitTime = Math.ceil(parseFloat(match[1])) * 1000 + 2000;
           const msg = `⏳ Cota atingida. Aguardando ${match[1]}s...`;
           console.warn(msg);
           if (onWait) onWait(msg);
         } else {
-          // Default fallback wait
           waitTime = 10000;
           const msg = `⏳ Cota atingida (OpenRouter). Aguardando liberação...`;
           console.warn(msg);
@@ -102,18 +98,30 @@ async function callGemini(prompt: string, schema?: any, isJson = false, onWait?:
         continue;
       }
 
+      // Stop retrying on client errors (4xx) except 429
+      if (response.status >= 400 && response.status < 500) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`OpenRouter API Error (${response.status}): ${errorData.error?.message || response.statusText} - DO NOT RETRY`);
+      }
+
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(`OpenRouter API Error: ${errorData.error?.message || response.statusText}`);
       }
 
       const data = await response.json();
-      // OpenAI format: choices[0].message.content
       return data.choices?.[0]?.message?.content || "";
 
     } catch (error: any) {
       console.error("Fetch error:", error);
+
+      // If error is explicitly marked as DO NOT RETRY, throw immediately
+      if (error.message.includes("DO NOT RETRY")) {
+        throw error;
+      }
+
       if (attempt === maxRetries - 1) throw error;
+
       const msg = `⚠️ Erro de conexão. Tentando novamente em 5s...`;
       if (onWait) onWait(msg);
       attempt++;
