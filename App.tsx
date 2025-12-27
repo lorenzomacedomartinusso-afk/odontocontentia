@@ -24,9 +24,61 @@ const TOPIC_POOL = [
   "Aparelho em adultos vale a pena?", "Dentes sensíveis no inverno", "Bichectomia envelhece?",
   "Preenchimento Labial Sutil", "Primeira consulta do bebê", "Cigarro eletrônico e os dentes",
   "Fio dental: Onde todos erram", "A cor ideal dos dentes", "Ranger os dentes dormindo"
+  "Preenchimento Labial Sutil", "Primeira consulta do bebê", "Cigarro eletrônico e os dentes",
+  "Fio dental: Onde todos erram", "A cor ideal dos dentes", "Ranger os dentes dormindo"
 ];
 
 // --- Helper Components ---
+
+const Reveal: React.FC<{ children: React.ReactNode; className?: string; direction?: 'up' | 'down' | 'left' | 'right' | 'none'; delay?: number }> = ({ children, className = '', direction = 'up', delay = 0 }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '50px'
+      }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, []);
+
+  const getDirectionClass = () => {
+    switch (direction) {
+      case 'up': return 'translate-y-8';
+      case 'down': return '-translate-y-8';
+      case 'left': return 'translate-x-8';
+      case 'right': return '-translate-x-8';
+      default: return '';
+    }
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-1000 cubic-bezier(0.17, 0.55, 0.55, 1) ${className} ${isVisible ? 'opacity-100 translate-x-0 translate-y-0' : `opacity-0 ${getDirectionClass()}`}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+};
 
 const AutoResizeTextarea: React.FC<{
   value: string;
@@ -234,6 +286,11 @@ const MockBrowserWindow: React.FC<{ children: React.ReactNode; title?: string; c
 
 const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
   <div className="min-h-screen flex flex-col relative overflow-hidden bg-zinc-950">
+    <style>{`
+      .cubic-bezier {
+         transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+    `}</style>
     {/* Background Effects - Fixed to persist during scroll */}
     <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-teal/5 rounded-full blur-[120px] pointer-events-none z-0" />
     <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-emerald-600/5 rounded-full blur-[150px] pointer-events-none z-0" />
@@ -241,12 +298,12 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
     <header className="flex justify-between items-center p-4 md:px-12 md:py-8 w-full z-10 relative">
       <div className="flex items-center gap-2">
-        <Sparkles className="w-8 h-8 md:w-9 md:h-9 text-brand-teal shrink-0" />
+        <Sparkles className="w-8 h-8 md:w-9 md:h-9 text-brand-teal shrink-0 animate-pulse" />
         <span className="text-2xl md:text-2xl font-bold tracking-tight text-white whitespace-nowrap"><span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">Odonto</span>Content <span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">IA</span></span>
       </div>
       <button
         onClick={onLogin}
-        className="px-3 py-1.5 md:px-6 md:py-2 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-xs md:text-sm font-medium"
+        className="px-3 py-1.5 md:px-6 md:py-2 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-xs md:text-sm font-medium hover:scale-105 active:scale-95"
       >
         Área do Cliente
       </button>
@@ -256,29 +313,37 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
       {/* SECTION 1: HERO */}
       <section className="flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto mb-20 md:mb-32 pt-2 md:pt-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-brand-teal/5 border border-brand-teal/20 text-brand-teal mt-2 mb-2 md:mt-0 md:mb-8 animate-fade-in shadow-[0_0_20px_-10px_rgba(45,212,191,0.3)]">
-          <ShieldCheck className="w-3 h-3 md:w-4 md:h-4" />
-          <span className="text-xs md:text-sm font-medium">100% Compatível com Normas do CFO</span>
-        </div>
+        <Reveal delay={100}>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-brand-teal/5 border border-brand-teal/20 text-brand-teal mt-2 mb-2 md:mt-0 md:mb-8 shadow-[0_0_20px_-10px_rgba(45,212,191,0.3)]">
+            <ShieldCheck className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="text-xs md:text-sm font-medium">100% Compatível com Normas do CFO</span>
+          </div>
+        </Reveal>
 
-        <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6 text-white leading-tight animate-slide-up tracking-tight">
-          Vire referência na <br />
-          <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">Odontologia.</span>
-        </h1>
+        <Reveal delay={200}>
+          <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6 text-white leading-tight tracking-tight">
+            Vire referência na <br />
+            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">Odontologia.</span>
+          </h1>
+        </Reveal>
 
-        <p className="text-base md:text-xl text-zinc-400 mb-8 md:mb-10 max-w-2xl animate-slide-up px-2 leading-relaxed" style={{ animationDelay: '0.1s' }}>
-          Chega de falar difícil e não atrair pacientes. De pouco adianta ter a "técnica" se ninguém sabe que você a possui. Agora, seus Reels, Stories e Carrosséis terão conteúdo especializado em gerar interesse VERDADEIRO que atrai e converte pacientes.
-        </p>
+        <Reveal delay={300}>
+          <p className="text-base md:text-xl text-zinc-400 mb-8 md:mb-10 max-w-2xl px-2 leading-relaxed">
+            Chega de falar difícil e não atrair pacientes. De pouco adianta ter a "técnica" se ninguém sabe que você a possui. Agora, seus Reels, Stories e Carrosséis terão conteúdo especializado em gerar interesse VERDADEIRO que atrai e converte pacientes.
+          </p>
+        </Reveal>
 
-        <div className="flex flex-col sm:flex-row gap-4 animate-slide-up w-full sm:w-auto px-4 sm:px-0" style={{ animationDelay: '0.2s' }}>
-          <Button onClick={onLogin} variant="gradient" className="text-base md:text-lg px-8 w-full sm:w-auto">
-            Começar Teste Grátis
-            <ChevronRight className="w-5 h-5" />
-          </Button>
-          <Button variant="secondary" onClick={onLogin} className="w-full sm:w-auto hover:bg-zinc-800">
-            <PlayCircle className="w-5 h-5 text-zinc-400" /> Ver Demonstração
-          </Button>
-        </div>
+        <Reveal delay={400}>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0">
+            <Button onClick={onLogin} variant="gradient" className="text-base md:text-lg px-8 w-full sm:w-auto transform hover:scale-105 transition-transform duration-200">
+              Começar Teste Grátis
+              <ChevronRight className="w-5 h-5" />
+            </Button>
+            <Button variant="secondary" onClick={onLogin} className="w-full sm:w-auto hover:bg-zinc-800">
+              <PlayCircle className="w-5 h-5 text-zinc-400" /> Ver Demonstração
+            </Button>
+          </div>
+        </Reveal>
 
         <div className="mt-16 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full text-left">
           {[
@@ -286,11 +351,13 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             { icon: ShieldCheck, title: "Segurança Ética (CFO)", desc: "Filtros automáticos que garantem conformidade com o Código de Ética." },
             { icon: LayoutDashboard, title: "Gestão Integrada", desc: "Do roteiro à publicação com Kanban e Calendário editorial inteligentes." }
           ].map((item, i) => (
-            <div key={i} className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6 hover:bg-zinc-900/60 hover:border-brand-teal/20 transition-all duration-300 group">
-              <item.icon className="w-8 h-8 text-brand-teal mb-4 group-hover:scale-110 transition-transform duration-300" />
-              <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
-            </div>
+            <Reveal key={i} delay={500 + (i * 150)} direction="up" className="h-full">
+              <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6 hover:bg-zinc-900/60 hover:border-brand-teal/20 transition-all duration-300 group h-full">
+                <item.icon className="w-8 h-8 text-brand-teal mb-4 group-hover:scale-110 transition-transform duration-300" />
+                <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -299,13 +366,17 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       <section className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-              Um sistema de criação de <br />
-              conteúdo especializado para <span className="text-brand-teal">atrair pacientes.</span>
-            </h2>
-            <p className="text-zinc-400 text-lg leading-relaxed">
-              A maioria dos dentistas cria conteúdo para impressionar outros dentistas — linguagem técnica, posts engessados e distantes da realidade. A OdontoContent ajuda você a falar a língua de quem compra.
-            </p>
+            <Reveal>
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
+                Um sistema de criação de <br />
+                conteúdo especializado para <span className="text-brand-teal">atrair pacientes.</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={200}>
+              <p className="text-zinc-400 text-lg leading-relaxed">
+                A maioria dos dentistas cria conteúdo para impressionar outros dentistas — linguagem técnica, posts engessados e distantes da realidade. A OdontoContent ajuda você a falar a língua de quem compra.
+              </p>
+            </Reveal>
           </div>
 
           <MockBrowserWindow className="max-w-5xl mx-auto transform hover:scale-[1.005] transition-transform duration-700 shadow-[0_0_50px_-10px_rgba(45,212,191,0.15)] border-brand-teal/20">
@@ -377,21 +448,23 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Um redator sênior <br />
-                <span className="text-zinc-500">que estudou odontologia.</span>
-              </h2>
-              <div className="space-y-6">
-                <p className="text-zinc-400 text-lg leading-relaxed">
-                  A maioria dos dentistas cria conteúdo para impressionar outros dentistas — linguagem técnica, casos clínicos complexos e fotos intraorais.
-                </p>
-                <p className="text-white text-lg leading-relaxed border-l-2 border-brand-teal pl-6">
-                  A <strong>OdontoContent</strong> inverte esse jogo. Ela ajuda você a falar a língua de quem assina o cheque: o paciente. Conteúdo que conecta, educa e converte.
-                </p>
-              </div>
-              <Button variant="primary" onClick={onLogin} className="mt-8">
-                Conheça a Tecnologia
-              </Button>
+              <Reveal direction="left">
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                  Um redator sênior <br />
+                  <span className="text-zinc-500">que estudou odontologia.</span>
+                </h2>
+                <div className="space-y-6">
+                  <p className="text-zinc-400 text-lg leading-relaxed">
+                    A maioria dos dentistas cria conteúdo para impressionar outros dentistas — linguagem técnica, casos clínicos complexos e fotos intraorais.
+                  </p>
+                  <p className="text-white text-lg leading-relaxed border-l-2 border-brand-teal pl-6">
+                    A <strong>OdontoContent</strong> inverte esse jogo. Ela ajuda você a falar a língua de quem assina o cheque: o paciente. Conteúdo que conecta, educa e converte.
+                  </p>
+                </div>
+                <Button variant="primary" onClick={onLogin} className="mt-8">
+                  Conheça a Tecnologia
+                </Button>
+              </Reveal>
             </div>
 
             <div className="relative">
@@ -425,13 +498,15 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       <section className="py-24 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Do caos à clínica lotada
-            </h2>
-            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-              Organize sua produção de conteúdo com visualizações profissionais em Kanban ou Calendário.
-              <span className="text-brand-teal block mt-1 font-medium">Você nunca mais vai esquecer de postar.</span>
-            </p>
+            <Reveal>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Do caos à clínica lotada
+              </h2>
+              <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+                Organize sua produção de conteúdo com visualizações profissionais em Kanban ou Calendário.
+                <span className="text-brand-teal block mt-1 font-medium">Você nunca mais vai esquecer de postar.</span>
+              </p>
+            </Reveal>
           </div>
 
           <MockBrowserWindow title="Planejamento Editorial - Dr. Andre Silva">
@@ -491,91 +566,95 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       {/* SECTION 5: Wizard Steps */}
       <section className="py-24 px-4">
         <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8">
-            <div className="max-w-2xl">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                <span className="text-brand-teal">Três cliques</span> até o post pronto.
-              </h2>
-              <p className="text-zinc-400 text-lg">
-                Você digita o tema. A IA te dá a estratégia, escreve o roteiro e gera a legenda. Você só precisa gravar ou aprovar a arte.
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-2xl bg-brand-teal/10 border border-brand-teal text-brand-teal flex items-center justify-center font-bold text-xl">1</div>
-                <span className="text-xs text-zinc-500 font-medium">Tema</span>
+          <Reveal>
+            <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8">
+              <div className="max-w-2xl">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                  <span className="text-brand-teal">Três cliques</span> até o post pronto.
+                </h2>
+                <p className="text-zinc-400 text-lg">
+                  Você digita o tema. A IA te dá a estratégia, escreve o roteiro e gera a legenda. Você só precisa gravar ou aprovar a arte.
+                </p>
               </div>
-              <div className="w-8 h-px bg-zinc-800 mt-6"></div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 text-white flex items-center justify-center font-bold text-xl">2</div>
-                <span className="text-xs text-zinc-500 font-medium">Estratégia</span>
-              </div>
-              <div className="w-8 h-px bg-zinc-800 mt-6"></div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 text-white flex items-center justify-center font-bold text-xl">3</div>
-                <span className="text-xs text-zinc-500 font-medium">Ativos</span>
-              </div>
-            </div>
-          </div>
-
-          <MockBrowserWindow className="max-w-4xl mx-auto border-brand-teal/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
-            <div className="bg-zinc-950 p-6 md:p-8">
-              <div className="flex items-center justify-between mb-8 pb-4 border-b border-zinc-900">
-                <div>
-                  <h4 className="text-lg font-bold text-white flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-brand-teal" /> Estratégia Aprovada
-                  </h4>
-                  <p className="text-xs text-zinc-500 mt-1">Gerando ativos finais...</p>
+              <div className="flex gap-4">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-2xl bg-brand-teal/10 border border-brand-teal text-brand-teal flex items-center justify-center font-bold text-xl">1</div>
+                  <span className="text-xs text-zinc-500 font-medium">Tema</span>
                 </div>
-                <span className="px-3 py-1 bg-brand-teal/10 text-brand-teal text-xs font-bold rounded-full border border-brand-teal/20">IA Generativa Ativa</span>
+                <div className="w-8 h-px bg-zinc-800 mt-6"></div>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 text-white flex items-center justify-center font-bold text-xl">2</div>
+                  <span className="text-xs text-zinc-500 font-medium">Estratégia</span>
+                </div>
+                <div className="w-8 h-px bg-zinc-800 mt-6"></div>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 text-white flex items-center justify-center font-bold text-xl">3</div>
+                  <span className="text-xs text-zinc-500 font-medium">Ativos</span>
+                </div>
               </div>
+            </div>
+          </Reveal>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Script Card */}
-                <div className="p-5 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-brand-teal/30 transition-all group">
-                  <div className="flex gap-3 mb-4">
-                    <div className="p-2 bg-brand-teal/10 rounded-lg text-brand-teal group-hover:scale-110 transition-transform"><PlayCircle className="w-5 h-5" /></div>
-                    <div>
-                      <p className="text-sm font-bold text-white">Roteiro de Vídeo</p>
-                      <p className="text-[10px] text-zinc-500">Otimizado para retenção</p>
+          <Reveal delay={300}>
+            <MockBrowserWindow className="max-w-4xl mx-auto border-brand-teal/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+              <div className="bg-zinc-950 p-6 md:p-8">
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-zinc-900">
+                  <div>
+                    <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-brand-teal" /> Estratégia Aprovada
+                    </h4>
+                    <p className="text-xs text-zinc-500 mt-1">Gerando ativos finais...</p>
+                  </div>
+                  <span className="px-3 py-1 bg-brand-teal/10 text-brand-teal text-xs font-bold rounded-full border border-brand-teal/20">IA Generativa Ativa</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Script Card */}
+                  <div className="p-5 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-brand-teal/30 transition-all group">
+                    <div className="flex gap-3 mb-4">
+                      <div className="p-2 bg-brand-teal/10 rounded-lg text-brand-teal group-hover:scale-110 transition-transform"><PlayCircle className="w-5 h-5" /></div>
+                      <div>
+                        <p className="text-sm font-bold text-white">Roteiro de Vídeo</p>
+                        <p className="text-[10px] text-zinc-500">Otimizado para retenção</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3 font-mono text-xs">
+                      <p className="text-zinc-500">[00:00 - GANCHO VISUAL]</p>
+                      <p className="text-zinc-300 pl-2 border-l-2 border-zinc-700">Segure uma xícara de café, olhe para ela e depois sorria para a câmera.</p>
+                      <p className="text-zinc-500 mt-2">[00:05 - FALADO]</p>
+                      <p className="text-white pl-2 border-l-2 border-brand-teal">"Você ama isso aqui, né? Mas morre de medo do que ele faz com a cor do seu sorriso..."</p>
                     </div>
                   </div>
-                  <div className="space-y-3 font-mono text-xs">
-                    <p className="text-zinc-500">[00:00 - GANCHO VISUAL]</p>
-                    <p className="text-zinc-300 pl-2 border-l-2 border-zinc-700">Segure uma xícara de café, olhe para ela e depois sorria para a câmera.</p>
-                    <p className="text-zinc-500 mt-2">[00:05 - FALADO]</p>
-                    <p className="text-white pl-2 border-l-2 border-brand-teal">"Você ama isso aqui, né? Mas morre de medo do que ele faz com a cor do seu sorriso..."</p>
-                  </div>
-                </div>
 
-                {/* Caption Card */}
-                <div className="p-5 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-brand-teal/30 transition-all group">
-                  <div className="flex gap-3 mb-4">
-                    <div className="p-2 bg-brand-teal/10 rounded-lg text-brand-teal group-hover:scale-110 transition-transform"><FileText className="w-5 h-5" /></div>
-                    <div>
-                      <p className="text-sm font-bold text-white">Legenda Pronta</p>
-                      <p className="text-zinc-500">Com SEO e Disclaimer</p>
+                  {/* Caption Card */}
+                  <div className="p-5 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-brand-teal/30 transition-all group">
+                    <div className="flex gap-3 mb-4">
+                      <div className="p-2 bg-brand-teal/10 rounded-lg text-brand-teal group-hover:scale-110 transition-transform"><FileText className="w-5 h-5" /></div>
+                      <div>
+                        <p className="text-sm font-bold text-white">Legenda Pronta</p>
+                        <p className="text-zinc-500">Com SEO e Disclaimer</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-zinc-400 leading-relaxed mb-4 line-clamp-4">
+                      O café não é o vilão. O vilão é a porosidade do esmalte desprotegido. ☕✨
+                      <br /><br />
+                      Muita gente deixa de viver pequenos prazeres por vergonha dos dentes. Mas a odontologia moderna permite blindar seu sorriso.
+                    </p>
+                    <div className="flex gap-2">
+                      <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-500">#clareamento</span>
+                      <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-500">#autoestima</span>
                     </div>
                   </div>
-                  <p className="text-xs text-zinc-400 leading-relaxed mb-4 line-clamp-4">
-                    O café não é o vilão. O vilão é a porosidade do esmalte desprotegido. ☕✨
-                    <br /><br />
-                    Muita gente deixa de viver pequenos prazeres por vergonha dos dentes. Mas a odontologia moderna permite blindar seu sorriso.
-                  </p>
-                  <div className="flex gap-2">
-                    <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-500">#clareamento</span>
-                    <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-500">#autoestima</span>
-                  </div>
+                </div>
+
+                <div className="flex justify-end mt-6">
+                  <Button variant="gradient" className="py-2 h-10 text-sm shadow-lg shadow-brand-teal/20">
+                    <Sparkles className="w-4 h-4 mr-2" /> Gerar Conteúdo Completo
+                  </Button>
                 </div>
               </div>
-
-              <div className="flex justify-end mt-6">
-                <Button variant="gradient" className="py-2 h-10 text-sm shadow-lg shadow-brand-teal/20">
-                  <Sparkles className="w-4 h-4 mr-2" /> Gerar Conteúdo Completo
-                </Button>
-              </div>
-            </div>
-          </MockBrowserWindow>
+            </MockBrowserWindow>
+          </Reveal>
         </div>
       </section>
 
@@ -585,60 +664,66 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
         <div className="max-w-4xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Roteiros que prendem até o fim.</h2>
-            <p className="text-zinc-400 text-base leading-relaxed max-w-2xl mx-auto">
-              Esqueça o "Olá, sou o Dr. Fulano". A OdontoContent usa ganchos de <strong>dopamina</strong> e estruturas de storytelling de cinema para garantir que o paciente assista, entenda e deseje.
-            </p>
+            <Reveal>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Roteiros que prendem até o fim.</h2>
+              <p className="text-zinc-400 text-base leading-relaxed max-w-2xl mx-auto">
+                Esqueça o "Olá, sou o Dr. Fulano". A OdontoContent usa ganchos de <strong>dopamina</strong> e estruturas de storytelling de cinema para garantir que o paciente assista, entenda e deseje.
+              </p>
+            </Reveal>
           </div>
 
-          <div className="bg-zinc-900 rounded-2xl border border-zinc-800 shadow-2xl relative overflow-hidden group hover:border-brand-teal/30 transition-colors duration-500">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-teal via-teal-600 to-emerald-500" />
-            <div className="flex border-b border-zinc-800 bg-zinc-950/50 backdrop-blur">
-              <div className="px-6 py-3 text-xs font-mono text-brand-teal border-r border-zinc-800 flex items-center gap-2">
-                <PlayCircle className="w-3 h-3" /> SCRIPT.DOC
+          <Reveal delay={200} direction="up">
+            <div className="bg-zinc-900 rounded-2xl border border-zinc-800 shadow-2xl relative overflow-hidden group hover:border-brand-teal/30 transition-colors duration-500">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-teal via-teal-600 to-emerald-500" />
+              <div className="flex border-b border-zinc-800 bg-zinc-950/50 backdrop-blur">
+                <div className="px-6 py-3 text-xs font-mono text-brand-teal border-r border-zinc-800 flex items-center gap-2">
+                  <PlayCircle className="w-3 h-3" /> SCRIPT.DOC
+                </div>
+                <div className="px-6 py-3 text-xs font-mono text-zinc-500">
+                  LEITURA ESTIMADA: 45s
+                </div>
               </div>
-              <div className="px-6 py-3 text-xs font-mono text-zinc-500">
-                LEITURA ESTIMADA: 45s
+
+              <div className="p-8 md:p-10 font-mono text-sm leading-loose text-zinc-300 bg-[#0A0A0A]">
+                <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity">
+                  <span className="text-teal-400">INT. CONSULTÓRIO - DIA</span>
+                  <br />
+                  <span className="text-zinc-600 italic">O Dr. olha para a câmera. Luz dramática, foco suave ao fundo.</span>
+                </div>
+
+                <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal transition-colors">
+                  <strong className="text-white block mb-1">DR. ANDRE</strong>
+                  "Você já deixou de sorrir numa foto por achar que seus dentes não estavam 'brancos o suficiente'?"
+                </p>
+
+                <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity">
+                  <span className="text-teal-400">CORTE PARA:</span>
+                  <span className="text-zinc-600 italic"> Close-up extremo de café caindo no leite. Câmera lenta.</span>
+                </div>
+
+                <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal transition-colors">
+                  <strong className="text-white block mb-1">NARRADOR (VO)</strong>
+                  "Essa pressão estética é real. Mas o branco 'geladeira' ficou no passado. O novo luxo é a translucidez natural."
+                </p>
+
+                <div className="mt-8 pt-8 border-t border-zinc-900 flex justify-between items-center">
+                  <span className="text-xs text-zinc-600">Gerado por IA Cultural</span>
+                  <Button variant="ghost" className="text-xs h-8 hover:bg-zinc-800">
+                    <Copy className="w-3 h-3 mr-2" /> Copiar Texto
+                  </Button>
+                </div>
               </div>
             </div>
-
-            <div className="p-8 md:p-10 font-mono text-sm leading-loose text-zinc-300 bg-[#0A0A0A]">
-              <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity">
-                <span className="text-teal-400">INT. CONSULTÓRIO - DIA</span>
-                <br />
-                <span className="text-zinc-600 italic">O Dr. olha para a câmera. Luz dramática, foco suave ao fundo.</span>
-              </div>
-
-              <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal transition-colors">
-                <strong className="text-white block mb-1">DR. ANDRE</strong>
-                "Você já deixou de sorrir numa foto por achar que seus dentes não estavam 'brancos o suficiente'?"
-              </p>
-
-              <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity">
-                <span className="text-teal-400">CORTE PARA:</span>
-                <span className="text-zinc-600 italic"> Close-up extremo de café caindo no leite. Câmera lenta.</span>
-              </div>
-
-              <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal transition-colors">
-                <strong className="text-white block mb-1">NARRADOR (VO)</strong>
-                "Essa pressão estética é real. Mas o branco 'geladeira' ficou no passado. O novo luxo é a translucidez natural."
-              </p>
-
-              <div className="mt-8 pt-8 border-t border-zinc-900 flex justify-between items-center">
-                <span className="text-xs text-zinc-600">Gerado por IA Cultural</span>
-                <Button variant="ghost" className="text-xs h-8 hover:bg-zinc-800">
-                  <Copy className="w-3 h-3 mr-2" /> Copiar Texto
-                </Button>
-              </div>
-            </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* SECTION 7: Benefits Grid */}
       <section className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-bold text-white text-center mb-16">Por que +800 dentistas<br />escolheram a OdontoContent?</h2>
+          <Reveal>
+            <h2 className="text-3xl md:text-5xl font-bold text-white text-center mb-16">Por que +800 dentistas<br />escolheram a OdontoContent?</h2>
+          </Reveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -647,13 +732,15 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
               { icon: TrendingUp, title: "Autoridade Digital", text: "Quem educa o mercado, domina o mercado. Torne-se a referência da sua cidade." },
               { icon: BarChart3, title: "Foco na Conversão", text: "Cada post tem um propósito estratégico: agendamento, branding ou fidelização." }
             ].map((item, i) => (
-              <div key={i} className="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 hover:bg-zinc-900 hover:border-zinc-700 transition-all duration-300 group hover:-translate-y-1">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-brand-teal/10 text-brand-teal group-hover:scale-110 transition-transform">
-                  <item.icon className="w-6 h-6" />
+              <Reveal key={i} delay={200 + (i * 100)} className="h-full">
+                <div className="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 hover:bg-zinc-900 hover:border-zinc-700 transition-all duration-300 group hover:-translate-y-1 h-full">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-brand-teal/10 text-brand-teal group-hover:scale-110 transition-transform">
+                    <item.icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-zinc-500 text-sm leading-relaxed group-hover:text-zinc-400 transition-colors">{item.text}</p>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                <p className="text-zinc-500 text-sm leading-relaxed group-hover:text-zinc-400 transition-colors">{item.text}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -744,45 +831,49 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       {/* SECTION 8: Pricing Table (Converted to Card) */}
       <section className="py-24 px-4">
         <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">Investimento que se paga<br />na primeira consulta particular.</h2>
-          <p className="text-zinc-400 mb-12 max-w-2xl mx-auto">Sem fidelidade. Sem taxas escondidas. Cancele quando quiser.</p>
+          <Reveal>
+            <h2 className="text-3xl font-bold text-white mb-6">Investimento que se paga<br />na primeira consulta particular.</h2>
+            <p className="text-zinc-400 mb-12 max-w-2xl mx-auto">Sem fidelidade. Sem taxas escondidas. Cancele quando quiser.</p>
+          </Reveal>
 
-          <div className="max-w-md mx-auto relative group">
-            {/* Glow Effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-brand-teal to-teal-800 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+          <Reveal delay={200} direction="up">
+            <div className="max-w-md mx-auto relative group">
+              {/* Glow Effect */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-brand-teal to-teal-800 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
 
-            <div className="relative bg-zinc-950 border border-zinc-800 rounded-2xl p-8 md:p-10 shadow-2xl">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-teal text-brand-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-brand-teal/20">
-                Oferta de Lançamento
+              <div className="relative bg-zinc-950 border border-zinc-800 rounded-2xl p-8 md:p-10 shadow-2xl">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-teal text-brand-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-brand-teal/20">
+                  Oferta de Lançamento
+                </div>
+
+                <h3 className="text-lg font-medium text-zinc-400 mb-2">Plano Pro Odonto</h3>
+                <div className="flex items-baseline justify-center gap-1 mb-6">
+                  <span className="text-5xl font-bold text-white">R$ 29,90</span>
+                  <span className="text-zinc-500">/mês</span>
+                </div>
+
+                <div className="space-y-4 mb-8 text-left">
+                  {[
+                    "Gerador Ilimitado de Roteiros e Legendas",
+                    "Calendário Editorial & Kanban",
+                    "Gestão de Equipe (até 3 usuários)",
+                    "IA treinada com normas do CFO",
+                    "Suporte prioritário via WhatsApp"
+                  ].map((feat, i) => (
+                    <div key={i} className="flex items-center gap-3 text-sm text-zinc-300">
+                      <CheckCircle2 className="w-5 h-5 text-brand-teal shrink-0" />
+                      {feat}
+                    </div>
+                  ))}
+                </div>
+
+                <Button onClick={onLogin} variant="gradient" className="w-full text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+                  Começar Agora
+                </Button>
+                <p className="text-xs text-zinc-600 mt-4">7 dias de garantia incondicional.</p>
               </div>
-
-              <h3 className="text-lg font-medium text-zinc-400 mb-2">Plano Pro Odonto</h3>
-              <div className="flex items-baseline justify-center gap-1 mb-6">
-                <span className="text-5xl font-bold text-white">R$ 29,90</span>
-                <span className="text-zinc-500">/mês</span>
-              </div>
-
-              <div className="space-y-4 mb-8 text-left">
-                {[
-                  "Gerador Ilimitado de Roteiros e Legendas",
-                  "Calendário Editorial & Kanban",
-                  "Gestão de Equipe (até 3 usuários)",
-                  "IA treinada com normas do CFO",
-                  "Suporte prioritário via WhatsApp"
-                ].map((feat, i) => (
-                  <div key={i} className="flex items-center gap-3 text-sm text-zinc-300">
-                    <CheckCircle2 className="w-5 h-5 text-brand-teal shrink-0" />
-                    {feat}
-                  </div>
-                ))}
-              </div>
-
-              <Button onClick={onLogin} variant="gradient" className="w-full text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
-                Começar Agora
-              </Button>
-              <p className="text-xs text-zinc-600 mt-4">7 dias de garantia incondicional.</p>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -799,14 +890,16 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             <p className="text-brand-teal font-bold animate-pulse">Agenda Cheia</p>
           </div>
 
-          <h2 className="text-4xl md:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
-            Pare de falar sozinho. <br />
-            Comece a <span className="text-brand-teal">atrair pacientes.</span>
-          </h2>
-          <p className="text-zinc-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
-            Sua presença digital pode ser simples, estratégica e magnética.
-            Junte-se a centenas de dentistas que já modernizaram seu marketing.
-          </p>
+          <Reveal>
+            <h2 className="text-4xl md:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
+              Pare de falar sozinho. <br />
+              Comece a <span className="text-brand-teal">atrair pacientes.</span>
+            </h2>
+            <p className="text-zinc-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
+              Sua presença digital pode ser simples, estratégica e magnética.
+              Junte-se a centenas de dentistas que já modernizaram seu marketing.
+            </p>
+          </Reveal>
           <div className="flex flex-col md:flex-row items-center justify-center gap-4">
             <Button onClick={onLogin} variant="gradient" className="text-lg px-12 py-5 h-auto w-full md:w-auto shadow-[0_0_40px_-10px_rgba(45,212,191,0.5)]">
               <Sparkles className="w-5 h-5 mr-2" />
