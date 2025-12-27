@@ -476,16 +476,15 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       .stagger-4 { animation-delay: 0.4s; }
       .stagger-5 { animation-delay: 0.5s; }
     `}</style>
-    {/* Background Effects - Fixed to persist during scroll with animations */}
-    <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-teal/5 rounded-full blur-[120px] pointer-events-none z-0 animate-float-slow" />
-    <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-emerald-600/5 rounded-full blur-[150px] pointer-events-none z-0 animate-float" style={{ animationDelay: '2s' }} />
-    <div className="fixed top-[30%] right-[20%] w-[300px] h-[300px] bg-cyan-500/3 rounded-full blur-[100px] pointer-events-none z-0 animate-float-slow" style={{ animationDelay: '4s' }} />
-    <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-teal/5 via-transparent to-transparent pointer-events-none z-0 opacity-50 animate-glow-pulse" />
+    {/* Background Effects - Fixed to persist during scroll */}
+    <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-teal/5 rounded-full blur-[120px] pointer-events-none z-0" />
+    <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-emerald-600/5 rounded-full blur-[150px] pointer-events-none z-0" />
+    <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-teal/5 via-transparent to-transparent pointer-events-none z-0 opacity-50" />
 
     <header className="flex justify-between items-center p-4 md:px-12 md:py-8 w-full z-10 relative">
-      <div className="flex items-center gap-2 group cursor-pointer">
-        <Sparkles className="w-8 h-8 md:w-9 md:h-9 text-brand-teal shrink-0 animate-bounce-subtle icon-bounce" />
-        <span className="text-2xl md:text-2xl font-bold tracking-tight text-white whitespace-nowrap"><span className="text-gradient-animate">Odonto</span>Content <span className="text-gradient-animate">IA</span></span>
+      <div className="flex items-center gap-2">
+        <Sparkles className="w-8 h-8 md:w-9 md:h-9 text-brand-teal shrink-0 animate-pulse" />
+        <span className="text-2xl md:text-2xl font-bold tracking-tight text-white whitespace-nowrap"><span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">Odonto</span>Content <span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">IA</span></span>
       </div>
       <button
         onClick={onLogin}
@@ -500,8 +499,8 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       {/* SECTION 1: HERO */}
       <section className="flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto mb-20 md:mb-32 pt-2 md:pt-10">
         <Reveal delay={100}>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-brand-teal/5 border border-brand-teal/20 text-brand-teal mt-2 mb-2 md:mt-0 md:mb-8 animate-pulse-glow hover-glow cursor-default">
-            <ShieldCheck className="w-3 h-3 md:w-4 md:h-4 animate-bounce-subtle" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-brand-teal/5 border border-brand-teal/20 text-brand-teal mt-2 mb-2 md:mt-0 md:mb-8 shadow-[0_0_20px_-10px_rgba(45,212,191,0.3)]">
+            <ShieldCheck className="w-3 h-3 md:w-4 md:h-4" />
             <span className="text-xs md:text-sm font-medium">100% Compatível com Normas do CFO</span>
           </div>
         </Reveal>
@@ -509,7 +508,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         <Reveal delay={200}>
           <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6 text-white leading-tight tracking-tight">
             Vire referência na <br />
-            <span className="text-gradient-animate drop-shadow-sm">Odontologia.</span>
+            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">Odontologia.</span>
           </h1>
         </Reveal>
 
@@ -521,12 +520,12 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
         <Reveal delay={400}>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0">
-            <Button onClick={onLogin} variant="gradient" className="text-base md:text-lg px-8 w-full sm:w-auto transform hover:scale-105 transition-transform duration-200 btn-ripple animate-pulse-glow">
+            <Button onClick={onLogin} variant="gradient" className="text-base md:text-lg px-8 w-full sm:w-auto transform hover:scale-105 transition-transform duration-200">
               Começar Teste Grátis
-              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <ChevronRight className="w-5 h-5" />
             </Button>
-            <Button variant="secondary" onClick={onLogin} className="w-full sm:w-auto hover:bg-zinc-800 hover-glow group">
-              <PlayCircle className="w-5 h-5 text-zinc-400 group-hover:text-brand-teal transition-colors group-hover:scale-110" /> Ver Demonstração
+            <Button variant="secondary" onClick={onLogin} className="w-full sm:w-auto hover:bg-zinc-800">
+              <PlayCircle className="w-5 h-5 text-zinc-400" /> Ver Demonstração
             </Button>
           </div>
         </Reveal>
@@ -538,10 +537,10 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             { icon: LayoutDashboard, title: "Gestão Integrada", desc: "Do roteiro à publicação com Kanban e Calendário editorial inteligentes." }
           ].map((item, i) => (
             <Reveal key={i} delay={500 + (i * 150)} direction="up" className="h-full">
-              <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6 hover:bg-zinc-900/60 hover:border-brand-teal/20 transition-all duration-300 group h-full hover-lift card-shine">
-                <item.icon className="w-8 h-8 text-brand-teal mb-4 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300" />
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-brand-teal transition-colors">{item.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed group-hover:text-zinc-300 transition-colors">{item.desc}</p>
+              <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6 hover:bg-zinc-900/60 hover:border-brand-teal/20 transition-all duration-300 group h-full">
+                <item.icon className="w-8 h-8 text-brand-teal mb-4 group-hover:scale-110 transition-transform duration-300" />
+                <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
               </div>
             </Reveal>
           ))}
