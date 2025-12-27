@@ -1,11 +1,11 @@
 import { NarrativeStructure, FinalAssets } from "../types";
 
 const getEnvVar = (key: string): string => {
-  return import.meta.env[key] || "";
+  return (import.meta.env[key] || "").trim();
 };
 
 const API_KEY = getEnvVar("VITE_OPENROUTER_API_KEY");
-const BASE_URL = getEnvVar("VITE_OPENROUTER_BASE_URL");
+const BASE_URL = getEnvVar("VITE_OPENROUTER_BASE_URL") || "https://openrouter.ai/api/v1";
 const MODEL = getEnvVar("VITE_OPENROUTER_MODEL") || "google/gemini-2.0-flash-exp:free";
 
 const SYSTEM_INSTRUCTION = `
