@@ -508,7 +508,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         <Reveal delay={200}>
           <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6 text-white leading-tight tracking-tight">
             Vire referência na <br />
-            <span className="bg-gradient-to-r from-brand-teal via-cyan-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(45,212,191,0.4)]">Odontologia.</span>
+            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(45,212,191,0.5)]">Odontologia.</span>
           </h1>
         </Reveal>
 
