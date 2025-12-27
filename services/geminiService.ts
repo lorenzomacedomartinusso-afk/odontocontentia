@@ -4,9 +4,9 @@ const getEnvVar = (key: string): string => {
   return (import.meta.env[key] || "").trim();
 };
 
-const API_KEY = getEnvVar("VITE_OPENROUTER_API_KEY");
-const BASE_URL = getEnvVar("VITE_OPENROUTER_BASE_URL") || "https://openrouter.ai/api/v1";
-const MODEL = getEnvVar("VITE_OPENROUTER_MODEL") || "google/gemini-2.0-flash-exp:free";
+const API_KEY = getEnvVar("VITE_GROQ_API_KEY");
+const BASE_URL = getEnvVar("VITE_GROQ_BASE_URL") || "https://api.groq.com/openai/v1";
+const MODEL = getEnvVar("VITE_GROQ_MODEL") || "llama-3.3-70b-versatile";
 
 const SYSTEM_INSTRUCTION = `
 Você é uma IA estrategista de conteúdo e especialista em copywriting cultural. Seu público são dentistas que desejam se comunicar com pessoas comuns — pacientes, sociedade e audiência geral — e não com outros profissionais da saúde. 
@@ -162,7 +162,20 @@ export const generateHooks = async (topic: string, onWait?: (msg: string) => voi
 
     const text = await callGemini(prompt, schema, true, onWait);
     const cleanText = cleanJson(text);
-    const data = JSON.parse(cleanText);
+    let data = JSON.parse(cleanText);
+
+    // Handle wrapped arrays (common with json_object mode)
+    if (!Array.isArray(data)) {
+      const arrayValue = Object.values(data).find((v) => Array.isArray(v));
+      if (arrayValue) data = arrayValue;
+    }
+
+    // Safety check
+    if (!Array.isArray(data)) {
+      console.error("Expected array, got:", data);
+      return ["Erro: Formato de resposta inválido."];
+    }
+
     return data.map((item: any) => `${item.title.toUpperCase()}: ${item.thesis}`);
   } catch (error: any) {
     console.error("Erro gerar hooks:", error);
@@ -179,7 +192,15 @@ export const generateHeadlines = async (topic: string, selectedHook: string, onW
       items: { type: "STRING" }
     };
     const text = await callGemini(prompt, schema, true, onWait);
-    return JSON.parse(cleanJson(text));
+    const cleanText = cleanJson(text);
+    let data = JSON.parse(cleanText);
+
+    if (!Array.isArray(data)) {
+      const arrayValue = Object.values(data).find((v) => Array.isArray(v));
+      if (arrayValue) data = arrayValue;
+    }
+
+    return Array.isArray(data) ? data : ["Erro: Formato inválido."];
   } catch (error) {
     return ["Erro ao gerar manchetes."];
   }
@@ -202,7 +223,15 @@ export const generateNarrative = async (topic: string, hook: string, headline: s
 
   try {
     const text = await callGemini(prompt, schema, true, onWait);
-    return JSON.parse(cleanJson(text)) as NarrativeStructure;
+    let data = JSON.parse(cleanJson(text));
+
+    // If wrapped, try to unwrap if the expected keys are missing but present inside
+    if (data && !data.tension && !data.cause) {
+      const inner = Object.values(data).find((v: any) => v && v.tension && v.cause);
+      if (inner) data = inner;
+    }
+
+    return data as NarrativeStructure;
   } catch (error) {
     throw new Error("Falha na narrativa");
   }
@@ -223,7 +252,15 @@ export const generateFinalAssets = async (topic: string, narrative: NarrativeStr
 
   try {
     const text = await callGemini(prompt, schema, true, onWait);
-    return JSON.parse(cleanJson(text)) as FinalAssets;
+    let data = JSON.parse(cleanJson(text));
+
+    // Unwrap if needed
+    if (data && !data.reelsScript && !data.caption) {
+      const inner = Object.values(data).find((v: any) => v && (v.reelsScript || v.caption));
+      if (inner) data = inner;
+    }
+
+    return data as FinalAssets;
   } catch (error) {
     throw new Error("Falha nos ativos finais");
   }
