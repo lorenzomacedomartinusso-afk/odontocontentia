@@ -1,8 +1,12 @@
 import { NarrativeStructure, FinalAssets } from "../types";
 
-// TODO: Voltaremos para variáveis de ambiente assim que estabilizar
-const API_KEY = "AIzaSyCUPWONSV_ST_DuI8RxYx-7y2-oAS1ZuHU";
-const MODEL = "gemini-2.0-flash";
+const getEnvVar = (key: string): string => {
+  return import.meta.env[key] || "";
+};
+
+const API_KEY = getEnvVar("VITE_OPENROUTER_API_KEY");
+const BASE_URL = getEnvVar("VITE_OPENROUTER_BASE_URL");
+const MODEL = getEnvVar("VITE_OPENROUTER_MODEL") || "google/gemini-2.0-flash-exp:free";
 
 const SYSTEM_INSTRUCTION = `
 Você é uma IA estrategista de conteúdo e especialista em copywriting cultural. Seu público são dentistas que desejam se comunicar com pessoas comuns — pacientes, sociedade e audiência geral — e não com outros profissionais da saúde. 
@@ -20,30 +24,41 @@ REGRAS DE OURO (RULES):
 `;
 
 async function callGemini(prompt: string, schema?: any, isJson = false, onWait?: (msg: string) => void): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+  // Use OpenRouter (OpenAI compatible) endpoint
+  const url = `${BASE_URL}/chat/completions`;
 
   const headers = {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${API_KEY}`,
+    "HTTP-Referer": "https://odontocontent.ai", // Required by OpenRouter
+    "X-Title": "OdontoContent IA", // Optional: shows in OpenRouter dashboard
   };
 
+  const messages = [
+    { role: "system", content: SYSTEM_INSTRUCTION },
+    { role: "user", content: prompt }
+  ];
+
+  /* 
+    OpenRouter/OpenAI usually handles 'response_format' for JSON, 
+    but for some models it might be better to just prompt for JSON 
+    or check if the model supports structed outputs. 
+    Gemini 2.0 Flash usually supports JSON mode well.
+  */
+
   const body: any = {
-    contents: [{
-      role: "user",
-      parts: [{ text: prompt }]
-    }],
-    systemInstruction: {
-      role: "user",
-      parts: [{ text: SYSTEM_INSTRUCTION }]
-    },
-    generationConfig: {
-      temperature: 0.7,
-    }
+    model: MODEL,
+    messages: messages,
+    temperature: 0.7,
   };
 
   if (isJson) {
-    body.generationConfig.responseMimeType = "application/json";
+    // OpenRouter standard for JSON
+    body.response_format = { type: "json_object" };
+
     if (schema) {
-      body.generationConfig.responseSchema = schema;
+      // Append schema to the prompt to guide the model
+      messages[1].content += `\n\nResponda APENAS com um JSON válido seguindo este schema:\n\`\`\`json\n${JSON.stringify(schema, null, 2)}\n\`\`\``;
     }
   }
 
@@ -65,19 +80,20 @@ async function callGemini(prompt: string, schema?: any, isJson = false, onWait?:
         attempt++;
         const errorText = await response.text();
 
-        // Try to parse "retry in X s"
+        // Try to parse "retry in X s" - OpenRouter might send different bodies
+        // but often standard OpenAI format or just check headers.
         const match = errorText.match(/retry in ([0-9.]+)s/);
         let waitTime = 5000 * attempt;
 
         if (match && match[1]) {
           waitTime = Math.ceil(parseFloat(match[1])) * 1000 + 2000; // time + 2s padding
-          const msg = `⏳ Cota do Google atingida. Aguardando ${match[1]}s...`;
+          const msg = `⏳ Cota atingida. Aguardando ${match[1]}s...`;
           console.warn(msg);
           if (onWait) onWait(msg);
         } else {
-          // Default fallback wait if google doesn't say time
-          waitTime = 30000; // 30s fixed wait
-          const msg = `⏳ Cota atingida. Aguardando liberação do servidor (30s)...`;
+          // Default fallback wait
+          waitTime = 10000;
+          const msg = `⏳ Cota atingida (OpenRouter). Aguardando liberação...`;
           console.warn(msg);
           if (onWait) onWait(msg);
         }
@@ -88,11 +104,12 @@ async function callGemini(prompt: string, schema?: any, isJson = false, onWait?:
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`Gemini API Error: ${errorData.error?.message || response.statusText}`);
+        throw new Error(`OpenRouter API Error: ${errorData.error?.message || response.statusText}`);
       }
 
       const data = await response.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      // OpenAI format: choices[0].message.content
+      return data.choices?.[0]?.message?.content || "";
 
     } catch (error: any) {
       console.error("Fetch error:", error);
@@ -113,6 +130,7 @@ const cleanJson = (text: string): string => {
   const firstBrace = clean.indexOf('{');
   const firstBracket = clean.indexOf('[');
   if (firstBrace === -1 && firstBracket === -1) return clean;
+  // Retorna a partir do primeiro { ou [
   const start = (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) ? firstBrace : firstBracket;
   return clean.substring(start);
 };
