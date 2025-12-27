@@ -290,16 +290,204 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       .cubic-bezier {
          transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
       }
+      
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(2deg); }
+      }
+      
+      @keyframes float-slow {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+      }
+      
+      @keyframes pulse-glow {
+        0%, 100% { 
+          box-shadow: 0 0 20px -5px rgba(45, 212, 191, 0.3);
+          transform: scale(1);
+        }
+        50% { 
+          box-shadow: 0 0 40px -5px rgba(45, 212, 191, 0.6);
+          transform: scale(1.02);
+        }
+      }
+      
+      @keyframes shimmer {
+        0% { background-position: -200% center; }
+        100% { background-position: 200% center; }
+      }
+      
+      @keyframes gradient-shift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+      }
+      
+      @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      
+      @keyframes bounce-subtle {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+      }
+      
+      @keyframes fade-in-up {
+        from { 
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to { 
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      @keyframes scale-in {
+        from { 
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to { 
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      
+      @keyframes glow-pulse {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+      }
+      
+      @keyframes typing {
+        from { width: 0; }
+        to { width: 100%; }
+      }
+      
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+      
+      .animate-float { animation: float 6s ease-in-out infinite; }
+      .animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
+      .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+      .animate-shimmer { 
+        background: linear-gradient(90deg, transparent 0%, rgba(45, 212, 191, 0.1) 50%, transparent 100%);
+        background-size: 200% 100%;
+        animation: shimmer 3s ease-in-out infinite; 
+      }
+      .animate-gradient-shift { 
+        background-size: 200% 200%;
+        animation: gradient-shift 4s ease infinite; 
+      }
+      .animate-spin-slow { animation: spin-slow 20s linear infinite; }
+      .animate-bounce-subtle { animation: bounce-subtle 2s ease-in-out infinite; }
+      .animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+      
+      .hover-lift {
+        transition: all 0.4s cubic-bezier(0.17, 0.55, 0.55, 1);
+      }
+      .hover-lift:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px -15px rgba(45, 212, 191, 0.2);
+      }
+      
+      .hover-glow {
+        transition: all 0.3s ease;
+      }
+      .hover-glow:hover {
+        box-shadow: 0 0 30px -5px rgba(45, 212, 191, 0.4);
+      }
+      
+      .text-gradient-animate {
+        background: linear-gradient(90deg, #2dd4bf, #ffffff, #34d399, #2dd4bf);
+        background-size: 300% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradient-shift 6s ease infinite;
+      }
+      
+      .card-shine {
+        position: relative;
+        overflow: hidden;
+      }
+      .card-shine::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 200%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(45, 212, 191, 0.03), transparent);
+        transition: transform 0.6s ease;
+      }
+      .card-shine:hover::before {
+        transform: translateX(100%);
+      }
+      
+      .icon-bounce {
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .icon-bounce:hover {
+        transform: scale(1.15) rotate(5deg);
+      }
+      
+      .btn-ripple {
+        position: relative;
+        overflow: hidden;
+      }
+      .btn-ripple::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+      }
+      .btn-ripple:hover::after {
+        width: 300px;
+        height: 300px;
+      }
+      
+      .border-glow {
+        position: relative;
+      }
+      .border-glow::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        background: linear-gradient(45deg, #2dd4bf, transparent, #2dd4bf);
+        border-radius: inherit;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      .border-glow:hover::before {
+        opacity: 1;
+      }
+      
+      .stagger-1 { animation-delay: 0.1s; }
+      .stagger-2 { animation-delay: 0.2s; }
+      .stagger-3 { animation-delay: 0.3s; }
+      .stagger-4 { animation-delay: 0.4s; }
+      .stagger-5 { animation-delay: 0.5s; }
     `}</style>
-    {/* Background Effects - Fixed to persist during scroll */}
-    <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-teal/5 rounded-full blur-[120px] pointer-events-none z-0" />
-    <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-emerald-600/5 rounded-full blur-[150px] pointer-events-none z-0" />
-    <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-teal/5 via-transparent to-transparent pointer-events-none z-0 opacity-50" />
+    {/* Background Effects - Fixed to persist during scroll with animations */}
+    <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-teal/5 rounded-full blur-[120px] pointer-events-none z-0 animate-float-slow" />
+    <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-emerald-600/5 rounded-full blur-[150px] pointer-events-none z-0 animate-float" style={{ animationDelay: '2s' }} />
+    <div className="fixed top-[30%] right-[20%] w-[300px] h-[300px] bg-cyan-500/3 rounded-full blur-[100px] pointer-events-none z-0 animate-float-slow" style={{ animationDelay: '4s' }} />
+    <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-teal/5 via-transparent to-transparent pointer-events-none z-0 opacity-50 animate-glow-pulse" />
 
     <header className="flex justify-between items-center p-4 md:px-12 md:py-8 w-full z-10 relative">
-      <div className="flex items-center gap-2">
-        <Sparkles className="w-8 h-8 md:w-9 md:h-9 text-brand-teal shrink-0 animate-pulse" />
-        <span className="text-2xl md:text-2xl font-bold tracking-tight text-white whitespace-nowrap"><span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">Odonto</span>Content <span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">IA</span></span>
+      <div className="flex items-center gap-2 group cursor-pointer">
+        <Sparkles className="w-8 h-8 md:w-9 md:h-9 text-brand-teal shrink-0 animate-bounce-subtle icon-bounce" />
+        <span className="text-2xl md:text-2xl font-bold tracking-tight text-white whitespace-nowrap"><span className="text-gradient-animate">Odonto</span>Content <span className="text-gradient-animate">IA</span></span>
       </div>
       <button
         onClick={onLogin}
@@ -314,8 +502,8 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       {/* SECTION 1: HERO */}
       <section className="flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto mb-20 md:mb-32 pt-2 md:pt-10">
         <Reveal delay={100}>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-brand-teal/5 border border-brand-teal/20 text-brand-teal mt-2 mb-2 md:mt-0 md:mb-8 shadow-[0_0_20px_-10px_rgba(45,212,191,0.3)]">
-            <ShieldCheck className="w-3 h-3 md:w-4 md:h-4" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-brand-teal/5 border border-brand-teal/20 text-brand-teal mt-2 mb-2 md:mt-0 md:mb-8 animate-pulse-glow hover-glow cursor-default">
+            <ShieldCheck className="w-3 h-3 md:w-4 md:h-4 animate-bounce-subtle" />
             <span className="text-xs md:text-sm font-medium">100% Compatível com Normas do CFO</span>
           </div>
         </Reveal>
@@ -323,7 +511,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         <Reveal delay={200}>
           <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6 text-white leading-tight tracking-tight">
             Vire referência na <br />
-            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">Odontologia.</span>
+            <span className="text-gradient-animate drop-shadow-sm">Odontologia.</span>
           </h1>
         </Reveal>
 
@@ -335,12 +523,12 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
         <Reveal delay={400}>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0">
-            <Button onClick={onLogin} variant="gradient" className="text-base md:text-lg px-8 w-full sm:w-auto transform hover:scale-105 transition-transform duration-200">
+            <Button onClick={onLogin} variant="gradient" className="text-base md:text-lg px-8 w-full sm:w-auto transform hover:scale-105 transition-transform duration-200 btn-ripple animate-pulse-glow">
               Começar Teste Grátis
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button variant="secondary" onClick={onLogin} className="w-full sm:w-auto hover:bg-zinc-800">
-              <PlayCircle className="w-5 h-5 text-zinc-400" /> Ver Demonstração
+            <Button variant="secondary" onClick={onLogin} className="w-full sm:w-auto hover:bg-zinc-800 hover-glow group">
+              <PlayCircle className="w-5 h-5 text-zinc-400 group-hover:text-brand-teal transition-colors group-hover:scale-110" /> Ver Demonstração
             </Button>
           </div>
         </Reveal>
@@ -352,10 +540,10 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             { icon: LayoutDashboard, title: "Gestão Integrada", desc: "Do roteiro à publicação com Kanban e Calendário editorial inteligentes." }
           ].map((item, i) => (
             <Reveal key={i} delay={500 + (i * 150)} direction="up" className="h-full">
-              <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6 hover:bg-zinc-900/60 hover:border-brand-teal/20 transition-all duration-300 group h-full">
-                <item.icon className="w-8 h-8 text-brand-teal mb-4 group-hover:scale-110 transition-transform duration-300" />
-                <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
+              <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6 hover:bg-zinc-900/60 hover:border-brand-teal/20 transition-all duration-300 group h-full hover-lift card-shine">
+                <item.icon className="w-8 h-8 text-brand-teal mb-4 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300" />
+                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-brand-teal transition-colors">{item.title}</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed group-hover:text-zinc-300 transition-colors">{item.desc}</p>
               </div>
             </Reveal>
           ))}
@@ -433,8 +621,8 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           </MockBrowserWindow>
 
           <div className="mt-12 flex justify-center">
-            <Button onClick={onLogin} variant="gradient" className="text-base px-8 py-3 h-auto shadow-[0_0_30px_-5px_rgba(45,212,191,0.3)] hover:shadow-[0_0_50px_-10px_rgba(45,212,191,0.6)] hover:scale-105 transition-all duration-300">
-              <Sparkles className="w-4 h-4 mr-2" />
+            <Button onClick={onLogin} variant="gradient" className="text-base px-8 py-3 h-auto shadow-[0_0_30px_-5px_rgba(45,212,191,0.3)] hover:shadow-[0_0_50px_-10px_rgba(45,212,191,0.6)] hover:scale-105 transition-all duration-300 btn-ripple group">
+              <Sparkles className="w-4 h-4 mr-2 group-hover:animate-spin" />
               Experimente com seu tema agora
             </Button>
           </div>
@@ -470,20 +658,20 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             <div className="relative">
               {/* Visual Representation of "Translation" */}
               <div className="space-y-4">
-                <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl opacity-50 scale-95 origin-left">
+                <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl opacity-50 scale-95 origin-left hover:opacity-70 transition-opacity duration-300">
                   <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Como você postava</p>
                   <p className="text-zinc-600 text-sm line-through">"Caso de reabilitação oral com facetas em disilicato de lítio e aumento de DVO..."</p>
                 </div>
 
                 <div className="flex justify-center -my-2 relative z-10">
-                  <div className="bg-zinc-800 p-2 rounded-full border border-zinc-700 text-zinc-400">
-                    <RefreshCw className="w-4 h-4" />
+                  <div className="bg-zinc-800 p-2 rounded-full border border-zinc-700 text-zinc-400 hover:text-brand-teal hover:border-brand-teal/50 transition-all duration-300 cursor-pointer group">
+                    <RefreshCw className="w-4 h-4 group-hover:animate-spin" />
                   </div>
                 </div>
 
-                <div className="p-6 bg-brand-teal/5 border border-brand-teal/30 rounded-xl shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)]">
+                <div className="p-6 bg-brand-teal/5 border border-brand-teal/30 rounded-xl shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] hover-glow hover:scale-[1.02] transition-all duration-300">
                   <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-4 h-4 text-brand-teal" />
+                    <Sparkles className="w-4 h-4 text-brand-teal animate-pulse" />
                     <p className="text-xs text-brand-teal uppercase font-bold">Como a IA cria</p>
                   </div>
                   <p className="text-white font-medium text-lg">"Parece mágica, mas é ciência: devolvemos anos de juventude ao seu rosto apenas ajustando o formato do seu sorriso."</p>
@@ -520,7 +708,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
                 { title: 'Produção', count: 1, color: 'bg-teal-700' },
                 { title: 'Publicado', count: 12, color: 'bg-brand-teal' }
               ].map((col, i) => (
-                <div key={col.title} className="bg-zinc-900/40 rounded-xl p-3 border border-zinc-800/50 flex flex-col gap-3 min-h-[300px]">
+                <div key={col.title} className={`bg-zinc-900/40 rounded-xl p-3 border border-zinc-800/50 flex flex-col gap-3 min-h-[300px] hover:border-zinc-700 transition-all duration-300 stagger-${i + 1}`} style={{ animation: 'fade-in-up 0.6s ease forwards', animationDelay: `${i * 0.15}s`, opacity: 0 }}>
                   <div className="flex justify-between items-center px-1">
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${col.color}`} />
@@ -673,11 +861,11 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           </div>
 
           <Reveal delay={200} direction="up">
-            <div className="bg-zinc-900 rounded-2xl border border-zinc-800 shadow-2xl relative overflow-hidden group hover:border-brand-teal/30 transition-colors duration-500">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-teal via-teal-600 to-emerald-500" />
+            <div className="bg-zinc-900 rounded-2xl border border-zinc-800 shadow-2xl relative overflow-hidden group hover:border-brand-teal/30 transition-colors duration-500 hover-glow">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-teal via-teal-600 to-emerald-500 animate-gradient-shift" style={{ backgroundSize: '200% 100%' }} />
               <div className="flex border-b border-zinc-800 bg-zinc-950/50 backdrop-blur">
                 <div className="px-6 py-3 text-xs font-mono text-brand-teal border-r border-zinc-800 flex items-center gap-2">
-                  <PlayCircle className="w-3 h-3" /> SCRIPT.DOC
+                  <PlayCircle className="w-3 h-3 animate-pulse" /> SCRIPT.DOC
                 </div>
                 <div className="px-6 py-3 text-xs font-mono text-zinc-500">
                   LEITURA ESTIMADA: 45s
@@ -685,31 +873,31 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
               </div>
 
               <div className="p-8 md:p-10 font-mono text-sm leading-loose text-zinc-300 bg-[#0A0A0A]">
-                <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity">
+                <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity duration-500">
                   <span className="text-teal-400">INT. CONSULTÓRIO - DIA</span>
                   <br />
                   <span className="text-zinc-600 italic">O Dr. olha para a câmera. Luz dramática, foco suave ao fundo.</span>
                 </div>
 
-                <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal transition-colors">
+                <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal group-hover:pl-6 transition-all duration-300">
                   <strong className="text-white block mb-1">DR. ANDRE</strong>
                   "Você já deixou de sorrir numa foto por achar que seus dentes não estavam 'brancos o suficiente'?"
                 </p>
 
-                <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity">
+                <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity duration-500">
                   <span className="text-teal-400">CORTE PARA:</span>
                   <span className="text-zinc-600 italic"> Close-up extremo de café caindo no leite. Câmera lenta.</span>
                 </div>
 
-                <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal transition-colors">
+                <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal group-hover:pl-6 transition-all duration-300">
                   <strong className="text-white block mb-1">NARRADOR (VO)</strong>
                   "Essa pressão estética é real. Mas o branco 'geladeira' ficou no passado. O novo luxo é a translucidez natural."
                 </p>
 
                 <div className="mt-8 pt-8 border-t border-zinc-900 flex justify-between items-center">
                   <span className="text-xs text-zinc-600">Gerado por IA Cultural</span>
-                  <Button variant="ghost" className="text-xs h-8 hover:bg-zinc-800">
-                    <Copy className="w-3 h-3 mr-2" /> Copiar Texto
+                  <Button variant="ghost" className="text-xs h-8 hover:bg-zinc-800 group/btn">
+                    <Copy className="w-3 h-3 mr-2 group-hover/btn:scale-110 transition-transform" /> Copiar Texto
                   </Button>
                 </div>
               </div>
@@ -733,12 +921,12 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
               { icon: BarChart3, title: "Foco na Conversão", text: "Cada post tem um propósito estratégico: agendamento, branding ou fidelização." }
             ].map((item, i) => (
               <Reveal key={i} delay={200 + (i * 100)} className="h-full">
-                <div className="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 hover:bg-zinc-900 hover:border-zinc-700 transition-all duration-300 group hover:-translate-y-1 h-full">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-brand-teal/10 text-brand-teal group-hover:scale-110 transition-transform">
+                <div className="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800 hover:bg-zinc-900 hover:border-brand-teal/30 transition-all duration-300 group h-full hover-lift card-shine">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-brand-teal/10 text-brand-teal group-hover:scale-110 group-hover:rotate-6 group-hover:bg-brand-teal/20 transition-all duration-300">
                     <item.icon className="w-6 h-6" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed group-hover:text-zinc-400 transition-colors">{item.text}</p>
+                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-brand-teal transition-colors duration-300">{item.title}</h3>
+                  <p className="text-zinc-500 text-sm leading-relaxed group-hover:text-zinc-400 transition-colors duration-300">{item.text}</p>
                 </div>
               </Reveal>
             ))}
@@ -820,9 +1008,9 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           </div>
 
           <div className="mt-16 flex justify-center">
-            <Button onClick={onLogin} variant="gradient" className="text-lg px-10 py-4 h-auto shadow-[0_0_30px_-5px_rgba(45,212,191,0.3)] hover:shadow-[0_0_50px_-10px_rgba(45,212,191,0.6)] hover:scale-105 transition-all duration-300">
+            <Button onClick={onLogin} variant="gradient" className="text-lg px-10 py-4 h-auto shadow-[0_0_30px_-5px_rgba(45,212,191,0.3)] hover:shadow-[0_0_50px_-10px_rgba(45,212,191,0.6)] hover:scale-105 transition-all duration-300 btn-ripple group">
               Quero resultados assim
-              <ChevronRight className="w-5 h-5 ml-2" />
+              <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
         </div>
@@ -839,16 +1027,16 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           <Reveal delay={200} direction="up">
             <div className="max-w-md mx-auto relative group">
               {/* Glow Effect */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-brand-teal to-teal-800 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-brand-teal to-teal-800 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-glow-pulse"></div>
 
-              <div className="relative bg-zinc-950 border border-zinc-800 rounded-2xl p-8 md:p-10 shadow-2xl">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-teal text-brand-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-brand-teal/20">
+              <div className="relative bg-zinc-950 border border-zinc-800 rounded-2xl p-8 md:p-10 shadow-2xl hover:border-brand-teal/30 transition-all duration-500">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-teal text-brand-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-brand-teal/20 animate-bounce-subtle">
                   Oferta de Lançamento
                 </div>
 
                 <h3 className="text-lg font-medium text-zinc-400 mb-2">Plano Pro Odonto</h3>
                 <div className="flex items-baseline justify-center gap-1 mb-6">
-                  <span className="text-5xl font-bold text-white">R$ 29,90</span>
+                  <span className="text-5xl font-bold text-white group-hover:text-gradient-animate">R$ 29,90</span>
                   <span className="text-zinc-500">/mês</span>
                 </div>
 
@@ -860,14 +1048,14 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
                     "IA treinada com normas do CFO",
                     "Suporte prioritário via WhatsApp"
                   ].map((feat, i) => (
-                    <div key={i} className="flex items-center gap-3 text-sm text-zinc-300">
-                      <CheckCircle2 className="w-5 h-5 text-brand-teal shrink-0" />
+                    <div key={i} className="flex items-center gap-3 text-sm text-zinc-300 group/item hover:text-white transition-colors" style={{ animation: 'fade-in-up 0.4s ease forwards', animationDelay: `${i * 0.1}s`, opacity: 0 }}>
+                      <CheckCircle2 className="w-5 h-5 text-brand-teal shrink-0 group-hover/item:scale-110 transition-transform" />
                       {feat}
                     </div>
                   ))}
                 </div>
 
-                <Button onClick={onLogin} variant="gradient" className="w-full text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+                <Button onClick={onLogin} variant="gradient" className="w-full text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all btn-ripple animate-pulse-glow">
                   Começar Agora
                 </Button>
                 <p className="text-xs text-zinc-600 mt-4">7 dias de garantia incondicional.</p>
@@ -880,20 +1068,20 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       {/* SECTION 10: Final CTA */}
       <section className="py-32 px-4 relative overflow-hidden">
         <div className="absolute inset-0 z-0"></div>
-        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand-teal/50 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand-teal/50 to-transparent animate-shimmer"></div>
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 text-center text-xs md:text-base text-zinc-500 font-mono uppercase tracking-widest opacity-70">
-            <p className="line-through decoration-red-500/50">Postar por postar</p>
-            <p className="line-through decoration-red-500/50">Marketing complicado</p>
-            <p className="line-through decoration-red-500/50">Tentar ser designer</p>
-            <p className="text-brand-teal font-bold animate-pulse">Agenda Cheia</p>
+            <p className="line-through decoration-red-500/50 hover:opacity-50 transition-opacity">Postar por postar</p>
+            <p className="line-through decoration-red-500/50 hover:opacity-50 transition-opacity">Marketing complicado</p>
+            <p className="line-through decoration-red-500/50 hover:opacity-50 transition-opacity">Tentar ser designer</p>
+            <p className="text-brand-teal font-bold animate-pulse hover:scale-110 transition-transform cursor-default">Agenda Cheia</p>
           </div>
 
           <Reveal>
             <h2 className="text-4xl md:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
               Pare de falar sozinho. <br />
-              Comece a <span className="text-brand-teal">atrair pacientes.</span>
+              Comece a <span className="text-gradient-animate">atrair pacientes.</span>
             </h2>
             <p className="text-zinc-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
               Sua presença digital pode ser simples, estratégica e magnética.
@@ -901,8 +1089,8 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             </p>
           </Reveal>
           <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-            <Button onClick={onLogin} variant="gradient" className="text-lg px-12 py-5 h-auto w-full md:w-auto shadow-[0_0_40px_-10px_rgba(45,212,191,0.5)]">
-              <Sparkles className="w-5 h-5 mr-2" />
+            <Button onClick={onLogin} variant="gradient" className="text-lg px-12 py-5 h-auto w-full md:w-auto shadow-[0_0_40px_-10px_rgba(45,212,191,0.5)] btn-ripple animate-pulse-glow group">
+              <Sparkles className="w-5 h-5 mr-2 group-hover:animate-spin" />
               Teste por você. É grátis
             </Button>
           </div>
