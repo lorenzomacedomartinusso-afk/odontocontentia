@@ -101,7 +101,14 @@ Deno.serve(async (req) => {
     switch (payload.event) {
       case "purchase_approved": {
         console.log(`Processing purchase_approved for external_id: ${externalId}`);
-
+        // Proteção para o teste da Cakto: se não houver externalId, retornamos sucesso sem salvar no banco
+        if (!externalId) {
+          console.warn("Teste da Cakto detectado (sem externalId). Respondendo sucesso para o sinal ficar verde.");
+          return new Response(
+            JSON.stringify({ success: true, message: "Teste recebido com sucesso!" }),
+            { status: 200, headers: { "Content-Type": "application/json" } }
+          );
+        }
         // Atualiza o status da subscription para 'active'
         const { data, error } = await supabase
           .from("subscriptions")
