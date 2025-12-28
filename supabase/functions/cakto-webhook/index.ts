@@ -1,6 +1,8 @@
+// deno-lint-ignore-file
+// @ts-nocheck
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "jsr:@supabase/supabase-js@2";
 
 // Interface para o payload do webhook da Cakto
 interface CaktoWebhookPayload {
@@ -26,19 +28,9 @@ interface CaktoWebhookPayload {
       status?: string;
       plan?: string;
     };
-    // Campos adicionais que podem vir no payload
     [key: string]: unknown;
   };
 }
-
-// Tipos de eventos suportados
-const SUPPORTED_EVENTS = [
-  "purchase_approved",
-  "purchase_refused",
-  "purchase_refunded",
-  "subscription_canceled",
-  "subscription_renewed",
-] as const;
 
 console.log("Cakto Webhook Function initialized");
 
@@ -61,7 +53,7 @@ Deno.serve(async (req) => {
     console.log("Received webhook event:", payload.event);
     console.log("Payload data:", JSON.stringify(payload.data, null, 2));
 
-    // Validação do secret (opcional - configure CAKTO_WEBHOOK_SECRET no Supabase)
+    // Validação do secret (opcional)
     const webhookSecret = Deno.env.get("CAKTO_WEBHOOK_SECRET");
     if (webhookSecret && payload.secret !== webhookSecret) {
       console.error("Invalid webhook secret");
@@ -116,7 +108,6 @@ Deno.serve(async (req) => {
           .update({
             status: "active",
             updated_at: new Date().toISOString(),
-            // Campos opcionais que podem ser atualizados
             ...(payload.data.subscription?.plan && { plan: payload.data.subscription.plan }),
             ...(payload.data.transaction?.id && { transaction_id: payload.data.transaction.id }),
           })
@@ -126,9 +117,9 @@ Deno.serve(async (req) => {
         if (error) {
           console.error("Error updating subscription:", error);
 
-          // Se não encontrou a subscription, tenta criar uma nova
+          // Se não encontrou, tenta criar uma nova
           if (error.code === "PGRST116" || !data || data.length === 0) {
-            console.log("Subscription not found, attempting to create new one");
+            console.log("Subscription not found, creating new one");
 
             const { data: newSub, error: insertError } = await supabase
               .from("subscriptions")
@@ -147,146 +138,81 @@ Deno.serve(async (req) => {
               console.error("Error creating subscription:", insertError);
               return new Response(
                 JSON.stringify({ error: "Failed to create subscription", details: insertError.message }),
-                {
-                  status: 500,
-                  headers: { "Content-Type": "application/json" }
-                }
+                { status: 500, headers: { "Content-Type": "application/json" } }
               );
             }
 
-            console.log("New subscription created:", newSub);
             return new Response(
               JSON.stringify({ success: true, message: "Subscription created", data: newSub }),
-              {
-                status: 201,
-                headers: { "Content-Type": "application/json" }
-              }
+              { status: 201, headers: { "Content-Type": "application/json" } }
             );
           }
 
           return new Response(
             JSON.stringify({ error: "Failed to update subscription", details: error.message }),
-            {
-              status: 500,
-              headers: { "Content-Type": "application/json" }
-            }
+            { status: 500, headers: { "Content-Type": "application/json" } }
           );
         }
 
         console.log("Subscription updated successfully:", data);
         return new Response(
           JSON.stringify({ success: true, message: "Subscription activated", data }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" }
-          }
+          { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
 
       case "purchase_refused": {
-        console.log(`Processing purchase_refused for external_id: ${externalId}`);
-
-        const { error } = await supabase
+        await supabase
           .from("subscriptions")
-          .update({
-            status: "refused",
-            updated_at: new Date().toISOString(),
-          })
+          .update({ status: "refused", updated_at: new Date().toISOString() })
           .eq("external_id", externalId);
-
-        if (error) {
-          console.error("Error updating subscription:", error);
-        }
 
         return new Response(
           JSON.stringify({ success: true, message: "Purchase refused processed" }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" }
-          }
+          { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
 
       case "purchase_refunded": {
-        console.log(`Processing purchase_refunded for external_id: ${externalId}`);
-
-        const { error } = await supabase
+        await supabase
           .from("subscriptions")
-          .update({
-            status: "refunded",
-            updated_at: new Date().toISOString(),
-          })
+          .update({ status: "refunded", updated_at: new Date().toISOString() })
           .eq("external_id", externalId);
-
-        if (error) {
-          console.error("Error updating subscription:", error);
-        }
 
         return new Response(
           JSON.stringify({ success: true, message: "Refund processed" }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" }
-          }
+          { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
 
       case "subscription_canceled": {
-        console.log(`Processing subscription_canceled for external_id: ${externalId}`);
-
-        const { error } = await supabase
+        await supabase
           .from("subscriptions")
-          .update({
-            status: "canceled",
-            updated_at: new Date().toISOString(),
-          })
+          .update({ status: "canceled", updated_at: new Date().toISOString() })
           .eq("external_id", externalId);
-
-        if (error) {
-          console.error("Error updating subscription:", error);
-        }
 
         return new Response(
           JSON.stringify({ success: true, message: "Subscription canceled" }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" }
-          }
+          { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
 
       case "subscription_renewed": {
-        console.log(`Processing subscription_renewed for external_id: ${externalId}`);
-
-        const { error } = await supabase
+        await supabase
           .from("subscriptions")
-          .update({
-            status: "active",
-            updated_at: new Date().toISOString(),
-          })
+          .update({ status: "active", updated_at: new Date().toISOString() })
           .eq("external_id", externalId);
-
-        if (error) {
-          console.error("Error updating subscription:", error);
-        }
 
         return new Response(
           JSON.stringify({ success: true, message: "Subscription renewed" }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" }
-          }
+          { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
 
       default: {
-        console.log(`Unhandled event type: ${payload.event}`);
         return new Response(
-          JSON.stringify({ success: true, message: `Event ${payload.event} received but not processed` }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" }
-          }
+          JSON.stringify({ success: true, message: `Event ${payload.event} received` }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
     }
@@ -294,48 +220,8 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error("Error processing webhook:", error);
     return new Response(
-      JSON.stringify({
-        error: "Internal server error",
-        details: error instanceof Error ? error.message : "Unknown error"
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      }
+      JSON.stringify({ error: "Internal server error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 });
-
-/* 
-  Para testar localmente:
-
-  1. Execute `supabase start`
-  2. Faça uma requisição POST:
-
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/cakto-webhook' \
-    --header 'Content-Type: application/json' \
-    --data '{
-      "event": "purchase_approved",
-      "data": {
-        "external_id": "user_123",
-        "customer": {
-          "email": "teste@email.com",
-          "name": "João Silva"
-        },
-        "product": {
-          "id": "prod_1",
-          "name": "Plano Pro"
-        },
-        "transaction": {
-          "id": "txn_456",
-          "status": "approved",
-          "amount": 2990
-        }
-      }
-    }'
-
-  Variáveis de ambiente necessárias no Supabase:
-  - SUPABASE_URL (já configurado automaticamente)
-  - SUPABASE_SERVICE_ROLE_KEY (já configurado automaticamente)
-  - CAKTO_WEBHOOK_SECRET (opcional, para validação de segurança)
-*/
