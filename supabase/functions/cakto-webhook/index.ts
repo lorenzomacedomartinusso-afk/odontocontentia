@@ -86,16 +86,16 @@ Deno.serve(async (req) => {
     // Extrai o external_id do payload
     const externalId = payload.data.external_id;
 
-    if (!externalId) {
-      console.error("Missing external_id in payload");
-      return new Response(
-        JSON.stringify({ error: "Missing external_id" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
-    }
+    //if (!externalId) {
+    //console.error("Missing external_id in payload");
+    //return new Response(
+    // JSON.stringify({ error: "Missing external_id" }),
+    // {
+    //  status: 400,
+    // headers: { "Content-Type": "application/json" }
+    // }
+    // );
+    // }
 
     // Processa os diferentes tipos de eventos
     switch (payload.event) {
