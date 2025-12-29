@@ -2627,23 +2627,58 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
   // Actions
   const handleCreateProject = async (project: Project) => {
     console.log('🎯 handleCreateProject chamado');
-    console.log('📊 subscriptionInfo:', subscriptionInfo);
-    // VERIFICAÇÃO DE SUBSCRIPTION - Bloqueia após 3 usos
-    const canProceed = await checkSubscriptionBeforeAction();
-    if (!canProceed) {
-      // Não pode criar, paywall já foi mostrado
-      return;
-    }
 
     try {
-      // Optimistic update (with temp ID) or wait? 
-      // Better wait to get real ID from DB to avoid sync issues
+      // VERIFICAÇÃO DIRETA NO BANCO
+      const { data: subData, error: subError } = await supabase
+        .from('subscriptions')
+        .select('trial_uses, status, plan')
+        .eq('user_id', user.id)
+        .single();
+
+      console.log('📊 Subscription do banco:', subData);
+
+      if (subError && subError.code !== 'PGRST116') {
+        console.error('Erro ao buscar subscription:', subError);
+      }
+
+      // Se não tem subscription, cria uma
+      if (!subData) {
+        await supabase
+          .from('subscriptions')
+          .insert({ user_id: user.id, status: 'trial', plan: 'free', trial_uses: 0 });
+      }
+
+      const isActive = subData?.status === 'active' && subData?.plan === 'Premium';
+      const trialUses = subData?.trial_uses || 0;
+
+      console.log(`✅ Status: ${isActive ? 'Premium' : 'Trial'}, Usos: ${trialUses}/3`);
+
+      // BLOQUEIA se não é assinante E já usou 3 vezes
+      if (!isActive && trialUses >= 3) {
+        console.log('🚫 BLOQUEADO - Trial esgotado!');
+        setPaywallReason('trial_exhausted');
+        setShowPaywall(true);
+        await refreshSubscription();
+        return;
+      }
+
+      // Incrementa o contador se não é assinante
+      if (!isActive) {
+        console.log(`📊 Incrementando de ${trialUses} para ${trialUses + 1}`);
+        await supabase
+          .from('subscriptions')
+          .update({ trial_uses: trialUses + 1, updated_at: new Date().toISOString() })
+          .eq('user_id', user.id);
+      }
+
+      // Cria o projeto
+      console.log('✅ Criando projeto...');
       const newProject = await projectService.createProject(project);
       setProjects(prev => [newProject, ...prev]);
       setView('KANBAN');
-
-      // Atualiza subscription info após criar projeto
       await refreshSubscription();
+      console.log('✅ Projeto criado!');
     } catch (error) {
       console.error("Error creating project", error);
       alert("Erro ao salvar projeto no banco de dados.");
