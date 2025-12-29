@@ -3,6 +3,8 @@ import { Sparkles, LayoutDashboard, LogOut, Plus, Search, Calendar as CalendarIc
 import { Project, ContentStatus, WizardStep, NarrativeStructure, FinalAssets, User } from './types';
 import * as GeminiService from './services/geminiService';
 import { projectService } from './services/projectService';
+import * as SubscriptionService from './services/subscriptionService';
+import PaywallModal from './components/PaywallModal';
 
 // --- Constants ---
 const MOCK_USER: User = {
@@ -1464,7 +1466,13 @@ const SettingsView: React.FC<{ user: User; onBack: () => void }> = ({ user, onBa
 
 
 
-const Wizard: React.FC<{ onComplete: (project: Project) => void; onCancel: () => void }> = ({ onComplete, onCancel }) => {
+const Wizard: React.FC<{
+  onComplete: (project: Project) => void;
+  onCancel: () => void;
+  user: User;
+  setPaywallReason: (reason: 'trial_exhausted' | 'subscription_expired') => void;
+  setShowPaywall: (show: boolean) => void;
+}> = ({ onComplete, onCancel, user, setPaywallReason, setShowPaywall }) => {
   const [step, setStep] = useState<WizardStep>(WizardStep.TOPIC_INPUT);
   const [loading, setLoading] = useState(false);
   const [topic, setTopic] = useState('');
@@ -1499,16 +1507,31 @@ const Wizard: React.FC<{ onComplete: (project: Project) => void; onCancel: () =>
   const handleGenerateHooks = async () => {
     if (!topic) return;
     setLoading(true);
-    const result = await GeminiService.generateHooks(topic);
-    setHooks(result);
+    const result = await SubscriptionService.checkSubscriptionStatus(user.id);
+    if (!result.canUse) {
+      setLoading(false);
+      setPaywallReason(result.reason === 'subscription_expired' ? 'subscription_expired' : 'trial_exhausted');
+      setShowPaywall(true);
+      return;
+    }
+    await SubscriptionService.incrementTrialUse(user.id);
+    const hooks = await GeminiService.generateHooks(topic);
+    setHooks(hooks);
     setLoading(false);
     setStep(WizardStep.HOOKS);
   };
 
   const handleRegenerateHooks = async () => {
     setLoading(true);
-    const result = await GeminiService.generateHooks(topic);
-    setHooks(result);
+    const result = await SubscriptionService.checkSubscriptionStatus(user.id);
+    if (!result.canUse) {
+      setLoading(false);
+      setPaywallReason(result.reason === 'subscription_expired' ? 'subscription_expired' : 'trial_exhausted');
+      setShowPaywall(true);
+      return;
+    }
+    const hooks = await GeminiService.generateHooks(topic);
+    setHooks(hooks);
     setLoading(false);
   };
 
@@ -2706,6 +2729,9 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionService.SubscriptionCheckResult | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallReason, setPaywallReason] = useState<'trial_exhausted' | 'subscription_expired'>('trial_exhausted');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -2713,11 +2739,13 @@ const App: React.FC = () => {
         setUser({
           id: session.user.id,
           name: session.user.email?.split('@')[0] || 'Usuário',
-          role: 'DENTISTA_DONO', // Default role for now
+          role: 'DENTISTA_DONO',
           email: session.user.email || ''
         });
+        loadSubscriptionInfo(session.user.id);
       } else {
         setUser(null);
+        setSubscriptionInfo(null);
       }
     });
 
@@ -2731,21 +2759,44 @@ const App: React.FC = () => {
           role: 'DENTISTA_DONO',
           email: session.user.email || ''
         });
+        loadSubscriptionInfo(session.user.id);
       } else {
         setUser(null);
+        setSubscriptionInfo(null);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
+  const loadSubscriptionInfo = async (userId: string) => {
+    try {
+      const info = await SubscriptionService.checkSubscriptionStatus(userId);
+      setSubscriptionInfo(info);
+    } catch (error) {
+      console.error('Error loading subscription:', error);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setSubscriptionInfo(null);
   };
 
   if (user) {
-    return <Workspace user={user} onLogout={handleLogout} />;
+    return (
+      <>
+        <Workspace user={user} onLogout={handleLogout} />
+        <PaywallModal
+          isOpen={showPaywall}
+          onClose={() => setShowPaywall(false)}
+          userId={user.id}
+          trialUsesRemaining={subscriptionInfo?.trialUsesRemaining || 0}
+          reason={paywallReason}
+        />
+      </>
+    );
   }
 
   return (

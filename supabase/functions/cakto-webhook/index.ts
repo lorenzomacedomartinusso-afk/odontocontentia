@@ -114,8 +114,8 @@ Deno.serve(async (req) => {
           .from("subscriptions")
           .update({
             status: "active",
+            plan: "Premium",
             updated_at: new Date().toISOString(),
-            ...(payload.data.subscription?.plan && { plan: payload.data.subscription.plan }),
             ...(payload.data.transaction?.id && { transaction_id: payload.data.transaction.id }),
           })
           .eq("external_id", externalId)
@@ -133,8 +133,8 @@ Deno.serve(async (req) => {
               .insert({
                 external_id: externalId,
                 status: "active",
+                plan: "Premium",
                 user_email: payload.data.customer?.email,
-                plan: payload.data.subscription?.plan || payload.data.product?.name,
                 transaction_id: payload.data.transaction?.id,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
