@@ -2733,9 +2733,10 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
       // Se não tem subscription, cria uma
       if (!subData) {
+        console.log('📝 Criando subscription...');
         await supabase
           .from('subscriptions')
-          .insert({ user_id: user.id, status: 'trial', plan: 'free', trial_uses: 0 });
+          .insert({ user_id: user.id, status: 'pending', plan: 'free', trial_uses: 0 });
       }
 
       const isActive = subData?.status === 'active' && subData?.plan === 'Premium';
@@ -2748,17 +2749,22 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
         console.log('🚫 BLOQUEADO - Trial esgotado!');
         setPaywallReason('trial_exhausted');
         setShowPaywall(true);
-        await refreshSubscription();
         return;
       }
 
       // Incrementa o contador se não é assinante
       if (!isActive) {
         console.log(`📊 Incrementando de ${trialUses} para ${trialUses + 1}`);
-        await supabase
+        const { error: updateError } = await supabase
           .from('subscriptions')
           .update({ trial_uses: trialUses + 1, updated_at: new Date().toISOString() })
           .eq('user_id', user.id);
+
+        if (updateError) {
+          console.error('❌ Erro ao incrementar:', updateError);
+        } else {
+          console.log('✅ Trial_uses incrementado com sucesso!');
+        }
       }
 
       // Cria o projeto
@@ -2766,7 +2772,6 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
       const newProject = await projectService.createProject(project);
       setProjects(prev => [newProject, ...prev]);
       setView('KANBAN');
-      await refreshSubscription();
       console.log('✅ Projeto criado!');
     } catch (error) {
       console.error("Error creating project", error);
