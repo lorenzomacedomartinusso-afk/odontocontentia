@@ -1507,31 +1507,16 @@ const Wizard: React.FC<{
   const handleGenerateHooks = async () => {
     if (!topic) return;
     setLoading(true);
-    const result = await SubscriptionService.checkSubscriptionStatus(user.id);
-    if (!result.canUse) {
-      setLoading(false);
-      setPaywallReason(result.reason === 'subscription_expired' ? 'subscription_expired' : 'trial_exhausted');
-      setShowPaywall(true);
-      return;
-    }
-    await SubscriptionService.incrementTrialUse(user.id);
-    const hooks = await GeminiService.generateHooks(topic);
-    setHooks(hooks);
+    const result = await GeminiService.generateHooks(topic);
+    setHooks(result);
     setLoading(false);
     setStep(WizardStep.HOOKS);
   };
 
   const handleRegenerateHooks = async () => {
     setLoading(true);
-    const result = await SubscriptionService.checkSubscriptionStatus(user.id);
-    if (!result.canUse) {
-      setLoading(false);
-      setPaywallReason(result.reason === 'subscription_expired' ? 'subscription_expired' : 'trial_exhausted');
-      setShowPaywall(true);
-      return;
-    }
-    const hooks = await GeminiService.generateHooks(topic);
-    setHooks(hooks);
+    const result = await GeminiService.generateHooks(topic);
+    setHooks(result);
     setLoading(false);
   };
 
