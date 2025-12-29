@@ -2485,13 +2485,11 @@ const SubscriptionPage: React.FC<{ user: User }> = ({ user }) => {
   const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionService.SubscriptionCheckResult | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadSubscription();
-  }, [user.id]);
-
   const loadSubscription = async () => {
+    setLoading(true);
     try {
       const info = await SubscriptionService.checkSubscriptionStatus(user.id);
+      console.log('📊 Subscription carregada na página:', info);
       setSubscriptionInfo(info);
     } catch (error) {
       console.error('Error loading subscription:', error);
@@ -2499,6 +2497,30 @@ const SubscriptionPage: React.FC<{ user: User }> = ({ user }) => {
       setLoading(false);
     }
   };
+
+  // Carrega quando monta E sempre que user.id muda
+  useEffect(() => {
+    loadSubscription();
+  }, [user.id]);
+
+  // IMPORTANTE: Recarrega sempre que a página fica visível
+  useEffect(() => {
+    // Adiciona listener para quando a página fica visível
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadSubscription();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Carrega imediatamente quando componente monta
+    loadSubscription();
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const checkoutUrl = SubscriptionService.createCheckoutUrl(user.id);
 
