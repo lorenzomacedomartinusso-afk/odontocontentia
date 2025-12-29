@@ -5,6 +5,7 @@ import * as GeminiService from './services/geminiService';
 import { projectService } from './services/projectService';
 import * as SubscriptionService from './services/subscriptionService';
 import PaywallModal from './components/PaywallModal';
+import { useSubscription } from './hooks/useSubscription';
 
 // --- Constants ---
 const MOCK_USER: User = {
@@ -2413,10 +2414,181 @@ const TeamView: React.FC<{
   );
 };
 
+const SubscriptionPage: React.FC<{ user: User }> = ({ user }) => {
+  const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionService.SubscriptionCheckResult | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadSubscription();
+  }, [user.id]);
+
+  const loadSubscription = async () => {
+    try {
+      const info = await SubscriptionService.checkSubscriptionStatus(user.id);
+      setSubscriptionInfo(info);
+    } catch (error) {
+      console.error('Error loading subscription:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkoutUrl = SubscriptionService.createCheckoutUrl(user.id);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-teal" />
+      </div>
+    );
+  }
+
+  const isSubscriber = subscriptionInfo?.isSubscriber || false;
+  const trialUsesRemaining = subscriptionInfo?.trialUsesRemaining || 0;
+
+  return (
+    <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <Sparkles className="w-8 h-8 text-brand-teal" />
+        <h1 className="text-2xl md:text-3xl font-bold text-white">Minha Assinatura</h1>
+      </div>
+
+      {/* Status Card */}
+      <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800">
+        <div className="p-6 md:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-white mb-2">
+                {isSubscriber ? 'Plano Premium Ativo' : 'Plano Gratuito'}
+              </h2>
+              <p className="text-zinc-400 text-sm">
+                {isSubscriber
+                  ? 'Você tem acesso ilimitado a todos os recursos'
+                  : `Você tem ${trialUsesRemaining} teste${trialUsesRemaining !== 1 ? 's' : ''} gratuito${trialUsesRemaining !== 1 ? 's' : ''} restante${trialUsesRemaining !== 1 ? 's' : ''}`
+                }
+              </p>
+            </div>
+            {isSubscriber ? (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                <span className="text-sm font-medium text-emerald-500">Ativo</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-800 border border-zinc-700">
+                <Clock className="w-5 h-5 text-zinc-400" />
+                <span className="text-sm font-medium text-zinc-400">Trial</span>
+              </div>
+            )}
+          </div>
+
+          {!isSubscriber && (
+            <div className="bg-zinc-950/50 rounded-xl p-4 mb-6 border border-zinc-800">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-full bg-brand-teal/10 flex items-center justify-center">
+                  <span className="text-2xl font-bold text-brand-teal">{trialUsesRemaining}</span>
+                </div>
+                <div>
+                  <p className="text-white font-medium">Testes Restantes</p>
+                  <p className="text-xs text-zinc-500">de 3 testes gratuitos</p>
+                </div>
+              </div>
+              <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-brand-teal to-emerald-500 transition-all duration-500"
+                  style={{ width: `${(trialUsesRemaining / 3) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {!isSubscriber && (
+            <a
+              href={checkoutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full bg-gradient-to-r from-brand-teal to-emerald-500 text-black font-bold text-center px-6 py-4 rounded-xl hover:shadow-[0_0_30px_-5px_rgba(45,212,191,0.6)] transition-all duration-300 hover:scale-[1.02] active:scale-95"
+            >
+              <span className="flex items-center justify-center gap-2">
+                <Sparkles className="w-5 h-5" />
+                Assinar Plano Premium - R$ 29,90/mês
+              </span>
+            </a>
+          )}
+        </div>
+      </Card>
+
+      {/* Features Card */}
+      <Card className="bg-zinc-900/50 border-zinc-800">
+        <div className="p-6">
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <Star className="w-5 h-5 text-brand-teal" />
+            O que você ganha com o Premium
+          </h3>
+          <div className="grid gap-3">
+            {[
+              'Conteúdos ilimitados para Reels, Stories e Carrosséis',
+              'Roteiros otimizados para retenção e conversão',
+              'Calendário editorial completo',
+              'Gestão de equipe integrada',
+              'Suporte prioritário via WhatsApp'
+            ].map((feature, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-brand-teal shrink-0 mt-0.5" />
+                <span className="text-sm text-zinc-300">{feature}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      {isSubscriber && (
+        <Card className="bg-zinc-900/50 border-zinc-800">
+          <div className="p-6">
+            <h3 className="text-lg font-bold text-white mb-2">Gerenciar Assinatura</h3>
+            <p className="text-sm text-zinc-400 mb-4">
+              Para cancelar ou atualizar sua assinatura, entre em contato com o suporte.
+            </p>
+            <Button variant="secondary" className="w-full md:w-auto">
+              <Mail className="w-4 h-4" />
+              Contatar Suporte
+            </Button>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+};
+
 const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLogout }) => {
-  const [view, setView] = useState<'KANBAN' | 'CREATE' | 'CALENDAR' | 'TEAM' | 'SETTINGS'>('CREATE');
+  const [view, setView] = useState<'KANBAN' | 'CREATE' | 'CALENDAR' | 'TEAM' | 'SETTINGS' | 'SUBSCRIPTION'>('CREATE');
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [draggedId, setDraggedId] = useState<string | null>(null);
+
+  // Subscription Management
+  const { subscriptionInfo, checkAndIncrement, refresh: refreshSubscription } = useSubscription(user.id);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallReason, setPaywallReason] = useState<'trial_exhausted' | 'subscription_expired'>('trial_exhausted');
+
+  // Function to check subscription before any action
+  const checkSubscriptionBeforeAction = async (): Promise<boolean> => {
+    if (!subscriptionInfo) return false;
+
+    if (subscriptionInfo.canUse) {
+      // Se pode usar, incrementa (se for trial)
+      const canProceed = await checkAndIncrement();
+      if (!canProceed) {
+        setPaywallReason(subscriptionInfo.reason === 'subscription_expired' ? 'subscription_expired' : 'trial_exhausted');
+        setShowPaywall(true);
+        return false;
+      }
+      return true;
+    } else {
+      // Não pode usar, mostra paywall
+      setPaywallReason(subscriptionInfo.reason === 'subscription_expired' ? 'subscription_expired' : 'trial_exhausted');
+      setShowPaywall(true);
+      return false;
+    }
+  };
 
   // State Management
   const [projects, setProjects] = useState<Project[]>([]);
@@ -2454,12 +2626,22 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
   // Actions
   const handleCreateProject = async (project: Project) => {
+    // VERIFICAÇÃO DE SUBSCRIPTION - Bloqueia após 3 usos
+    const canProceed = await checkSubscriptionBeforeAction();
+    if (!canProceed) {
+      // Não pode criar, paywall já foi mostrado
+      return;
+    }
+
     try {
       // Optimistic update (with temp ID) or wait? 
       // Better wait to get real ID from DB to avoid sync issues
       const newProject = await projectService.createProject(project);
       setProjects(prev => [newProject, ...prev]);
       setView('KANBAN');
+
+      // Atualiza subscription info após criar projeto
+      await refreshSubscription();
     } catch (error) {
       console.error("Error creating project", error);
       alert("Erro ao salvar projeto no banco de dados.");
@@ -2658,6 +2840,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
             />
           )}
           {view === 'TEAM' && <TeamView team={team} onAddMember={handleAddMember} onRemoveMember={handleRemoveMember} />}
+          {view === 'SUBSCRIPTION' && <SubscriptionPage user={user} />}
         </div>
       </main>
 
@@ -2665,9 +2848,9 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
       <nav className="fixed bottom-0 left-0 right-0 h-20 bg-brand-surface/90 backdrop-blur-xl border-t border-zinc-800 flex justify-around items-center px-2 z-50 pb-2 md:pb-0">
         <button
           onClick={() => setView('CREATE')}
-          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'CREATE' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
+          className={`flex flex - col items - center gap - 1 p - 2 rounded - xl transition - all ${view === 'CREATE' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'} `}
         >
-          <div className={`p-2 rounded-full ${view === 'CREATE' ? 'bg-brand-teal text-brand-black shadow-[0_0_15px_-3px_rgba(45,212,191,0.5)]' : 'bg-zinc-800'}`}>
+          <div className={`p - 2 rounded - full ${view === 'CREATE' ? 'bg-brand-teal text-brand-black shadow-[0_0_15px_-3px_rgba(45,212,191,0.5)]' : 'bg-zinc-800'} `}>
             <Plus className="w-6 h-6" />
           </div>
           <span className="text-[10px] font-medium">Novo Conteúdo</span>
@@ -2675,7 +2858,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
         <button
           onClick={() => setView('KANBAN')}
-          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'KANBAN' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
+          className={`flex flex - col items - center gap - 1 p - 2 rounded - xl transition - all ${view === 'KANBAN' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'} `}
         >
           <LayoutDashboard className="w-5 h-5" />
           <span className="text-[10px] font-medium">Planejamento</span>
@@ -2683,7 +2866,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
         <button
           onClick={() => setView('CALENDAR')}
-          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'CALENDAR' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
+          className={`flex flex - col items - center gap - 1 p - 2 rounded - xl transition - all ${view === 'CALENDAR' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'} `}
         >
           <CalendarIcon className="w-5 h-5" />
           <span className="text-[10px] font-medium">Agenda</span>
@@ -2691,10 +2874,18 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
         <button
           onClick={() => setView('TEAM')}
-          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'TEAM' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
+          className={`flex flex - col items - center gap - 1 p - 2 rounded - xl transition - all ${view === 'TEAM' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'} `}
         >
           <Users className="w-5 h-5" />
           <span className="text-[10px] font-medium">Equipe</span>
+        </button>
+
+        <button
+          onClick={() => setView('SUBSCRIPTION')}
+          className={`flex flex - col items - center gap - 1 p - 2 rounded - xl transition - all ${view === 'SUBSCRIPTION' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'} `}
+        >
+          <Sparkles className="w-5 h-5" />
+          <span className="text-[10px] font-medium">Assinatura</span>
         </button>
       </nav>
 
@@ -2707,6 +2898,14 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
           onDelete={handleDeleteProject}
         />
       )}
+
+      <PaywallModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        userId={user.id}
+        trialUsesRemaining={subscriptionInfo?.trialUsesRemaining || 0}
+        reason={paywallReason}
+      />
     </div>
   );
 };
