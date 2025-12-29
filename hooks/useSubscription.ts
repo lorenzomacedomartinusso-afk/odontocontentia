@@ -14,6 +14,7 @@ export function useSubscription(userId: string | null) {
 
         try {
             const info = await SubscriptionService.checkSubscriptionStatus(userId);
+            console.log('📊 Subscription carregada:', info);
             setSubscriptionInfo(info);
         } catch (error) {
             console.error('Error loading subscription:', error);
@@ -27,19 +28,31 @@ export function useSubscription(userId: string | null) {
     }, [userId]);
 
     const checkAndIncrement = async (): Promise<boolean> => {
-        if (!userId || !subscriptionInfo) return false;
+        if (!userId || !subscriptionInfo) {
+            console.log('❌ Sem userId ou subscriptionInfo');
+            return false;
+        }
 
-        // Se pode usar, incrementa e retorna true
-        if (subscriptionInfo.canUse) {
-            if (!subscriptionInfo.isSubscriber) {
-                await SubscriptionService.incrementTrialUse(userId);
-                await loadSubscription(); // Recarrega para atualizar contador
-            }
+        console.log('🔍 Verificando subscription:', subscriptionInfo);
+
+        // Se NÃO pode usar, bloqueia
+        if (!subscriptionInfo.canUse) {
+            console.log('🚫 BLOQUEADO - canUse é false');
+            return false;
+        }
+
+        // Se é assinante, pode usar sem incrementar
+        if (subscriptionInfo.isSubscriber) {
+            console.log('✅ Assinante ativo - pode usar');
             return true;
         }
 
-        // Não pode usar
-        return false;
+        // Se está no trial, incrementa ANTES de permitir
+        console.log(`📊 Trial - incrementando uso (restantes antes: ${subscriptionInfo.trialUsesRemaining})`);
+        await SubscriptionService.incrementTrialUse(userId);
+        await loadSubscription(); // Recarrega para atualizar contador
+
+        return true;
     };
 
     return {

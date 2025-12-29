@@ -2626,6 +2626,8 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
   // Actions
   const handleCreateProject = async (project: Project) => {
+    console.log('🎯 handleCreateProject chamado');
+    console.log('📊 subscriptionInfo:', subscriptionInfo);
     // VERIFICAÇÃO DE SUBSCRIPTION - Bloqueia após 3 usos
     const canProceed = await checkSubscriptionBeforeAction();
     if (!canProceed) {
