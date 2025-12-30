@@ -1476,6 +1476,7 @@ const Wizard: React.FC<{
 }> = ({ onComplete, onCancel, user, setPaywallReason, setShowPaywall }) => {
   const [step, setStep] = useState<WizardStep>(WizardStep.TOPIC_INPUT);
   const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [topic, setTopic] = useState('');
   const [trialsRemaining, setTrialsRemaining] = useState(3);
 
@@ -1639,7 +1640,9 @@ const Wizard: React.FC<{
   };
 
   const handleFinish = async () => {
-    if (finalAssets && narrative) {
+    if (finalAssets && narrative && !isSaving) {
+      if (isSaving) return;
+      setIsSaving(true);
       console.log('🎯 handleFinish chamado - Finalizando wizard');
 
       // BUG FIX: Store simple date string YYYY-MM-DD instead of ISO string with time
@@ -2060,7 +2063,14 @@ const Wizard: React.FC<{
               </div>
 
               <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-zinc-800">
-                <Button onClick={handleFinish} className="w-full md:w-auto">Salvar no Planejamento</Button>
+                <Button
+                  onClick={handleFinish}
+                  disabled={isSaving}
+                  className="w-full md:w-auto text-black font-bold"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  {isSaving ? 'Salvando...' : 'Salvar no Planejamento'}
+                </Button>
               </div>
             </div>
           )}
