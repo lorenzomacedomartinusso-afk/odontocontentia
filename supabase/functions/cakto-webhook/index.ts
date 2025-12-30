@@ -109,7 +109,10 @@ Deno.serve(async (req) => {
             { status: 200, headers: { "Content-Type": "application/json" } }
           );
         }
-        // Tenta atualizar pelo external_id primeiro
+        // O external_id que enviamos no checkout É O user_id do Supabase
+        // Então devemos buscar pela coluna 'user_id', não pela coluna 'external_id' (que está vazia)
+        console.log(`Searching for subscription with user_id: ${externalId}`);
+
         let { data, error } = await supabase
           .from("subscriptions")
           .update({
@@ -117,25 +120,26 @@ Deno.serve(async (req) => {
             plan: "Premium",
             updated_at: new Date().toISOString(),
             ...(payload.data.transaction?.id && { transaction_id: payload.data.transaction.id }),
+            // Opcional: Salvar o ID da assinatura da Cakto no campo external_id se quiser
+            // external_id: payload.data.subscription?.id 
           })
-          .eq("external_id", externalId)
+          .eq("user_id", externalId) // FIX: Busca pelo user_id!
           .select();
 
-        // Se não encontrou pelo external_id ou deu erro, tenta pelo EMAIL
+        // Se não encontrou pelo ID (pode ser um email diferente ou erro), tenta pelo EMAIL
         if (!data || data.length === 0) {
-          console.log(`External ID ${externalId} not found, trying search by email: ${payload.data.customer?.email}`);
+          console.log(`User ID ${externalId} not found, trying search by email: ${payload.data.customer?.email}`);
 
           if (payload.data.customer?.email) {
             const { data: emailData, error: emailError } = await supabase
               .from("subscriptions")
               .update({
-                external_id: externalId, // Seta o external_id agora!
                 status: "active",
                 plan: "Premium",
                 updated_at: new Date().toISOString(),
                 ...(payload.data.transaction?.id && { transaction_id: payload.data.transaction.id }),
               })
-              .eq("user_email", payload.data.customer.email) // Busca pelo email
+              .eq("user_email", payload.data.customer.email)
               .select();
 
             if (emailError) {
