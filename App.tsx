@@ -2687,11 +2687,11 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
   const [view, setView] = useState<'KANBAN' | 'CREATE' | 'CALENDAR' | 'TEAM' | 'SETTINGS' | 'SUBSCRIPTION'>('CREATE');
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallReason, setPaywallReason] = useState<'trial_exhausted' | 'subscription_expired'>('trial_exhausted');
 
   // Subscription Management
   const { subscriptionInfo, checkAndIncrement, refresh: refreshSubscription } = useSubscription(user.id);
-  const [showPaywall, setShowPaywall] = useState(false);
-  const [paywallReason, setPaywallReason] = useState<'trial_exhausted' | 'subscription_expired'>('trial_exhausted');
 
   // Function to check subscription before any action
   const checkSubscriptionBeforeAction = async (): Promise<boolean> => {
@@ -2944,7 +2944,13 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
         <div className="flex-1 overflow-hidden p-4 md:p-6 relative">
           {view === 'CREATE' && (
-            <Wizard onComplete={handleCreateProject} onCancel={() => setView('KANBAN')} />
+            <Wizard
+              onComplete={handleCreateProject}
+              onCancel={() => setView('KANBAN')}
+              user={user}
+              setPaywallReason={setPaywallReason}
+              setShowPaywall={setShowPaywall}
+            />
           )}
 
           {view === 'SETTINGS' && (
