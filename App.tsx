@@ -1517,13 +1517,22 @@ const Wizard: React.FC<{
         .single();
 
       const isActive = subData?.status === 'active' && subData?.plan === 'Premium';
-      const trialUses = subData?.trial_uses || 0;
+      const totalCreated = subData?.trial_uses || 0;
 
-      console.log(`🔍 Verificando antes de gerar: Status=${isActive ? 'Premium' : 'Trial'}, Usos=${trialUses}/3`);
+      // Conta projetos atuais (para mostrador)
+      const { count } = await supabase
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
 
-      // BLOQUEIA LOGO NO INÍCIO se trial esgotado
-      if (!isActive && trialUses >= 3) {
-        console.log('🚫 BLOQUEADO NO INÍCIO - Trial esgotado!');
+      const currentProjects = count || 0;
+      const remainingTrials = Math.max(0, 3 - totalCreated);
+
+      console.log(`📊 Status: ${totalCreated} criações totais, ${currentProjects} projetos atuais, ${remainingTrials} testes restantes`);
+
+      // BLOQUEIA se já criou 3 vezes (mesmo que tenha deletado)
+      if (!isActive && totalCreated >= 3) {
+        console.log('🚫 BLOQUEADO - Já usou os 3 testes gratuitos!');
         setPaywallReason('trial_exhausted');
         setShowPaywall(true);
         return; // NÃO permite continuar
