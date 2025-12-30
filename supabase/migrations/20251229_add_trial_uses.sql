@@ -30,8 +30,6 @@ BEGIN
 END $$;
 
 -- 3. Add user_id column if it doesn't exist
-DO $$ 
-BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns 
         WHERE table_name = 'subscriptions' 
@@ -39,6 +37,19 @@ BEGIN
     ) THEN
         ALTER TABLE public.subscriptions 
         ADD COLUMN user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+    END IF;
+END $$;
+
+-- 4. Add user_email column if it doesn't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'subscriptions' 
+        AND column_name = 'user_email'
+    ) THEN
+        ALTER TABLE public.subscriptions 
+        ADD COLUMN user_email TEXT;
     END IF;
 END $$;
 
