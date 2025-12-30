@@ -1765,12 +1765,12 @@ const Wizard: React.FC<{
           {step === WizardStep.TOPIC_INPUT && (
             <div className="flex flex-col min-h-full px-4 md:px-8 pb-8 pt-0">
               <div className="w-full">
-                <div className="flex flex-col items-center justify-center gap-3 mb-8 max-w-5xl mx-auto w-full relative">
-                  <div className="flex md:flex-row items-center justify-center w-full">
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 md:static md:translate-y-0 md:mr-4 w-8 h-8 md:w-10 md:h-10 bg-zinc-900/80 rounded-xl flex items-center justify-center border border-zinc-800/80 shrink-0 shadow-sm transition-colors">
-                      <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-brand-teal" />
+                <div className="flex flex-col items-center justify-center gap-3 mb-8 max-w-5xl mx-auto w-full">
+                  <div className="flex flex-col md:flex-row items-center justify-center w-full gap-3 md:gap-4">
+                    <div className="w-10 h-10 md:w-10 md:h-10 bg-zinc-900/80 rounded-xl flex items-center justify-center border border-zinc-800/80 shrink-0 shadow-sm transition-colors">
+                      <Sparkles className="w-5 h-5 md:w-5 md:h-5 text-brand-teal" />
                     </div>
-                    <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white leading-tight md:whitespace-nowrap text-center md:text-left tracking-tighter md:tracking-normal w-full md:w-auto px-10 md:px-0">
+                    <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white leading-tight md:whitespace-nowrap text-center md:text-left tracking-tighter md:tracking-normal w-full md:w-auto">
                       Gerador de Narrativas<br className="block md:hidden" /> Magnéticas
                     </h2>
                   </div>
