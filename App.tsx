@@ -1737,14 +1737,13 @@ const Wizard: React.FC<{
   return (
     <div className="flex flex-col h-full max-w-5xl mx-auto">
       {/* Trial Counter Banner */}
+      {/* Trial Counter Banner */}
       {trialsRemaining < 999 && (
-        <div className="bg-gradient-to-r from-blue-600/20 to-blue-500/20 border border-blue-500/30 rounded-lg px-4 py-3 mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-blue-400" />
-            </div>
-            <p className="text-sm text-zinc-200">
-              Você tem mais <span className="font-bold text-white">{trialsRemaining} roteiro{trialsRemaining !== 1 ? 's' : ''} restante{trialsRemaining !== 1 ? 's' : ''}</span>. <button onClick={() => window.open(SubscriptionService.createCheckoutUrl(user.id), '_blank')} className="underline hover:text-brand-teal transition-colors">Faça o upgrade</button> e tenha acesso ilimitado.
+        <div className="bg-blue-500/5 border border-blue-500/10 rounded-full px-4 py-2 mb-6 flex items-center justify-center max-w-fit mx-auto">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+            <p className="text-xs md:text-sm text-zinc-400">
+              Você tem mais <span className="font-bold text-zinc-200">{trialsRemaining} {trialsRemaining === 1 ? 'roteiro restante' : 'roteiros restantes'}</span>. <button onClick={() => window.open(SubscriptionService.createCheckoutUrl(user.id), '_blank')} className="font-bold underline hover:text-brand-teal transition-colors text-zinc-200">Faça o upgrade</button> e tenha acesso ilimitado.
             </p>
           </div>
         </div>
