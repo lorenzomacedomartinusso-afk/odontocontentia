@@ -1741,13 +1741,13 @@ const Wizard: React.FC<{
       {/* Trial Counter Banner */}
       {/* Trial Counter Banner */}
       {trialsRemaining < 999 && (
-        <div className="bg-slate-950/80 border border-cyan-400/20 rounded-full px-4 py-2 mb-6 flex items-center justify-center max-w-fit mx-auto shadow-sm shadow-cyan-400/5">
+        <div className="bg-[#0d0e12] border border-[#2dd4bf]/20 rounded-full px-4 py-2 mb-6 flex items-center justify-center max-w-fit mx-auto shadow-sm shadow-[#2dd4bf]/10">
           <div className="flex items-center gap-3">
-            <div className="w-5 h-5 rounded-full border border-cyan-400/30 flex items-center justify-center shrink-0">
-              <Info className="w-3 h-3 text-cyan-400" strokeWidth={3} />
+            <div className="w-5 h-5 rounded-full border border-[#2dd4bf]/30 flex items-center justify-center shrink-0">
+              <Info className="w-3 h-3 text-[#2dd4bf]" strokeWidth={3} />
             </div>
             <p className="text-xs md:text-sm text-zinc-400">
-              Você tem mais <span className="font-bold text-zinc-200">{trialsRemaining}</span> {trialsRemaining === 1 ? 'roteiro restante' : 'roteiros restantes'}. <button onClick={() => window.open(SubscriptionService.createCheckoutUrl(user.id), '_blank')} className="font-bold underline hover:text-cyan-400 transition-colors text-zinc-200">Faça o upgrade</button> e tenha acesso ilimitado.
+              Você tem mais <span className="font-bold text-zinc-200">{trialsRemaining}</span> {trialsRemaining === 1 ? 'roteiro restante' : 'roteiros restantes'}. <button onClick={() => window.open(SubscriptionService.createCheckoutUrl(user.id), '_blank')} className="font-bold underline hover:text-[#2dd4bf] transition-colors text-zinc-200">Faça o upgrade</button> e tenha acesso ilimitado.
             </p>
           </div>
         </div>
