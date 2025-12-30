@@ -52,7 +52,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-2xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-2xl max-h-[90vh] shadow-2xl relative overflow-y-auto animate-in zoom-in-95 duration-300">
 
                 {/* Glow effect */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-brand-teal to-emerald-500 rounded-3xl blur opacity-20 animate-pulse"></div>

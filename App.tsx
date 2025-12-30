@@ -2536,7 +2536,7 @@ const SubscriptionPage: React.FC<{ user: User }> = ({ user }) => {
   const trialUsesRemaining = subscriptionInfo?.trialUsesRemaining || 0;
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6 overflow-y-auto h-full pb-24">
       <div className="flex items-center gap-3 mb-6">
         <Sparkles className="w-8 h-8 text-brand-teal" />
         <h1 className="text-2xl md:text-3xl font-bold text-white">Minha Assinatura</h1>
@@ -2979,9 +2979,9 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
       <nav className="fixed bottom-0 left-0 right-0 h-20 bg-brand-surface/90 backdrop-blur-xl border-t border-zinc-800 flex justify-around items-center px-2 z-50 pb-2 md:pb-0">
         <button
           onClick={() => setView('CREATE')}
-          className={`flex flex - col items - center gap - 1 p - 2 rounded - xl transition - all ${view === 'CREATE' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'} `}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'CREATE' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
         >
-          <div className={`p - 2 rounded - full ${view === 'CREATE' ? 'bg-brand-teal text-brand-black shadow-[0_0_15px_-3px_rgba(45,212,191,0.5)]' : 'bg-zinc-800'} `}>
+          <div className={`p-2 rounded-full ${view === 'CREATE' ? 'bg-brand-teal text-brand-black shadow-[0_0_15px_-3px_rgba(45,212,191,0.5)]' : 'bg-zinc-800'}`}>
             <Plus className="w-6 h-6" />
           </div>
           <span className="text-[10px] font-medium">Novo Conteúdo</span>
@@ -2989,7 +2989,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
         <button
           onClick={() => setView('KANBAN')}
-          className={`flex flex - col items - center gap - 1 p - 2 rounded - xl transition - all ${view === 'KANBAN' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'} `}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'KANBAN' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
         >
           <LayoutDashboard className="w-5 h-5" />
           <span className="text-[10px] font-medium">Planejamento</span>
@@ -2997,7 +2997,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
         <button
           onClick={() => setView('CALENDAR')}
-          className={`flex flex - col items - center gap - 1 p - 2 rounded - xl transition - all ${view === 'CALENDAR' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'} `}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'CALENDAR' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
         >
           <CalendarIcon className="w-5 h-5" />
           <span className="text-[10px] font-medium">Agenda</span>
@@ -3005,7 +3005,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
         <button
           onClick={() => setView('TEAM')}
-          className={`flex flex - col items - center gap - 1 p - 2 rounded - xl transition - all ${view === 'TEAM' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'} `}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'TEAM' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
         >
           <Users className="w-5 h-5" />
           <span className="text-[10px] font-medium">Equipe</span>
@@ -3013,7 +3013,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
         <button
           onClick={() => setView('SUBSCRIPTION')}
-          className={`flex flex - col items - center gap - 1 p - 2 rounded - xl transition - all ${view === 'SUBSCRIPTION' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'} `}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'SUBSCRIPTION' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
         >
           <Sparkles className="w-5 h-5" />
           <span className="text-[10px] font-medium">Assinatura</span>
