@@ -1640,70 +1640,7 @@ const Wizard: React.FC<{
 
   const handleFinish = async () => {
     if (finalAssets && narrative) {
-      console.log('🎯 handleFinish chamado - VERIFICANDO SUBSCRIPTION');
-
-      // VERIFICAÇÃO DE SUBSCRIPTION ANTES DE CRIAR PROJETO
-      try {
-        let { data: subData, error: subError } = await supabase
-          .from('subscriptions')
-          .select('trial_uses, status, plan')
-          .eq('user_id', user.id)
-          .single();
-
-        // Se não tem subscription, CRIA UMA AGORA
-        if (subError && subError.code === 'PGRST116') {
-          console.log('📝 Subscription não existe - criando...');
-          const { data: newSub, error: insertError } = await supabase
-            .from('subscriptions')
-            .insert({
-              user_id: user.id,
-              status: 'pending',
-              plan: 'free',
-              trial_uses: 0
-            })
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error('❌ Erro ao criar subscription:', insertError);
-            return;
-          }
-
-          subData = newSub;
-          console.log('✅ Subscription criada:', subData);
-        }
-
-        if (!subData) {
-          console.error('❌ Não foi possível obter subscription');
-          return;
-        }
-
-        console.log('📊 Subscription:', subData);
-
-        const isActive = subData?.status === 'active' && subData?.plan === 'Premium';
-        const trialUses = subData?.trial_uses || 0;
-
-        console.log(`✅ Status: ${isActive ? 'Premium' : 'Trial'}, Usos: ${trialUses}/3`);
-
-        // BLOQUEIA se não é assinante E já usou 3 vezes
-        if (!isActive && trialUses >= 3) {
-          console.log('🚫 BLOQUEADO - Trial esgotado!');
-          setPaywallReason('trial_exhausted');
-          setShowPaywall(true);
-          return;
-        }
-
-        // Incrementa o contador se não é assinante
-        if (!isActive) {
-          console.log(`📊 Incrementando de ${trialUses} para ${trialUses + 1}`);
-          await supabase
-            .from('subscriptions')
-            .update({ trial_uses: trialUses + 1, updated_at: new Date().toISOString() })
-            .eq('user_id', user.id);
-        }
-      } catch (error) {
-        console.error('Erro ao verificar subscription:', error);
-      }
+      console.log('🎯 handleFinish chamado - Finalizando wizard');
 
       // BUG FIX: Store simple date string YYYY-MM-DD instead of ISO string with time
       // This prevents timezone shift when viewing on different locales
