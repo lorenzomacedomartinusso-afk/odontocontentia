@@ -1740,10 +1740,10 @@ const Wizard: React.FC<{
       {/* Trial Counter Banner */}
       {/* Trial Counter Banner */}
       {trialsRemaining < 999 && (
-        <div className="bg-slate-950/80 border border-blue-900/40 rounded-full px-4 py-2 mb-6 flex items-center justify-center max-w-fit mx-auto shadow-sm shadow-blue-900/10">
+        <div className="bg-slate-950/80 border border-brand-teal/20 rounded-full px-4 py-2 mb-6 flex items-center justify-center max-w-fit mx-auto shadow-sm shadow-brand-teal/5">
           <div className="flex items-center gap-3">
-            <div className="w-5 h-5 rounded-full border border-blue-400/30 flex items-center justify-center shrink-0">
-              <Info className="w-3 h-3 text-blue-400" strokeWidth={2.5} />
+            <div className="w-5 h-5 rounded-full border border-brand-teal/30 flex items-center justify-center shrink-0">
+              <Info className="w-3 h-3 text-brand-teal" strokeWidth={3} />
             </div>
             <p className="text-xs md:text-sm text-zinc-400">
               Você tem mais <span className="font-bold text-zinc-200">{trialsRemaining}</span> {trialsRemaining === 1 ? 'roteiro restante' : 'roteiros restantes'}. <button onClick={() => window.open(SubscriptionService.createCheckoutUrl(user.id), '_blank')} className="font-bold underline hover:text-brand-teal transition-colors text-zinc-200">Faça o upgrade</button> e tenha acesso ilimitado.
