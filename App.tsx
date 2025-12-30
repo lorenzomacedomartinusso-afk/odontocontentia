@@ -1477,6 +1477,7 @@ const Wizard: React.FC<{
   const [step, setStep] = useState<WizardStep>(WizardStep.TOPIC_INPUT);
   const [loading, setLoading] = useState(false);
   const [topic, setTopic] = useState('');
+  const [trialsRemaining, setTrialsRemaining] = useState(3);
 
   const [hooks, setHooks] = useState<string[]>([]);
   const [editingHookIndex, setEditingHookIndex] = useState<number | null>(null);
@@ -1495,9 +1496,29 @@ const Wizard: React.FC<{
 
   const [suggestedTopics, setSuggestedTopics] = useState<string[]>([]);
 
+  // Carrega trials restantes ao montar
   useEffect(() => {
+    loadTrialsRemaining();
     refreshSuggestions();
   }, []);
+
+  const loadTrialsRemaining = async () => {
+    try {
+      const { data: subData } = await supabase
+        .from('subscriptions')
+        .select('trial_uses, status, plan')
+        .eq('user_id', user.id)
+        .single();
+
+      const isActive = subData?.status === 'active' && subData?.plan === 'Premium';
+      const totalCreated = subData?.trial_uses || 0;
+      const remaining = isActive ? 999 : Math.max(0, 3 - totalCreated);
+
+      setTrialsRemaining(remaining);
+    } catch (error) {
+      console.error('Erro ao carregar trials:', error);
+    }
+  };
 
   const refreshSuggestions = () => {
     // Shuffle and pick 6
@@ -1702,6 +1723,9 @@ const Wizard: React.FC<{
 
       console.log('✅ Criando projeto...');
       onComplete(newProject);
+
+      // Recarrega contador de trials após criar projeto
+      await loadTrialsRemaining();
     }
   };
 
@@ -1712,6 +1736,19 @@ const Wizard: React.FC<{
 
   return (
     <div className="flex flex-col h-full max-w-5xl mx-auto">
+      {/* Trial Counter Banner */}
+      {trialsRemaining < 999 && (
+        <div className="bg-gradient-to-r from-blue-600/20 to-blue-500/20 border border-blue-500/30 rounded-lg px-4 py-3 mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-blue-400" />
+            </div>
+            <p className="text-sm text-zinc-200">
+              Você tem mais <span className="font-bold text-white">{trialsRemaining} roteiro{trialsRemaining !== 1 ? 's' : ''} restante{trialsRemaining !== 1 ? 's' : ''}</span>. <button onClick={() => window.open(SubscriptionService.createCheckoutUrl(user.id), '_blank')} className="underline hover:text-brand-teal transition-colors">Faça o upgrade</button> e tenha acesso ilimitado.
+            </p>
+          </div>
+        </div>
+      )}
       <Card className="flex-1 min-h-0 flex flex-col relative overflow-hidden">
         {loading && (
           <div className="absolute inset-0 bg-brand-surface/95 backdrop-blur-md z-50 flex flex-col items-center justify-center text-center p-4">
