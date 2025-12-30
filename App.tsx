@@ -2970,6 +2970,15 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
                       <Settings className="w-4 h-4" /> Configurações de Perfil
                     </button>
                     <button
+                      onClick={() => {
+                        setView('SUBSCRIPTION');
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-lg flex items-center gap-2 transition-colors"
+                    >
+                      <Sparkles className="w-4 h-4" /> Assinatura
+                    </button>
+                    <button
                       onClick={onLogout}
                       className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg flex items-center gap-2 transition-colors"
                     >
@@ -3092,13 +3101,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
           <span className="text-[10px] font-medium">Equipe</span>
         </button>
 
-        <button
-          onClick={() => setView('SUBSCRIPTION')}
-          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${view === 'SUBSCRIPTION' ? 'text-brand-teal' : 'text-zinc-500 hover:text-zinc-300'}`}
-        >
-          <Sparkles className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Assinatura</span>
-        </button>
+
       </nav>
 
       {selectedProject && (
