@@ -1740,13 +1740,14 @@ const Wizard: React.FC<{
       {/* Trial Counter Banner */}
       {/* Trial Counter Banner */}
       {/* Trial Counter Banner */}
+      {/* Trial Counter Banner */}
       {trialsRemaining < 999 && (
-        <div className="bg-[#2dd4bf]/10 rounded-full px-4 py-2 mb-6 flex items-center justify-center max-w-fit mx-auto">
-          <div className="flex items-center gap-3">
-            <div className="w-5 h-5 rounded-full border border-[#2dd4bf]/30 flex items-center justify-center shrink-0">
-              <Info className="w-3 h-3 text-[#2dd4bf]" strokeWidth={3} />
+        <div className="bg-[#2dd4bf]/10 rounded-full px-3 py-1.5 md:px-4 md:py-2 mb-4 md:mb-6 flex items-center justify-center max-w-fit mx-auto">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full border border-[#2dd4bf]/30 flex items-center justify-center shrink-0">
+              <Info className="w-2.5 h-2.5 md:w-3 md:h-3 text-[#2dd4bf]" strokeWidth={3} />
             </div>
-            <p className="text-xs md:text-sm text-zinc-400">
+            <p className="text-xs md:text-sm text-zinc-400 leading-tight">
               Você tem mais <span className="font-bold text-zinc-200">{trialsRemaining}</span> {trialsRemaining === 1 ? 'roteiro restante' : 'roteiros restantes'}. <button onClick={() => window.open(SubscriptionService.createCheckoutUrl(user.id), '_blank')} className="font-bold underline hover:text-[#2dd4bf] transition-colors text-zinc-200">Faça o upgrade</button> e tenha acesso ilimitado.
             </p>
           </div>
