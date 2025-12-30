@@ -109,8 +109,8 @@ Deno.serve(async (req) => {
             { status: 200, headers: { "Content-Type": "application/json" } }
           );
         }
-        // Atualiza o status da subscription para 'active'
-        const { data, error } = await supabase
+        // Tenta atualizar pelo external_id primeiro
+        let { data, error } = await supabase
           .from("subscriptions")
           .update({
             status: "active",
@@ -121,43 +121,48 @@ Deno.serve(async (req) => {
           .eq("external_id", externalId)
           .select();
 
-        if (error) {
-          console.error("Error updating subscription:", error);
+        // Se não encontrou pelo external_id ou deu erro, tenta pelo EMAIL
+        if (!data || data.length === 0) {
+          console.log(`External ID ${externalId} not found, trying search by email: ${payload.data.customer?.email}`);
 
-          // Se não encontrou, tenta criar uma nova
-          if (error.code === "PGRST116" || !data || data.length === 0) {
-            console.log("Subscription not found, creating new one");
-
-            const { data: newSub, error: insertError } = await supabase
+          if (payload.data.customer?.email) {
+            const { data: emailData, error: emailError } = await supabase
               .from("subscriptions")
-              .insert({
-                external_id: externalId,
+              .update({
+                external_id: externalId, // Seta o external_id agora!
                 status: "active",
                 plan: "Premium",
-                user_email: payload.data.customer?.email,
-                transaction_id: payload.data.transaction?.id,
-                created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
+                ...(payload.data.transaction?.id && { transaction_id: payload.data.transaction.id }),
               })
+              .eq("user_email", payload.data.customer.email) // Busca pelo email
               .select();
 
-            if (insertError) {
-              console.error("Error creating subscription:", insertError);
-              return new Response(
-                JSON.stringify({ error: "Failed to create subscription", details: insertError.message }),
-                { status: 500, headers: { "Content-Type": "application/json" } }
-              );
+            if (emailError) {
+              console.error("Error updating subscription by email:", emailError);
+            } else if (emailData && emailData.length > 0) {
+              console.log("✅ Subscription updated via Email Match:", emailData);
+              data = emailData; // Atualiza data para retornar sucesso
+              error = null;
+            } else {
+              console.warn("❌ User not found with this email either.");
             }
-
-            return new Response(
-              JSON.stringify({ success: true, message: "Subscription created", data: newSub }),
-              { status: 201, headers: { "Content-Type": "application/json" } }
-            );
           }
+        }
 
+        if (error) {
+          console.error("Error updating subscription:", error);
           return new Response(
             JSON.stringify({ error: "Failed to update subscription", details: error.message }),
             { status: 500, headers: { "Content-Type": "application/json" } }
+          );
+        }
+
+        if (!data || data.length === 0) {
+          // Realmente não achou ninguém
+          return new Response(
+            JSON.stringify({ error: "User not found for this subscription" }),
+            { status: 404, headers: { "Content-Type": "application/json" } }
           );
         }
 
