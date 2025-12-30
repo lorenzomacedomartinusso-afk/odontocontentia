@@ -1770,7 +1770,7 @@ const Wizard: React.FC<{
                     <div className="w-8 h-8 md:w-10 md:h-10 bg-zinc-900/80 rounded-xl flex items-center justify-center border border-zinc-800/80 shrink-0 shadow-sm transition-colors">
                       <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-brand-teal" />
                     </div>
-                    <h2 className="text-lg sm:text-xl md:text-5xl font-bold text-white leading-tight md:whitespace-nowrap text-left">
+                    <h2 className="text-xl sm:text-2xl md:text-5xl font-bold text-white leading-tight md:whitespace-nowrap text-center md:text-left tracking-tighter md:tracking-normal">
                       Gerador de Narrativas<br className="block md:hidden" /> Magnéticas
                     </h2>
                   </div>
