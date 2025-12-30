@@ -1742,7 +1742,7 @@ const Wizard: React.FC<{
       {/* Trial Counter Banner */}
       {/* Trial Counter Banner */}
       {trialsRemaining < 999 && (
-        <div className="bg-[#2dd4bf]/10 rounded-full px-3 py-1.5 md:px-4 md:py-2 mb-4 md:mb-6 flex items-center justify-center max-w-fit mx-auto">
+        <div className="bg-[#2dd4bf]/10 rounded-full px-3 py-1.5 md:px-4 md:py-2 mb-4 md:mb-6 flex items-center justify-center w-full max-w-[92%] md:max-w-fit mx-auto">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="w-4 h-4 md:w-5 md:h-5 rounded-full border border-[#2dd4bf]/30 flex items-center justify-center shrink-0">
               <Info className="w-2.5 h-2.5 md:w-3 md:h-3 text-[#2dd4bf]" strokeWidth={3} />
@@ -1770,7 +1770,8 @@ const Wizard: React.FC<{
                     <div className="hidden md:flex w-10 h-10 md:w-10 md:h-10 bg-zinc-900/80 rounded-xl items-center justify-center border border-zinc-800/80 shrink-0 shadow-sm transition-colors">
                       <Sparkles className="w-5 h-5 md:w-5 md:h-5 text-brand-teal" />
                     </div>
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight md:whitespace-nowrap text-center md:text-left tracking-tighter md:tracking-normal w-full md:w-auto">
+                    {/* Responsive Text Size: Base 2xl (Small Phones), 3xl (Regular Phones), 4xl (Tablets), 5xl (Desktop) */}
+                    <h2 className="text-2xl min-[375px]:text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight md:whitespace-nowrap text-center md:text-left tracking-tighter md:tracking-normal w-full md:w-auto">
                       Gerador de Narrativas<br className="block md:hidden" /> Magnéticas
                     </h2>
                   </div>
@@ -1802,7 +1803,8 @@ const Wizard: React.FC<{
                       Atualizar ideias
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {/* Grid 1 col on tiny screens, 2 cols on regular mobile */}
+                  <div className="grid grid-cols-1 min-[375px]:grid-cols-2 md:grid-cols-3 gap-3">
                     {suggestedTopics.map((t) => (
                       <button
                         key={t}
