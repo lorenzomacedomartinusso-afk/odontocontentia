@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Sparkles, LayoutDashboard, LogOut, Plus, Search, Calendar as CalendarIcon, ClipboardList, CheckCircle2, PlayCircle, Share2, FileText, Copy, ShieldCheck, ChevronRight, User as UserIcon, Loader2, X, Users, AlertCircle, Check, RefreshCw, Lightbulb, Edit2, Save, RotateCcw, Pencil, Trash2, ChevronLeft, CalendarDays, Mail, Settings, Building2, Bell, Lock, GripVertical, Clock, TrendingUp, Target, BarChart3, Star, Quote } from 'lucide-react';
+import { Sparkles, LayoutDashboard, LogOut, Plus, Search, Calendar as CalendarIcon, ClipboardList, CheckCircle2, PlayCircle, Share2, FileText, Copy, ShieldCheck, ChevronRight, User as UserIcon, Loader2, X, Users, AlertCircle, Check, RefreshCw, Lightbulb, Edit2, Save, RotateCcw, Pencil, Trash2, ChevronLeft, CalendarDays, Mail, Settings, Building2, Bell, Lock, GripVertical, Clock, TrendingUp, Target, BarChart3, Star, Quote, Info } from 'lucide-react';
 import { Project, ContentStatus, WizardStep, NarrativeStructure, FinalAssets, User } from './types';
 import * as GeminiService from './services/geminiService';
 import { projectService } from './services/projectService';
@@ -1738,12 +1738,15 @@ const Wizard: React.FC<{
     <div className="flex flex-col h-full max-w-5xl mx-auto">
       {/* Trial Counter Banner */}
       {/* Trial Counter Banner */}
+      {/* Trial Counter Banner */}
       {trialsRemaining < 999 && (
-        <div className="bg-blue-500/5 border border-blue-500/10 rounded-full px-4 py-2 mb-6 flex items-center justify-center max-w-fit mx-auto">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+        <div className="bg-slate-950/80 border border-blue-900/40 rounded-full px-4 py-2 mb-6 flex items-center justify-center max-w-fit mx-auto shadow-sm shadow-blue-900/10">
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 rounded-full border border-blue-400/30 flex items-center justify-center shrink-0">
+              <Info className="w-3 h-3 text-blue-400" strokeWidth={2.5} />
+            </div>
             <p className="text-xs md:text-sm text-zinc-400">
-              Você tem mais <span className="font-bold text-zinc-200">{trialsRemaining} {trialsRemaining === 1 ? 'roteiro restante' : 'roteiros restantes'}</span>. <button onClick={() => window.open(SubscriptionService.createCheckoutUrl(user.id), '_blank')} className="font-bold underline hover:text-brand-teal transition-colors text-zinc-200">Faça o upgrade</button> e tenha acesso ilimitado.
+              Você tem mais <span className="font-bold text-zinc-200">{trialsRemaining}</span> {trialsRemaining === 1 ? 'roteiro restante' : 'roteiros restantes'}. <button onClick={() => window.open(SubscriptionService.createCheckoutUrl(user.id), '_blank')} className="font-bold underline hover:text-brand-teal transition-colors text-zinc-200">Faça o upgrade</button> e tenha acesso ilimitado.
             </p>
           </div>
         </div>
