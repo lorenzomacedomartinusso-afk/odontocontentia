@@ -1741,7 +1741,7 @@ const Wizard: React.FC<{
       {/* Trial Counter Banner */}
       {/* Trial Counter Banner */}
       {trialsRemaining < 999 && (
-        <div className="bg-[#0d0e12] border border-[#2dd4bf]/20 rounded-full px-4 py-2 mb-6 flex items-center justify-center max-w-fit mx-auto shadow-sm shadow-[#2dd4bf]/10">
+        <div className="bg-[#2dd4bf]/10 rounded-full px-4 py-2 mb-6 flex items-center justify-center max-w-fit mx-auto">
           <div className="flex items-center gap-3">
             <div className="w-5 h-5 rounded-full border border-[#2dd4bf]/30 flex items-center justify-center shrink-0">
               <Info className="w-3 h-3 text-[#2dd4bf]" strokeWidth={3} />
