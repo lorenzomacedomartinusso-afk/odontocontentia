@@ -101,16 +101,49 @@ Deno.serve(async (req) => {
     switch (payload.event) {
       case "purchase_approved": {
         console.log(`Processing purchase_approved for external_id: ${externalId}`);
-        // Proteção para o teste da Cakto: se não houver externalId, retornamos sucesso sem salvar no banco
+        console.log(`Customer email: ${payload.data.customer?.email}`);
+
+        // CRÍTICO: Se external_id está undefined, tentamos pelo EMAIL diretamente
+        // Isso acontece quando a Cakto não passa o parâmetro corretamente
         if (!externalId) {
-          console.warn("Teste da Cakto detectado (sem externalId). Respondendo sucesso para o sinal ficar verde.");
+          console.warn("⚠️ external_id is undefined - searching by email only");
+
+          if (!payload.data.customer?.email) {
+            console.error("❌ No external_id AND no email - cannot identify user");
+            return new Response(
+              JSON.stringify({ error: "Cannot identify user - missing both external_id and email" }),
+              { status: 400, headers: { "Content-Type": "application/json" } }
+            );
+          }
+
+          // Busca e atualiza pelo email
+          const { data: emailData, error: emailError } = await supabase
+            .from("subscriptions")
+            .update({
+              status: "active",
+              plan: "Premium",
+              updated_at: new Date().toISOString(),
+              ...(payload.data.transaction?.id && { transaction_id: payload.data.transaction.id }),
+            })
+            .eq("user_email", payload.data.customer.email)
+            .select();
+
+          if (emailError || !emailData || emailData.length === 0) {
+            console.error("❌ Failed to update subscription by email:", emailError);
+            return new Response(
+              JSON.stringify({ error: "User not found by email", email: payload.data.customer.email }),
+              { status: 404, headers: { "Content-Type": "application/json" } }
+            );
+          }
+
+          console.log("✅ Subscription activated via EMAIL:", emailData);
           return new Response(
-            JSON.stringify({ success: true, message: "Teste recebido com sucesso!" }),
+            JSON.stringify({ success: true, message: "Subscription activated (via email)", data: emailData }),
             { status: 200, headers: { "Content-Type": "application/json" } }
           );
         }
-        // O external_id que enviamos no checkout É O user_id do Supabase
-        // Então devemos buscar pela coluna 'user_id', não pela coluna 'external_id' (que está vazia)
+
+        // Se temos external_id, tentamos primeiro pelo user_id
         console.log(`Searching for subscription with user_id: ${externalId}`);
 
         let { data, error } = await supabase
@@ -126,7 +159,7 @@ Deno.serve(async (req) => {
           .eq("user_id", externalId) // FIX: Busca pelo user_id!
           .select();
 
-        // Se não encontrou pelo ID (pode ser um email diferente ou erro), tenta pelo EMAIL
+        // Fallback: Se não encontrou pelo user_id, tenta pelo email
         if (!data || data.length === 0) {
           console.log(`User ID ${externalId} not found, trying search by email: ${payload.data.customer?.email}`);
 
@@ -146,7 +179,7 @@ Deno.serve(async (req) => {
               console.error("Error updating subscription by email:", emailError);
             } else if (emailData && emailData.length > 0) {
               console.log("✅ Subscription updated via Email Match:", emailData);
-              data = emailData; // Atualiza data para retornar sucesso
+              data = emailData;
               error = null;
             } else {
               console.warn("❌ User not found with this email either.");
