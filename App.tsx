@@ -1507,6 +1507,32 @@ const Wizard: React.FC<{
 
   const handleGenerateHooks = async () => {
     if (!topic) return;
+
+    // VERIFICAÇÃO DE SUBSCRIPTION LOGO NO INÍCIO
+    try {
+      const { data: subData } = await supabase
+        .from('subscriptions')
+        .select('trial_uses, status, plan')
+        .eq('user_id', user.id)
+        .single();
+
+      const isActive = subData?.status === 'active' && subData?.plan === 'Premium';
+      const trialUses = subData?.trial_uses || 0;
+
+      console.log(`🔍 Verificando antes de gerar: Status=${isActive ? 'Premium' : 'Trial'}, Usos=${trialUses}/3`);
+
+      // BLOQUEIA LOGO NO INÍCIO se trial esgotado
+      if (!isActive && trialUses >= 3) {
+        console.log('🚫 BLOQUEADO NO INÍCIO - Trial esgotado!');
+        setPaywallReason('trial_exhausted');
+        setShowPaywall(true);
+        return; // NÃO permite continuar
+      }
+    } catch (error) {
+      console.error('Erro ao verificar subscription:', error);
+    }
+
+    // Se passou na verificação, continua normalmente
     setLoading(true);
     const result = await GeminiService.generateHooks(topic);
     setHooks(result);
