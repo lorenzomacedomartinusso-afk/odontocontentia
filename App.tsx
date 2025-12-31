@@ -755,12 +755,13 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         <div className="max-w-5xl mx-auto">
           <Reveal>
             <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8">
-              <div className="max-w-2xl">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                  <span className="text-brand-teal">Três cliques</span> até o post pronto.
+              <div className="max-w-4xl">
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                  <span className="text-brand-teal">Você nunca mais vai ficar sem conteúdo.</span> <br className="hidden md:block" />
+                  Um dia sequer.
                 </h2>
-                <p className="text-zinc-400 text-lg">
-                  Você digita o tema. A IA te dá a estratégia, escreve o roteiro e gera a legenda. Você só precisa gravar ou aprovar a arte.
+                <p className="text-zinc-400 text-lg md:text-xl leading-relaxed">
+                  É assim: você digita um tema como "Direitos do consumidor em compras online". Em segundos, recebe 5 opções de tese, 5 opções de headline e uma narrativa para fundamentar o roteiro. Depois de selecionar o melhor argumento-mãe, você recebe um roteiro pronto que pode ser utilizado como carrossel, reels ou stories para engajar seus seguidores. Aprovando-o, ele vai automaticamente para o seu Quadro. Simples e rápido — exatamente como deveria ser.
                 </p>
               </div>
               <div className="flex gap-4">
