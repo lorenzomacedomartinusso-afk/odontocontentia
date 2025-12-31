@@ -688,11 +688,10 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           <div className="text-center mb-16">
             <Reveal>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Do caos à clínica lotada
+                Crie, organize e publique conteúdos Odontológicos que geram resultado
               </h2>
               <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-                Organize sua produção de conteúdo com visualizações profissionais em Kanban ou Calendário.
-                <span className="text-brand-teal block mt-1 font-medium">Você nunca mais vai esquecer de postar.</span>
+                Organize seu conteúdo com visualizações em Kanban ou Calendário, tudo integrado ao processo de criação com Inteligência Artificial.
               </p>
             </Reveal>
           </div>
