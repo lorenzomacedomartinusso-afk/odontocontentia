@@ -3023,7 +3023,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
           <div className={`p-2 rounded-full ${view === 'CREATE' ? 'bg-brand-teal text-brand-black shadow-[0_0_15px_-3px_rgba(45,212,191,0.5)]' : 'bg-zinc-800'}`}>
             <Plus className="w-6 h-6" />
           </div>
-          <span className="text-[10px] font-medium">Novo Conteúdo</span>
+          <span className="text-[10px] font-medium">Área de Criação</span>
         </button>
 
         <button
