@@ -1024,52 +1024,61 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           </Reveal>
 
           <Reveal delay={200} direction="up">
-            <div className="w-full max-w-6xl mx-auto relative group">
-              {/* Glow Effect - Adjusted for wide card */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-brand-teal to-teal-800 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-glow-pulse"></div>
+            <div className="w-full max-w-7xl mx-auto relative group">
+              {/* Refined Glow Effect */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-brand-teal to-teal-900 rounded-3xl blur opacity-15 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
 
-              <div className="relative bg-zinc-950 border border-zinc-800 rounded-2xl p-6 md:p-12 shadow-2xl hover:border-brand-teal/30 transition-all duration-500">
+              <div className="relative bg-[#09090b] border border-zinc-800/80 rounded-3xl overflow-hidden shadow-2xl">
+                <div className="flex flex-col md:flex-row">
 
-                <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
-                  {/* Left: Price & Plan Info */}
-                  <div className="text-center md:text-left min-w-[280px]">
-                    <div className="inline-block bg-brand-teal text-brand-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-brand-teal/20 animate-bounce-subtle mb-4">
-                      OFERTA INÍCIO DE ANO
+                  {/* Column 1: Identity & Price */}
+                  <div className="p-8 md:p-12 md:w-[35%] flex flex-col justify-center border-b md:border-b-0 md:border-r border-zinc-800/50">
+                    <div className="inline-flex self-start items-center gap-2 px-3 py-1 rounded-full bg-brand-teal/10 border border-brand-teal/20 text-brand-teal text-[10px] font-bold uppercase tracking-widest mb-6">
+                      <Sparkles className="w-3 h-3" /> Oferta Início de Ano
                     </div>
-                    <h3 className="text-xl font-medium text-zinc-400 mb-2">Plano Pro Odonto</h3>
-                    <div className="flex items-baseline justify-center md:justify-start gap-1">
-                      <span className="text-5xl md:text-6xl font-bold text-white group-hover:text-gradient-animate">R$ 34,90</span>
-                      <span className="text-zinc-500">/mês</span>
+
+                    <h3 className="text-zinc-400 font-medium mb-2">Plano Pro Odonto</h3>
+                    <div className="flex items-baseline gap-1 mb-4">
+                      <span className="text-5xl md:text-6xl font-bold text-white tracking-tight">R$ 34,90</span>
+                      <span className="text-zinc-500 font-medium">/mês</span>
                     </div>
+                    <p className="text-sm text-zinc-500 leading-relaxed">
+                      Tenha um estrategista de conteúdo digital trabalhando 24h para sua clínica por menos de um café por dia.
+                    </p>
                   </div>
 
-                  {/* Middle: Features (Grid on Desktop) */}
-                  <div className="flex-1 w-full border-y md:border-y-0 md:border-x border-zinc-800 py-8 md:py-0 md:px-12 bg-zinc-900/30 md:bg-transparent rounded-xl md:rounded-none">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-left">
+                  {/* Column 2: Features */}
+                  <div className="p-8 md:p-12 md:w-[40%] flex flex-col justify-center border-b md:border-b-0 md:border-r border-zinc-800/50 bg-zinc-900/20">
+                    <div className="grid grid-cols-1 gap-4">
                       {[
-                        "Gerador Ilimitado de Roteiros e Legendas",
+                        "Gerador Ilimitado de Roteiros",
                         "Calendário Editorial & Kanban",
                         "Gestão de Equipe (até 3 usuários)",
                         "IA treinada com normas do CFO",
                         "Suporte prioritário via WhatsApp"
                       ].map((feat, i) => (
-                        <div key={i} className="flex items-center gap-3 text-sm text-zinc-300 group/item hover:text-white transition-colors">
-                          <CheckCircle2 className="w-5 h-5 text-brand-teal shrink-0 group-hover/item:scale-110 transition-transform" />
-                          {feat}
+                        <div key={i} className="flex items-center gap-3 group/item">
+                          <div className="w-5 h-5 rounded-full bg-brand-teal/10 flex items-center justify-center shrink-0 group-hover/item:bg-brand-teal/20 transition-colors">
+                            <Check className="w-3 h-3 text-brand-teal" />
+                          </div>
+                          <span className="text-sm text-zinc-300 font-medium group-hover/item:text-white transition-colors">{feat}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Right: CTA */}
-                  <div className="flex flex-col items-center gap-4 min-w-[250px] w-full md:w-auto">
-                    <Button onClick={onLogin} variant="gradient" className="w-full text-lg py-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all btn-ripple animate-pulse-glow">
+                  {/* Column 3: Action */}
+                  <div className="p-8 md:p-12 md:w-[25%] flex flex-col justify-center items-center gap-6 bg-zinc-950">
+                    <Button onClick={onLogin} variant="gradient" className="w-full py-7 text-lg shadow-[0_0_40px_-10px_rgba(45,212,191,0.3)] hover:shadow-[0_0_60px_-15px_rgba(45,212,191,0.5)] hover:scale-[1.02] transition-all duration-300">
                       teste agora gratuitamente
                     </Button>
-                    <p className="text-xs text-zinc-600">7 dias de garantia incondicional.</p>
+                    <div className="flex items-center gap-2 text-zinc-500 text-xs">
+                      <ShieldCheck className="w-3 h-3" />
+                      <span className="font-medium">Garantia de 7 dias</span>
+                    </div>
                   </div>
-                </div>
 
+                </div>
               </div>
             </div>
           </Reveal>
