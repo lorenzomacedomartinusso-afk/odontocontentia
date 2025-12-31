@@ -1519,6 +1519,7 @@ const Wizard: React.FC<{
 
   const [finalAssets, setFinalAssets] = useState<FinalAssets | null>(null);
   const [isEditingAssets, setIsEditingAssets] = useState(false);
+  const [selectedFormat, setSelectedFormat] = useState<'reels' | 'carousel'>('reels');
 
   const [suggestedTopics, setSuggestedTopics] = useState<string[]>([]);
 
@@ -1794,14 +1795,23 @@ const Wizard: React.FC<{
 
           {step === WizardStep.HOOKS && (
             <div className="p-2 md:p-4">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg md:text-xl text-zinc-400">Selecione a Narrativa Cultural mais magnética:</h3>
-                <button
-                  onClick={handleRegenerateHooks}
-                  className="text-brand-teal hover:text-white flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-brand-teal/20 hover:bg-brand-teal/10 transition-colors"
-                >
-                  <RotateCcw className="w-4 h-4" /> Regenerar
-                </button>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h3 className="text-lg md:text-xl text-zinc-400">Escolha a melhor narrativa</h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleRegenerateHooks}
+                    className="text-brand-teal hover:text-white flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-brand-teal/20 hover:bg-brand-teal/10 transition-colors"
+                  >
+                    <RotateCcw className="w-4 h-4" /> Regenerar
+                  </button>
+                  <button
+                    onClick={() => setEditingHookIndex(editingHookIndex === null ? 0 : null)}
+                    className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border transition-colors ${editingHookIndex !== null ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'text-zinc-400 hover:text-white border-zinc-700 hover:border-zinc-600'}`}
+                  >
+                    {editingHookIndex !== null ? <Save className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
+                    {editingHookIndex !== null ? 'Salvar' : 'Editar'}
+                  </button>
+                </div>
               </div>
               <div className="space-y-3 pb-8">
                 {hooks.map((hook, i) => {
@@ -1810,52 +1820,42 @@ const Wizard: React.FC<{
                     <div
                       key={i}
                       className={`
-                        relative flex rounded-2xl border transition-all duration-200 overflow-hidden bg-zinc-900
+                        relative rounded-2xl border transition-all duration-200 overflow-hidden bg-zinc-900
                         ${isEditing ? 'border-brand-teal shadow-[0_0_15px_-3px_rgba(45,212,191,0.15)]' : 'border-zinc-800 hover:border-zinc-700'}
                       `}
                     >
-                      {/* Left: Content Area */}
-                      <div
-                        className={`
-                          flex-1 p-5 md:p-6 flex gap-4 items-start
-                          ${!isEditing && 'cursor-pointer hover:bg-zinc-800/30 transition-colors'}
-                        `}
-                        onClick={() => !isEditing && handleGenerateHeadlines(hook)}
-                      >
-                        <span className={`
-                          flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full 
-                          font-bold text-sm shrink-0 mt-0.5 md:mt-0 transition-colors
-                          ${isEditing ? 'bg-brand-teal text-black' : 'bg-zinc-800 text-zinc-400'}
-                        `}>
-                          {i + 1}
-                        </span>
+                      <div className="p-5 md:p-6">
+                        <div className="flex gap-4 items-start mb-4">
+                          <span className={`
+                            flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full 
+                            font-bold text-sm shrink-0 transition-colors
+                            ${isEditing ? 'bg-brand-teal text-black' : 'bg-zinc-800 text-zinc-400'}
+                          `}>
+                            {i + 1}
+                          </span>
 
-                        {isEditing ? (
-                          <AutoResizeTextarea
-                            value={hook}
-                            onChange={(e) => updateHook(i, e.target.value)}
-                            className="w-full bg-transparent text-white text-base md:text-lg outline-none leading-relaxed"
-                            autoFocus
-                          />
-                        ) : (
-                          <p className="text-base md:text-lg text-zinc-200 leading-relaxed">{hook}</p>
+                          {isEditing ? (
+                            <AutoResizeTextarea
+                              value={hook}
+                              onChange={(e) => updateHook(i, e.target.value)}
+                              className="w-full bg-transparent text-white text-base md:text-lg outline-none leading-relaxed"
+                              autoFocus
+                            />
+                          ) : (
+                            <p className="text-base md:text-lg text-zinc-200 leading-relaxed flex-1">{hook}</p>
+                          )}
+                        </div>
+
+                        {!isEditing && (
+                          <div className="flex justify-end">
+                            <button
+                              onClick={() => handleGenerateHeadlines(hook)}
+                              className="flex items-center gap-2 text-sm font-medium text-brand-teal hover:text-white px-4 py-2 rounded-lg border border-brand-teal/30 hover:bg-brand-teal/10 transition-all"
+                            >
+                              Selecionar <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         )}
-                      </div>
-
-                      {/* Right: Action Strip */}
-                      <div className={`
-                        w-14 md:w-16 border-l flex items-center justify-center shrink-0 cursor-pointer transition-colors
-                        ${isEditing
-                          ? 'border-brand-teal/30 bg-brand-teal/10 text-brand-teal hover:bg-brand-teal/20'
-                          : 'border-zinc-800 text-zinc-500 hover:text-white hover:bg-zinc-800'}
-                      `}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingHookIndex(isEditing ? null : i);
-                        }}
-                        title={isEditing ? "Salvar" : "Editar"}
-                      >
-                        {isEditing ? <Save className="w-5 h-5" /> : <Edit2 className="w-5 h-5" />}
                       </div>
                     </div>
                   );
@@ -1866,14 +1866,23 @@ const Wizard: React.FC<{
 
           {step === WizardStep.HEADLINES && (
             <div className="p-2 md:p-4">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg md:text-xl text-zinc-400">Escolha a Manchete de impacto:</h3>
-                <button
-                  onClick={handleRegenerateHeadlines}
-                  className="text-brand-teal hover:text-white flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-brand-teal/20 hover:bg-brand-teal/10 transition-colors"
-                >
-                  <RotateCcw className="w-4 h-4" /> Regenerar
-                </button>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h3 className="text-lg md:text-xl text-zinc-400">Escolha a headline de maior impacto</h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleRegenerateHeadlines}
+                    className="text-brand-teal hover:text-white flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-brand-teal/20 hover:bg-brand-teal/10 transition-colors"
+                  >
+                    <RotateCcw className="w-4 h-4" /> Regenerar
+                  </button>
+                  <button
+                    onClick={() => setEditingHeadlineIndex(editingHeadlineIndex === null ? 0 : null)}
+                    className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border transition-colors ${editingHeadlineIndex !== null ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'text-zinc-400 hover:text-white border-zinc-700 hover:border-zinc-600'}`}
+                  >
+                    {editingHeadlineIndex !== null ? <Save className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
+                    {editingHeadlineIndex !== null ? 'Salvar' : 'Editar'}
+                  </button>
+                </div>
               </div>
               <div className="space-y-3 pb-8">
                 {headlines.map((head, i) => {
@@ -1881,22 +1890,16 @@ const Wizard: React.FC<{
                   return (
                     <div
                       key={i}
+                      onClick={() => !isEditing && handleGenerateNarrative(head)}
                       className={`
-                        relative flex rounded-2xl border transition-all duration-200 overflow-hidden bg-zinc-900
-                        ${isEditing ? 'border-brand-teal shadow-[0_0_15px_-3px_rgba(45,212,191,0.15)]' : 'border-zinc-800 hover:border-zinc-700'}
+                        relative flex items-center rounded-2xl border transition-all duration-200 overflow-hidden bg-zinc-900
+                        ${isEditing ? 'border-brand-teal shadow-[0_0_15px_-3px_rgba(45,212,191,0.15)]' : 'border-zinc-800 hover:border-zinc-700 cursor-pointer hover:bg-zinc-800/30'}
                       `}
                     >
-                      {/* Left: Content Area */}
-                      <div
-                        className={`
-                          flex-1 p-5 md:p-6 flex gap-4 items-start
-                          ${!isEditing && 'cursor-pointer hover:bg-zinc-800/30 transition-colors'}
-                        `}
-                        onClick={() => !isEditing && handleGenerateNarrative(head)}
-                      >
+                      <div className="flex-1 p-5 md:p-6 flex gap-4 items-center">
                         <span className={`
                           flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full 
-                          font-bold text-sm shrink-0 mt-0.5 md:mt-0 transition-colors
+                          font-bold text-sm shrink-0 transition-colors
                           ${isEditing ? 'bg-brand-teal text-black' : 'bg-zinc-800 text-zinc-400'}
                         `}>
                           {i + 1}
@@ -1910,25 +1913,16 @@ const Wizard: React.FC<{
                             autoFocus
                           />
                         ) : (
-                          <p className="text-lg md:text-xl font-bold text-white leading-tight">{head}</p>
+                          <p className="text-lg md:text-xl font-bold text-white leading-tight flex-1">{head}</p>
                         )}
                       </div>
 
-                      {/* Right: Action Strip */}
-                      <div className={`
-                        w-14 md:w-16 border-l flex items-center justify-center shrink-0 cursor-pointer transition-colors
-                        ${isEditing
-                          ? 'border-brand-teal/30 bg-brand-teal/10 text-brand-teal hover:bg-brand-teal/20'
-                          : 'border-zinc-800 text-zinc-500 hover:text-white hover:bg-zinc-800'}
-                      `}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingHeadlineIndex(isEditing ? null : i);
-                        }}
-                        title={isEditing ? "Salvar" : "Editar"}
-                      >
-                        {isEditing ? <Save className="w-5 h-5" /> : <Edit2 className="w-5 h-5" />}
-                      </div>
+                      {/* Right: Arrow indicator */}
+                      {!isEditing && (
+                        <div className="pr-5 md:pr-6 text-zinc-500">
+                          <ChevronRight className="w-5 h-5" />
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -1938,163 +1932,229 @@ const Wizard: React.FC<{
 
           {step === WizardStep.NARRATIVE && narrative && (
             <div className="p-2 md:p-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                <h3 className="text-xl md:text-2xl font-bold text-white">Estrutura Clínica Narrativa</h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleRegenerateNarrative}
-                    className="text-zinc-400 hover:text-white flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900 hover:border-zinc-700 transition-colors"
-                  >
-                    <RotateCcw className="w-3 h-3 md:w-4 md:h-4" /> Regenerar
-                  </button>
-                  <button
-                    onClick={() => setIsEditingNarrative(!isEditingNarrative)}
-                    className={`flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border transition-colors ${isEditingNarrative ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'bg-zinc-900 text-zinc-400 hover:text-white border-zinc-800 hover:border-brand-teal/50'}`}
-                  >
-                    {isEditingNarrative ? <Save className="w-3 h-3 md:w-4 md:h-4" /> : <Pencil className="w-3 h-3 md:w-4 md:h-4" />}
-                    {isEditingNarrative ? 'Salvar Edição' : 'Editar Texto'}
-                  </button>
+              {/* Header */}
+              <div className="text-center mb-6">
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-2">Edite e valide a estrutura da narrativa</h3>
+                <button
+                  onClick={() => setStep(WizardStep.HEADLINES)}
+                  className="text-brand-teal hover:text-white text-sm flex items-center gap-1 mx-auto transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" /> Voltar e escolher outra headline
+                </button>
+              </div>
+
+              {/* Top Right Edit Button */}
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={() => setIsEditingNarrative(!isEditingNarrative)}
+                  className={`flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border transition-colors ${isEditingNarrative ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'text-zinc-400 hover:text-white border-zinc-700 hover:border-zinc-600'}`}
+                >
+                  {isEditingNarrative ? <Save className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
+                  {isEditingNarrative ? 'Salvar Edição' : 'Editar Tese'}
+                </button>
+              </div>
+
+              {/* Section: Tese Central */}
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Lightbulb className="w-4 h-4 text-brand-teal" />
+                  <span className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Tese Central</span>
+                </div>
+                <div className="bg-zinc-900/50 p-4 md:p-5 rounded-xl border border-zinc-800">
+                  {isEditingNarrative ? (
+                    <textarea
+                      className="w-full bg-black/20 text-zinc-200 text-sm md:text-base p-2 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y min-h-[100px]"
+                      value={narrative.tension}
+                      onChange={(e) => setNarrative({ ...narrative, tension: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-zinc-300 text-sm md:text-base leading-relaxed">{narrative.tension}</p>
+                  )}
                 </div>
               </div>
 
-              <div className="grid gap-4 mb-8">
-                {[
-                  { label: 'Tensão (Dor)', key: 'tension' as keyof NarrativeStructure, color: 'text-brand-teal' },
-                  { label: 'Causa (Clínica)', key: 'cause' as keyof NarrativeStructure, color: 'text-brand-teal' },
-                  { label: 'Efeito (Social)', key: 'effect' as keyof NarrativeStructure, color: 'text-brand-teal' },
-                  { label: 'Cultura (Mito/Verdade)', key: 'culture' as keyof NarrativeStructure, color: 'text-brand-teal' },
-                  { label: 'Provocação (Saúde)', key: 'provocation' as keyof NarrativeStructure, color: 'text-brand-teal' },
-                ].map((item, i) => (
-                  <div key={i} className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
-                    <span className={`text-[10px] md:text-xs uppercase font-bold tracking-wider ${item.color} block mb-1`}>{item.label}</span>
-                    {isEditingNarrative ? (
-                      <textarea
-                        className="w-full bg-black/20 text-zinc-200 text-sm md:text-base p-2 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y min-h-[80px]"
-                        value={narrative[item.key]}
-                        onChange={(e) => setNarrative({ ...narrative, [item.key]: e.target.value })}
-                      />
-                    ) : (
-                      <p className="text-zinc-300 text-sm md:text-base">{narrative[item.key]}</p>
-                    )}
-                  </div>
-                ))}
+              {/* Section: Argumento-Mãe */}
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Quote className="w-4 h-4 text-brand-teal" />
+                  <span className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Argumento-Mãe</span>
+                </div>
+                <div className="bg-zinc-900/50 p-4 md:p-5 rounded-xl border-l-4 border-brand-teal/50">
+                  {isEditingNarrative ? (
+                    <textarea
+                      className="w-full bg-black/20 text-zinc-200 text-lg md:text-xl italic p-2 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y min-h-[80px]"
+                      value={narrative.cause}
+                      onChange={(e) => setNarrative({ ...narrative, cause: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-zinc-200 text-lg md:text-xl italic leading-relaxed">{narrative.cause}</p>
+                  )}
+                </div>
               </div>
 
-              <div className="mt-8 flex justify-end pt-4 border-t border-zinc-800">
-                <Button onClick={handleGenerateFinalAssets} className="w-full md:w-auto">
-                  Aprovar e Gerar Conteúdos <Sparkles className="w-4 h-4 ml-2" />
-                </Button>
+              {/* Section: Sequência Narrativa */}
+              <div className="mb-8">
+                <div className="flex items-center gap-2 mb-3">
+                  <ClipboardList className="w-4 h-4 text-brand-teal" />
+                  <span className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Sequência Narrativa</span>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { num: 1, label: 'Abertura (Tensão)', key: 'tension' as keyof NarrativeStructure },
+                    { num: 2, label: 'Explicação (Causa)', key: 'cause' as keyof NarrativeStructure },
+                    { num: 3, label: 'Revelação (Efeito)', key: 'effect' as keyof NarrativeStructure },
+                    { num: 4, label: 'Ampliação (Cultura)', key: 'culture' as keyof NarrativeStructure },
+                    { num: 5, label: 'Provocação (Fecho)', key: 'provocation' as keyof NarrativeStructure },
+                  ].map((item) => (
+                    <div key={item.num} className="flex gap-4 items-start bg-zinc-900/30 p-3 md:p-4 rounded-lg border border-zinc-800/50">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 text-zinc-400 text-xs font-bold shrink-0">
+                        {item.num}
+                      </span>
+                      <div className="flex-1">
+                        <span className="text-xs text-zinc-500 font-medium block mb-1">{item.label}</span>
+                        {isEditingNarrative ? (
+                          <textarea
+                            className="w-full bg-black/20 text-zinc-300 text-sm p-2 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y min-h-[60px]"
+                            value={narrative[item.key]}
+                            onChange={(e) => setNarrative({ ...narrative, [item.key]: e.target.value })}
+                          />
+                        ) : (
+                          <p className="text-zinc-300 text-sm leading-relaxed">{narrative[item.key]}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Footer: Format Selection + CTA */}
+              <div className="pt-6 border-t border-zinc-800">
+                {/* Format Selection */}
+                <div className="mb-6">
+                  <p className="text-sm text-zinc-400 text-center mb-4">Escolha o formato do conteúdo:</p>
+                  <div className="flex justify-center gap-4">
+                    <button
+                      onClick={() => setSelectedFormat('reels')}
+                      className={`flex-1 max-w-[200px] flex items-center justify-center gap-3 p-4 rounded-xl border-2 transition-all ${selectedFormat === 'reels'
+                        ? 'border-brand-teal bg-brand-teal/10 text-brand-teal'
+                        : 'border-zinc-700 text-zinc-400 hover:border-zinc-600 hover:text-white'
+                        }`}
+                    >
+                      <PlayCircle className="w-6 h-6" />
+                      <span className="font-bold">Reels</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedFormat('carousel')}
+                      className={`flex-1 max-w-[200px] flex items-center justify-center gap-3 p-4 rounded-xl border-2 transition-all ${selectedFormat === 'carousel'
+                        ? 'border-brand-teal bg-brand-teal/10 text-brand-teal'
+                        : 'border-zinc-700 text-zinc-400 hover:border-zinc-600 hover:text-white'
+                        }`}
+                    >
+                      <ClipboardList className="w-6 h-6" />
+                      <span className="font-bold">Carrossel/Story</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Generate Button */}
+                <div className="flex justify-center">
+                  <Button onClick={handleGenerateFinalAssets} variant="gradient" className="w-full md:w-auto text-base py-4 px-8">
+                    <CheckCircle2 className="w-5 h-5 mr-2" /> Validar Tese e Gerar Conteúdo
+                  </Button>
+                </div>
               </div>
             </div>
           )}
 
           {step === WizardStep.FINAL_ASSETS && finalAssets && (
             <div className="p-2 md:p-6 h-full overflow-y-auto">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                <h3 className="text-xl md:text-2xl font-bold text-white">Seus Ativos Digitais</h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleRegenerateFinalAssets}
-                    className="text-zinc-400 hover:text-white flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900 hover:border-zinc-700 transition-colors"
-                  >
-                    <RotateCcw className="w-3 h-3 md:w-4 md:h-4" /> Regenerar
-                  </button>
-                  <button
-                    onClick={() => setIsEditingAssets(!isEditingAssets)}
-                    className={`flex items-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg border transition-colors ${isEditingAssets ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'bg-zinc-900 text-zinc-400 hover:text-white border-zinc-800 hover:border-brand-teal/50'}`}
-                  >
-                    {isEditingAssets ? <Save className="w-3 h-3 md:w-4 md:h-4" /> : <Pencil className="w-3 h-3 md:w-4 md:h-4" />}
-                    {isEditingAssets ? 'Salvar Edição' : 'Editar Tudo'}
-                  </button>
-                </div>
+              {/* Header */}
+              <div className="text-center mb-6">
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-2">Conteúdo Final Gerado</h3>
+                <button
+                  onClick={handleRegenerateFinalAssets}
+                  className="text-brand-teal hover:text-white text-sm flex items-center gap-1 mx-auto transition-colors"
+                >
+                  <RotateCcw className="w-4 h-4" /> Gerar novamente
+                </button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                {/* Reels Script */}
-                <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800">
-                  <div className="flex items-center gap-2 mb-4 text-brand-teal">
-                    <PlayCircle className="w-5 h-5" />
-                    <h4 className="font-bold">Roteiro de Reels</h4>
+              {/* Roteiro Section */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <PlayCircle className="w-4 h-4 text-brand-teal" />
+                    <span className="text-sm font-bold text-zinc-400 uppercase tracking-wider">
+                      {selectedFormat === 'reels' ? 'Roteiro Para Reels' : 'Roteiro Para Carrossel/Story'}
+                    </span>
                   </div>
+                  <button
+                    onClick={() => setIsEditingAssets(!isEditingAssets)}
+                    className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg border transition-colors ${isEditingAssets ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'text-zinc-400 hover:text-white border-zinc-700 hover:border-zinc-600'}`}
+                  >
+                    {isEditingAssets ? <Save className="w-3 h-3" /> : <Pencil className="w-3 h-3" />}
+                    {isEditingAssets ? 'Salvar' : 'Editar'}
+                  </button>
+                </div>
+                <div className="bg-zinc-900/50 p-4 md:p-6 rounded-xl border border-zinc-800">
                   {isEditingAssets ? (
                     <textarea
-                      className="w-full h-96 bg-black/20 text-zinc-200 text-sm p-3 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y"
+                      className="w-full min-h-[400px] bg-black/20 text-zinc-200 text-sm p-3 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y"
                       value={finalAssets.reelsScript}
                       onChange={(e) => setFinalAssets({ ...finalAssets, reelsScript: e.target.value })}
                     />
                   ) : (
-                    <div className="prose prose-invert prose-sm max-w-none text-zinc-300 whitespace-pre-wrap">
+                    <div className="prose prose-invert prose-sm max-w-none text-zinc-300 whitespace-pre-wrap leading-relaxed">
                       {finalAssets.reelsScript}
                     </div>
                   )}
-                  <Button variant="ghost" className="w-full mt-4 text-xs" onClick={() => copyText(finalAssets.reelsScript)}>
-                    <Copy className="w-3 h-3 mr-2" /> Copiar Roteiro
-                  </Button>
                 </div>
+                <Button variant="ghost" className="w-full mt-3 text-xs" onClick={() => copyText(finalAssets.reelsScript)}>
+                  <Copy className="w-3 h-3 mr-2" /> Copiar Roteiro
+                </Button>
+              </div>
 
-                {/* Carousel */}
-                <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800">
-                  <div className="flex items-center gap-2 mb-4 text-brand-teal">
-                    <ClipboardList className="w-5 h-5" />
-                    <h4 className="font-bold">Estrutura Carrossel</h4>
-                  </div>
-                  <ul className="space-y-3">
-                    {finalAssets.carouselStructure.map((slide, i) => (
-                      <li key={i} className="flex gap-3 text-sm text-zinc-300">
-                        <span className="font-bold text-zinc-600 min-w-[20px] pt-1">{i + 1}.</span>
-                        {isEditingAssets ? (
-                          <input
-                            type="text"
-                            className="flex-1 bg-black/20 text-zinc-200 p-1.5 rounded border border-zinc-700 focus:border-brand-teal outline-none"
-                            value={slide}
-                            onChange={(e) => {
-                              const newSlides = [...finalAssets.carouselStructure];
-                              newSlides[i] = e.target.value;
-                              setFinalAssets({ ...finalAssets, carouselStructure: newSlides });
-                            }}
-                          />
-                        ) : (
-                          <span>{slide}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+              {/* Legenda Section */}
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText className="w-4 h-4 text-brand-teal" />
+                  <span className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Legenda</span>
                 </div>
-
-                {/* Caption */}
-                <div className="bg-zinc-900 rounded-2xl p-4 md:p-6 border border-zinc-800 lg:col-span-2">
-                  <div className="flex items-center gap-2 mb-4 text-brand-teal">
-                    <FileText className="w-5 h-5" />
-                    <h4 className="font-bold">Legenda Otimizada</h4>
-                  </div>
+                <div className="bg-zinc-900/50 p-4 md:p-6 rounded-xl border border-zinc-800">
                   {isEditingAssets ? (
                     <textarea
-                      className="w-full h-64 bg-black/20 text-zinc-200 text-sm p-3 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y"
+                      className="w-full min-h-[150px] bg-black/20 text-zinc-200 text-sm p-3 rounded border border-zinc-700 focus:border-brand-teal outline-none resize-y"
                       value={finalAssets.caption}
                       onChange={(e) => setFinalAssets({ ...finalAssets, caption: e.target.value })}
                     />
                   ) : (
-                    <p className="text-zinc-300 text-sm whitespace-pre-wrap">{finalAssets.caption}</p>
+                    <p className="text-zinc-300 text-sm whitespace-pre-wrap leading-relaxed">{finalAssets.caption}</p>
                   )}
-
-                  <div className="mt-4 p-3 bg-brand-teal/5 border border-zinc-800/20 rounded-lg flex items-start gap-2">
-                    <ShieldCheck className="w-4 h-4 text-brand-teal shrink-0 mt-0.5" />
-                    <p className="text-[10px] md:text-xs text-brand-teal/80">Esta legenda inclui automaticamente o aviso de isenção de responsabilidade clínica conforme normas do CFO.</p>
-                  </div>
-                  <Button variant="ghost" className="w-full mt-4 text-xs" onClick={() => copyText(finalAssets.caption)}>
-                    <Copy className="w-3 h-3 mr-2" /> Copiar Legenda
-                  </Button>
                 </div>
+                <Button variant="ghost" className="w-full mt-3 text-xs" onClick={() => copyText(finalAssets.caption)}>
+                  <Copy className="w-3 h-3 mr-2" /> Copiar Legenda
+                </Button>
               </div>
 
-              <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-zinc-800">
+              {/* CFO Disclaimer */}
+              <div className="p-4 bg-brand-teal/5 border border-zinc-800/50 rounded-xl flex items-start gap-3 mb-8">
+                <ShieldCheck className="w-5 h-5 text-brand-teal shrink-0 mt-0.5" />
+                <p className="text-xs text-brand-teal/80 leading-relaxed">
+                  Este conteúdo foi gerado seguindo as normas do CFO para publicidade odontológica.
+                  Revise antes de publicar para garantir adequação ao seu contexto específico.
+                </p>
+              </div>
+
+              {/* Footer CTA */}
+              <div className="flex justify-center pt-4 border-t border-zinc-800">
                 <Button
                   onClick={handleFinish}
                   disabled={isSaving}
-                  className="w-full md:w-auto text-black font-bold"
+                  variant="gradient"
+                  className="w-full md:w-auto text-base py-4 px-8 font-bold"
                 >
-                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                  {isSaving ? 'Salvando...' : 'Salvar no Planejamento'}
+                  {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-5 h-5 mr-2" />}
+                  {isSaving ? 'Salvando...' : 'Aprovar e Adicionar ao Planejamento'}
                 </Button>
               </div>
             </div>
