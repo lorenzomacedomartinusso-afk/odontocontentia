@@ -777,7 +777,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
                 <div className="w-8 h-px bg-zinc-800 mt-6"></div>
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 text-white flex items-center justify-center font-bold text-xl">3</div>
-                  <span className="text-xs text-zinc-500 font-medium">Ativos</span>
+                  <span className="text-xs text-zinc-500 font-medium">Roteiro</span>
                 </div>
               </div>
             </div>
