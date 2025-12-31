@@ -854,8 +854,8 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           <div className="text-center mb-16">
             <Reveal>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Roteiros que prendem até o fim.</h2>
-              <p className="text-zinc-400 text-base leading-relaxed max-w-2xl mx-auto">
-                Esqueça o "Olá, sou o Dr. Fulano". A OdontoContent usa ganchos de <strong>dopamina</strong> e estruturas de storytelling de cinema para garantir que o paciente assista, entenda e deseje.
+              <p className="text-zinc-400 text-base md:text-lg leading-relaxed max-w-4xl mx-auto text-justify">
+                A metodologia da Odontocontent combina arquitetura narrativa jornalística, análise cultural e engenharia de engajamento para transformar qualquer ideia em um mini-documentário em formato de carrossel. Cada etapa — da tese à legenda final — é guiada por regras rígidas de clareza, ritmo e provocação baseada em fatos, não em slogans. Essa estrutura garante que o conteúdo avance com fluidez, traduza tendências complexas em narrativas acessíveis e gere identificação imediata com o público. O impacto vem do equilíbrio entre investigação cultural e linguagem natural, capaz de transformar informação em percepção — e percepção em resultado para quem produz conteúdo.
               </p>
             </Reveal>
           </div>
@@ -1020,45 +1020,56 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       <section className="py-24 px-4">
         <div className="max-w-5xl mx-auto text-center">
           <Reveal>
-            <h2 className="text-3xl font-bold text-white mb-6">Investimento que se paga<br />na primeira consulta particular.</h2>
-            <p className="text-zinc-400 mb-12 max-w-2xl mx-auto">Sem fidelidade. Sem taxas escondidas. Cancele quando quiser.</p>
+            <h2 className="text-3xl font-bold text-white mb-12">Comece hoje — plano acessível para todo dentista</h2>
           </Reveal>
 
           <Reveal delay={200} direction="up">
-            <div className="max-w-md mx-auto relative group">
-              {/* Glow Effect */}
+            <div className="w-full max-w-6xl mx-auto relative group">
+              {/* Glow Effect - Adjusted for wide card */}
               <div className="absolute -inset-1 bg-gradient-to-r from-brand-teal to-teal-800 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-glow-pulse"></div>
 
-              <div className="relative bg-zinc-950 border border-zinc-800 rounded-2xl p-8 md:p-10 shadow-2xl hover:border-brand-teal/30 transition-all duration-500">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-teal text-brand-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-brand-teal/20 animate-bounce-subtle">
-                  Oferta de Lançamento
-                </div>
+              <div className="relative bg-zinc-950 border border-zinc-800 rounded-2xl p-6 md:p-12 shadow-2xl hover:border-brand-teal/30 transition-all duration-500">
 
-                <h3 className="text-lg font-medium text-zinc-400 mb-2">Plano Pro Odonto</h3>
-                <div className="flex items-baseline justify-center gap-1 mb-6">
-                  <span className="text-5xl font-bold text-white group-hover:text-gradient-animate">R$ 29,90</span>
-                  <span className="text-zinc-500">/mês</span>
-                </div>
-
-                <div className="space-y-4 mb-8 text-left">
-                  {[
-                    "Gerador Ilimitado de Roteiros e Legendas",
-                    "Calendário Editorial & Kanban",
-                    "Gestão de Equipe (até 3 usuários)",
-                    "IA treinada com normas do CFO",
-                    "Suporte prioritário via WhatsApp"
-                  ].map((feat, i) => (
-                    <div key={i} className="flex items-center gap-3 text-sm text-zinc-300 group/item hover:text-white transition-colors" style={{ animation: 'fade-in-up 0.4s ease forwards', animationDelay: `${i * 0.1}s`, opacity: 0 }}>
-                      <CheckCircle2 className="w-5 h-5 text-brand-teal shrink-0 group-hover/item:scale-110 transition-transform" />
-                      {feat}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
+                  {/* Left: Price & Plan Info */}
+                  <div className="text-center md:text-left min-w-[280px]">
+                    <div className="inline-block bg-brand-teal text-brand-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-brand-teal/20 animate-bounce-subtle mb-4">
+                      OFERTA INÍCIO DE ANO
                     </div>
-                  ))}
+                    <h3 className="text-xl font-medium text-zinc-400 mb-2">Plano Pro Odonto</h3>
+                    <div className="flex items-baseline justify-center md:justify-start gap-1">
+                      <span className="text-5xl md:text-6xl font-bold text-white group-hover:text-gradient-animate">R$ 34,90</span>
+                      <span className="text-zinc-500">/mês</span>
+                    </div>
+                  </div>
+
+                  {/* Middle: Features (Grid on Desktop) */}
+                  <div className="flex-1 w-full border-y md:border-y-0 md:border-x border-zinc-800 py-8 md:py-0 md:px-12 bg-zinc-900/30 md:bg-transparent rounded-xl md:rounded-none">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-left">
+                      {[
+                        "Gerador Ilimitado de Roteiros e Legendas",
+                        "Calendário Editorial & Kanban",
+                        "Gestão de Equipe (até 3 usuários)",
+                        "IA treinada com normas do CFO",
+                        "Suporte prioritário via WhatsApp"
+                      ].map((feat, i) => (
+                        <div key={i} className="flex items-center gap-3 text-sm text-zinc-300 group/item hover:text-white transition-colors">
+                          <CheckCircle2 className="w-5 h-5 text-brand-teal shrink-0 group-hover/item:scale-110 transition-transform" />
+                          {feat}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right: CTA */}
+                  <div className="flex flex-col items-center gap-4 min-w-[250px] w-full md:w-auto">
+                    <Button onClick={onLogin} variant="gradient" className="w-full text-lg py-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all btn-ripple animate-pulse-glow">
+                      teste agora gratuitamente
+                    </Button>
+                    <p className="text-xs text-zinc-600">7 dias de garantia incondicional.</p>
+                  </div>
                 </div>
 
-                <Button onClick={onLogin} variant="gradient" className="w-full text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all btn-ripple animate-pulse-glow">
-                  Começar Agora
-                </Button>
-                <p className="text-xs text-zinc-600 mt-4">7 dias de garantia incondicional.</p>
               </div>
             </div>
           </Reveal>
