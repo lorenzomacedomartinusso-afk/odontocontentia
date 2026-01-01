@@ -1506,10 +1506,10 @@ const Wizard: React.FC<{
   const [trialsRemaining, setTrialsRemaining] = useState(3);
 
   const [hooks, setHooks] = useState<string[]>([]);
-  const [editingHookIndex, setEditingHookIndex] = useState<number | null>(null);
+  const [isEditingHooks, setIsEditingHooks] = useState(false);
 
   const [headlines, setHeadlines] = useState<string[]>([]);
-  const [editingHeadlineIndex, setEditingHeadlineIndex] = useState<number | null>(null);
+  const [isEditingHeadlines, setIsEditingHeadlines] = useState(false);
 
   const [selectedHook, setSelectedHook] = useState('');
   const [selectedHeadline, setSelectedHeadline] = useState('');
@@ -1805,61 +1805,57 @@ const Wizard: React.FC<{
                     <RotateCcw className="w-4 h-4" /> Regenerar
                   </button>
                   <button
-                    onClick={() => setEditingHookIndex(editingHookIndex === null ? 0 : null)}
-                    className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border transition-colors ${editingHookIndex !== null ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'text-zinc-400 hover:text-white border-zinc-700 hover:border-zinc-600'}`}
+                    onClick={() => setIsEditingHooks(!isEditingHooks)}
+                    className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border transition-colors ${isEditingHooks ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'text-zinc-400 hover:text-white border-zinc-700 hover:border-zinc-600'}`}
                   >
-                    {editingHookIndex !== null ? <Save className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
-                    {editingHookIndex !== null ? 'Salvar' : 'Editar'}
+                    {isEditingHooks ? <Save className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
+                    {isEditingHooks ? 'Salvar' : 'Editar'}
                   </button>
                 </div>
               </div>
               <div className="space-y-3 pb-8">
-                {hooks.map((hook, i) => {
-                  const isEditing = editingHookIndex === i;
-                  return (
-                    <div
-                      key={i}
-                      className={`
-                        relative rounded-2xl border transition-all duration-200 overflow-hidden bg-zinc-900
-                        ${isEditing ? 'border-brand-teal shadow-[0_0_15px_-3px_rgba(45,212,191,0.15)]' : 'border-zinc-800 hover:border-zinc-700'}
-                      `}
-                    >
-                      <div className="p-5 md:p-6">
-                        <div className="flex gap-4 items-start mb-4">
-                          <span className={`
-                            flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full 
-                            font-bold text-sm shrink-0 transition-colors
-                            ${isEditing ? 'bg-brand-teal text-black' : 'bg-zinc-800 text-zinc-400'}
-                          `}>
-                            {i + 1}
-                          </span>
+                {hooks.map((hook, i) => (
+                  <div
+                    key={i}
+                    className={`
+                      relative rounded-2xl border transition-all duration-200 overflow-hidden bg-zinc-900
+                      ${isEditingHooks ? 'border-brand-teal shadow-[0_0_15px_-3px_rgba(45,212,191,0.15)]' : 'border-zinc-800 hover:border-zinc-700'}
+                    `}
+                  >
+                    <div className="p-5 md:p-6">
+                      <div className="flex gap-4 items-start mb-4">
+                        <span className={`
+                          flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full 
+                          font-bold text-sm shrink-0 transition-colors
+                          ${isEditingHooks ? 'bg-brand-teal text-black' : 'bg-zinc-800 text-zinc-400'}
+                        `}>
+                          {i + 1}
+                        </span>
 
-                          {isEditing ? (
-                            <AutoResizeTextarea
-                              value={hook}
-                              onChange={(e) => updateHook(i, e.target.value)}
-                              className="w-full bg-transparent text-white text-base md:text-lg outline-none leading-relaxed"
-                              autoFocus
-                            />
-                          ) : (
-                            <p className="text-base md:text-lg text-zinc-200 leading-relaxed flex-1">{hook}</p>
-                          )}
-                        </div>
-
-                        {!isEditing && (
-                          <div className="flex justify-end">
-                            <button
-                              onClick={() => handleGenerateHeadlines(hook)}
-                              className="flex items-center gap-2 text-sm font-medium text-brand-teal hover:text-white px-4 py-2 rounded-lg border border-brand-teal/30 hover:bg-brand-teal/10 transition-all"
-                            >
-                              Selecionar <ChevronRight className="w-4 h-4" />
-                            </button>
-                          </div>
+                        {isEditingHooks ? (
+                          <AutoResizeTextarea
+                            value={hook}
+                            onChange={(e) => updateHook(i, e.target.value)}
+                            className="w-full bg-transparent text-white text-base md:text-lg outline-none leading-relaxed"
+                          />
+                        ) : (
+                          <p className="text-base md:text-lg text-zinc-200 leading-relaxed flex-1">{hook}</p>
                         )}
                       </div>
+
+                      {!isEditingHooks && (
+                        <div className="flex justify-end">
+                          <button
+                            onClick={() => handleGenerateHeadlines(hook)}
+                            className="flex items-center gap-2 text-sm font-medium text-brand-teal hover:text-white px-4 py-2 rounded-lg border border-brand-teal/30 hover:bg-brand-teal/10 transition-all"
+                          >
+                            Selecionar <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -1876,56 +1872,52 @@ const Wizard: React.FC<{
                     <RotateCcw className="w-4 h-4" /> Regenerar
                   </button>
                   <button
-                    onClick={() => setEditingHeadlineIndex(editingHeadlineIndex === null ? 0 : null)}
-                    className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border transition-colors ${editingHeadlineIndex !== null ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'text-zinc-400 hover:text-white border-zinc-700 hover:border-zinc-600'}`}
+                    onClick={() => setIsEditingHeadlines(!isEditingHeadlines)}
+                    className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border transition-colors ${isEditingHeadlines ? 'bg-brand-teal text-brand-black border-brand-teal font-bold' : 'text-zinc-400 hover:text-white border-zinc-700 hover:border-zinc-600'}`}
                   >
-                    {editingHeadlineIndex !== null ? <Save className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
-                    {editingHeadlineIndex !== null ? 'Salvar' : 'Editar'}
+                    {isEditingHeadlines ? <Save className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
+                    {isEditingHeadlines ? 'Salvar' : 'Editar'}
                   </button>
                 </div>
               </div>
               <div className="space-y-3 pb-8">
-                {headlines.map((head, i) => {
-                  const isEditing = editingHeadlineIndex === i;
-                  return (
-                    <div
-                      key={i}
-                      onClick={() => !isEditing && handleGenerateNarrative(head)}
-                      className={`
-                        relative flex items-center rounded-2xl border transition-all duration-200 overflow-hidden bg-zinc-900
-                        ${isEditing ? 'border-brand-teal shadow-[0_0_15px_-3px_rgba(45,212,191,0.15)]' : 'border-zinc-800 hover:border-zinc-700 cursor-pointer hover:bg-zinc-800/30'}
-                      `}
-                    >
-                      <div className="flex-1 p-5 md:p-6 flex gap-4 items-center">
-                        <span className={`
-                          flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full 
-                          font-bold text-sm shrink-0 transition-colors
-                          ${isEditing ? 'bg-brand-teal text-black' : 'bg-zinc-800 text-zinc-400'}
-                        `}>
-                          {i + 1}
-                        </span>
+                {headlines.map((head, i) => (
+                  <div
+                    key={i}
+                    onClick={() => !isEditingHeadlines && handleGenerateNarrative(head)}
+                    className={`
+                      relative flex items-center rounded-2xl border transition-all duration-200 overflow-hidden bg-zinc-900
+                      ${isEditingHeadlines ? 'border-brand-teal shadow-[0_0_15px_-3px_rgba(45,212,191,0.15)]' : 'border-zinc-800 hover:border-zinc-700 cursor-pointer hover:bg-zinc-800/30'}
+                    `}
+                  >
+                    <div className="flex-1 p-5 md:p-6 flex gap-4 items-center">
+                      <span className={`
+                        flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full 
+                        font-bold text-sm shrink-0 transition-colors
+                        ${isEditingHeadlines ? 'bg-brand-teal text-black' : 'bg-zinc-800 text-zinc-400'}
+                      `}>
+                        {i + 1}
+                      </span>
 
-                        {isEditing ? (
-                          <AutoResizeTextarea
-                            value={head}
-                            onChange={(e) => updateHeadline(i, e.target.value)}
-                            className="w-full bg-transparent text-white text-lg md:text-xl font-bold outline-none leading-tight"
-                            autoFocus
-                          />
-                        ) : (
-                          <p className="text-lg md:text-xl font-bold text-white leading-tight flex-1">{head}</p>
-                        )}
-                      </div>
-
-                      {/* Right: Arrow indicator */}
-                      {!isEditing && (
-                        <div className="pr-5 md:pr-6 text-zinc-500">
-                          <ChevronRight className="w-5 h-5" />
-                        </div>
+                      {isEditingHeadlines ? (
+                        <AutoResizeTextarea
+                          value={head}
+                          onChange={(e) => updateHeadline(i, e.target.value)}
+                          className="w-full bg-transparent text-white text-lg md:text-xl font-bold outline-none leading-tight"
+                        />
+                      ) : (
+                        <p className="text-lg md:text-xl font-bold text-white leading-tight flex-1">{head}</p>
                       )}
                     </div>
-                  );
-                })}
+
+                    {/* Right: Arrow indicator */}
+                    {!isEditingHeadlines && (
+                      <div className="pr-5 md:pr-6 text-zinc-500">
+                        <ChevronRight className="w-5 h-5" />
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}
