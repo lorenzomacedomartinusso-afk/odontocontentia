@@ -1651,10 +1651,21 @@ const Wizard: React.FC<{
   const handleGenerateFinalAssets = async () => {
     if (!narrative) return;
     setLoading(true);
-    const result = await GeminiService.generateFinalAssets(topic, narrative);
-    setFinalAssets(result);
-    setLoading(false);
-    setStep(WizardStep.FINAL_ASSETS);
+    try {
+      const result = await GeminiService.generateFinalAssets(topic, narrative);
+      if (result && result.reelsScript) {
+        setFinalAssets(result);
+        setStep(WizardStep.FINAL_ASSETS);
+      } else {
+        console.error('Resultado inválido da API:', result);
+        alert('Erro ao gerar conteúdo. Tente novamente.');
+      }
+    } catch (error) {
+      console.error('Erro ao gerar conteúdo final:', error);
+      alert('Erro ao gerar conteúdo. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRegenerateFinalAssets = async () => {
@@ -2058,7 +2069,7 @@ const Wizard: React.FC<{
             </div>
           )}
 
-          {step === WizardStep.FINAL_ASSETS && finalAssets && (
+          {step === WizardStep.FINAL_ASSETS && finalAssets && finalAssets.reelsScript && (
             <div className="p-2 md:p-6 h-full overflow-y-auto">
               {/* Header */}
               <div className="text-center mb-6">
