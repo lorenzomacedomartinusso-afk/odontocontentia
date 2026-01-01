@@ -20,14 +20,54 @@ const INITIAL_TEAM: User[] = [
   { id: '2', name: 'Ana Clara', role: 'Social Media', avatar: 'AC', email: 'ana@agencia.com' },
 ];
 
+// Temas seguindo a filosofia ADV Content - Tensões Culturais na Odontologia
 const TOPIC_POOL = [
-  "Clareamento Dental e Café", "Lentes de Contato: Naturalidade", "Invisalign vs Aparelho Fixo",
-  "Harmonização Facial sem exageros", "Medo de Dentista (Odontofobia)", "Implantes Dentários e Autoestima",
-  "Bruxismo e Stress Moderno", "Mau hálito matinal: Mitos", "Sorriso Gengival tem solução?",
-  "Aparelho em adultos vale a pena?", "Dentes sensíveis no inverno", "Bichectomia envelhece?",
-  "Preenchimento Labial Sutil", "Primeira consulta do bebê", "Cigarro eletrônico e os dentes",
-  "Fio dental: Onde todos erram", "A cor ideal dos dentes", "Ranger os dentes dormindo"
+  // Tensões de Vaidade
+  "O sorriso perfeito: expectativa vs realidade",
+  "Por que escondemos o sorriso nas fotos?",
+  "A obsessão pelo branco e o medo do natural",
+  "Selfie e autoestima: o peso do sorriso",
+  "Lentes de contato: quando a perfeição vira armadilha",
+
+  // Tensões de Hábitos
+  "O café que mancha e o sorriso que some",
+  "Clareamento e café: a batalha diária",
+  "Ranger os dentes: o stress que ninguém vê",
+  "Bruxismo: quando a mente ataca à noite",
+  "O preço do vício no sorriso",
+
+  // Tensões de Medo
+  "O medo do dentista que ninguém confessa",
+  "Adiar a consulta: o custo do silêncio",
+  "A dor que ignoramos até não dar mais",
+  "Quando o medo custa mais que o tratamento",
+
+  // Tensões de Sociedade
+  "Sorriso de novela: a pressão invisível",
+  "Por que julgamos sorrisos imperfeitos?",
+  "O tabu dos dentes tortos na era digital",
+  "Aparelho em adulto: vergonha ou coragem?",
+  "A culpa de quem não cuida da boca",
+
+  // Tensões de Tempo/Dinheiro
+  "O implante que espera a vida toda",
+  "Saúde bucal: luxo ou necessidade?",
+  "Protelar o dentista: economia que sai cara",
+  "A conta que chega depois do descuido"
 ];
+
+// Função para obter temas do dia baseado na data
+const getDailySuggestions = (): string[] => {
+  const today = new Date();
+  const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+  const startIndex = (dayOfYear * 6) % TOPIC_POOL.length;
+
+  const suggestions: string[] = [];
+  for (let i = 0; i < 6; i++) {
+    suggestions.push(TOPIC_POOL[(startIndex + i) % TOPIC_POOL.length]);
+  }
+  return suggestions;
+};
 
 // --- Helper Components ---
 
@@ -1521,12 +1561,12 @@ const Wizard: React.FC<{
   const [isEditingAssets, setIsEditingAssets] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState<'reels' | 'carousel'>('reels');
 
-  const [suggestedTopics, setSuggestedTopics] = useState<string[]>([]);
+  const [suggestedTopics, setSuggestedTopics] = useState<string[]>(getDailySuggestions());
 
   // Carrega trials restantes ao montar
   useEffect(() => {
     loadTrialsRemaining();
-    refreshSuggestions();
+    // Sugestões já são carregadas pelo useState inicial
   }, []);
 
   const loadTrialsRemaining = async () => {
@@ -1547,8 +1587,8 @@ const Wizard: React.FC<{
     }
   };
 
+  // Quando o botão "Atualizar ideias" é clicado, mostra sugestões aleatórias
   const refreshSuggestions = () => {
-    // Shuffle and pick 6
     const shuffled = [...TOPIC_POOL].sort(() => 0.5 - Math.random());
     setSuggestedTopics(shuffled.slice(0, 6));
   };
