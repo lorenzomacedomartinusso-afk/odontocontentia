@@ -10,6 +10,7 @@ export interface Project {
   selectedHeadline?: string;
   narrative?: NarrativeStructure;
   finalAssets?: FinalAssets;
+  format?: 'reels' | 'carousel'; // Tipo de formato: Reels (azul) ou Carousel/Story (laranja)
 }
 
 export interface NarrativeStructure {

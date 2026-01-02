@@ -1735,7 +1735,8 @@ const Wizard: React.FC<{
         selectedHook,
         selectedHeadline,
         narrative,
-        finalAssets
+        finalAssets,
+        format: selectedFormat // 'reels' or 'carousel'
       };
 
       console.log('✅ Criando projeto...');
@@ -2227,7 +2228,7 @@ const KanbanColumn: React.FC<{
 
   return (
     <div
-      className={`flex-1 min-w-[85vw] sm:min-w-[320px] md:min-w-[380px] lg:min-w-[450px] bg-zinc-900/30 rounded-2xl p-4 border border-zinc-800/50 flex flex-col h-full snap-center transition-colors ${draggedId ? 'hover:bg-zinc-800/50 hover:border-brand-teal/30' : ''}`}
+      className={`flex-1 min-w-[75vw] sm:min-w-[240px] md:min-w-[260px] lg:min-w-[280px] max-w-[320px] bg-zinc-900/30 rounded-2xl p-3 border border-zinc-800/50 flex flex-col h-full snap-center transition-colors ${draggedId ? 'hover:bg-zinc-800/50 hover:border-brand-teal/30' : ''}`}
       onDragOver={(e) => { e.preventDefault(); }}
       onDrop={(e) => {
         e.preventDefault();
@@ -2237,11 +2238,11 @@ const KanbanColumn: React.FC<{
         }
       }}
     >
-      <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-4 flex justify-between items-center">
+      <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3 flex justify-between items-center">
         {title}
-        <span className="bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded text-xs">{filtered.length}</span>
+        <span className="bg-zinc-800 text-zinc-500 px-1.5 py-0.5 rounded text-[10px]">{filtered.length}</span>
       </h3>
-      <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar flex flex-col">
+      <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar flex flex-col">
         {filtered.map(project => (
           <div
             key={project.id}
@@ -2249,19 +2250,21 @@ const KanbanColumn: React.FC<{
             onDragStart={() => setDraggedId(project.id)}
             onDragEnd={() => setDraggedId(null)}
             onClick={() => onOpenProject(project)}
-            className="bg-brand-surface border border-zinc-800 p-4 rounded-xl hover:border-brand-teal/50 transition-colors group cursor-move active:scale-[0.98] duration-100 relative shadow-sm"
+            className="bg-brand-surface border border-zinc-800 p-3 rounded-xl hover:border-brand-teal/50 transition-colors group cursor-move active:scale-[0.98] duration-100 relative shadow-sm"
           >
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
               <GripVertical className="w-3 h-3 text-zinc-600" />
               <button onClick={(e) => { e.stopPropagation(); if (confirm('Excluir?')) onDelete(project.id) }} className="p-1 text-zinc-600 hover:text-red-500 rounded">
                 <Trash2 className="w-3 h-3" />
               </button>
             </div>
 
-            <div className="flex justify-between items-start mb-2 pr-6">
-              <span className="text-xs text-brand-teal font-medium truncate w-full">{project.topic}</span>
+            <div className="flex items-center gap-2 mb-1.5 pr-6">
+              {/* Format indicator dot: blue for Reels, orange for Carousel/Story */}
+              <div className={`w-2 h-2 rounded-full shrink-0 ${project.format === 'carousel' ? 'bg-orange-500' : 'bg-sky-500'}`} title={project.format === 'carousel' ? 'Carrossel/Story' : 'Reels'} />
+              <span className="text-xs text-brand-teal font-medium truncate">{project.topic}</span>
             </div>
-            <p className="text-sm text-zinc-300 font-medium mb-3 line-clamp-2">{project.selectedHeadline || project.topic}</p>
+            <p className="text-sm text-zinc-300 font-medium mb-2 line-clamp-2">{project.selectedHeadline || project.topic}</p>
 
             <div className="flex justify-between items-center pt-2 border-t border-zinc-800/50">
               <div className="flex items-center gap-1">
@@ -2451,7 +2454,8 @@ const CalendarView: React.FC<{
                             ? 'bg-brand-teal/10 border-brand-teal/20 text-brand-teal hover:bg-brand-teal/20'
                             : 'bg-zinc-800/80 border-zinc-700/50 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800'}`}
                       >
-                        <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${p.status === 'PUBLICADO' ? 'bg-brand-teal' : 'bg-zinc-600'}`} />
+                        {/* Left border uses format color: sky-500 for Reels, orange-500 for Carousel */}
+                        <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${p.format === 'carousel' ? 'bg-orange-500' : 'bg-sky-500'}`} />
                         <span className="truncate block pl-1 font-medium relative z-10">{p.topic}</span>
                       </button>
                     ))}
@@ -2507,7 +2511,8 @@ const CalendarView: React.FC<{
                         className="w-full text-left text-xs bg-zinc-900 border border-zinc-800 p-3 rounded-xl flex items-center justify-between group active:scale-[0.98] transition-all hover:border-brand-teal/30 cursor-move"
                       >
                         <div className="flex items-center gap-3 overflow-hidden">
-                          <div className={`w-2 h-2 rounded-full shrink-0 ${p.status === 'PUBLICADO' ? 'bg-brand-teal' : 'bg-zinc-600'}`} />
+                          {/* Format indicator: sky-500 for Reels, orange-500 for Carousel */}
+                          <div className={`w-2 h-2 rounded-full shrink-0 ${p.format === 'carousel' ? 'bg-orange-500' : 'bg-sky-500'}`} />
                           <span className="text-zinc-200 font-medium truncate">{p.topic}</span>
                         </div>
                         <div className="bg-zinc-800 p-1 rounded-full text-zinc-500">
