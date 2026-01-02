@@ -590,7 +590,60 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         </div>
       </section>
 
-      {/* SECTION 2: Vire Referência */}
+      {/* SECTION 2: System Explanation (Moved up) */}
+      <section className="py-24 px-4 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-brand-teal/5 blur-[100px] rounded-full pointer-events-none" />
+
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+              <Reveal direction="left">
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                  Um redator sênior <br />
+                  <span className="text-zinc-500">que estudou odontologia.</span>
+                </h2>
+                <div className="space-y-6">
+                  <p className="text-zinc-400 text-lg leading-relaxed">
+                    A maioria dos dentistas cria conteúdo para impressionar outros dentistas — linguagem técnica, casos clínicos complexos e fotos intraorais.
+                  </p>
+                  <p className="text-white text-lg leading-relaxed border-l-2 border-brand-teal pl-6">
+                    A <strong>OdontoContent</strong> inverte esse jogo. Ela ajuda você a falar a língua de quem assina o cheque: o paciente. Conteúdo que conecta, educa e converte.
+                  </p>
+                </div>
+                <Button variant="primary" onClick={onLogin} className="mt-8">
+                  Conheça a Tecnologia
+                </Button>
+              </Reveal>
+            </div>
+
+            <div className="relative">
+              {/* Visual Representation of "Translation" */}
+              <div className="space-y-4">
+                <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl opacity-50 scale-95 origin-left hover:opacity-70 transition-opacity duration-300">
+                  <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Como você postava</p>
+                  <p className="text-zinc-600 text-sm line-through">"Caso de reabilitação oral com facetas em disilicato de lítio e aumento de DVO..."</p>
+                </div>
+
+                <div className="flex justify-center -my-2 relative z-10">
+                  <div className="bg-zinc-800 p-2 rounded-full border border-zinc-700 text-zinc-400 hover:text-brand-teal hover:border-brand-teal/50 transition-all duration-300 cursor-pointer group">
+                    <RefreshCw className="w-4 h-4 group-hover:animate-spin" />
+                  </div>
+                </div>
+
+                <div className="p-6 bg-brand-teal/5 border border-brand-teal/30 rounded-xl shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] hover-glow hover:scale-[1.02] transition-all duration-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="w-4 h-4 text-brand-teal animate-pulse" />
+                    <p className="text-xs text-brand-teal uppercase font-bold">Como a IA cria</p>
+                  </div>
+                  <p className="text-white font-medium text-lg">"Parece mágica, mas é ciência: devolvemos anos de juventude ao seu rosto apenas ajustando o formato do seu sorriso."</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: Vire Referência (Moved down) */}
       <section className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 max-w-3xl mx-auto">
@@ -665,59 +718,6 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
               <Sparkles className="w-4 h-4 mr-2 group-hover:animate-spin" />
               Experimente com seu tema agora
             </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 3: System Explanation */}
-      <section className="py-24 px-4 relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-brand-teal/5 blur-[100px] rounded-full pointer-events-none" />
-
-        <div className="max-w-5xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <Reveal direction="left">
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                  Um redator sênior <br />
-                  <span className="text-zinc-500">que estudou odontologia.</span>
-                </h2>
-                <div className="space-y-6">
-                  <p className="text-zinc-400 text-lg leading-relaxed">
-                    A maioria dos dentistas cria conteúdo para impressionar outros dentistas — linguagem técnica, casos clínicos complexos e fotos intraorais.
-                  </p>
-                  <p className="text-white text-lg leading-relaxed border-l-2 border-brand-teal pl-6">
-                    A <strong>OdontoContent</strong> inverte esse jogo. Ela ajuda você a falar a língua de quem assina o cheque: o paciente. Conteúdo que conecta, educa e converte.
-                  </p>
-                </div>
-                <Button variant="primary" onClick={onLogin} className="mt-8">
-                  Conheça a Tecnologia
-                </Button>
-              </Reveal>
-            </div>
-
-            <div className="relative">
-              {/* Visual Representation of "Translation" */}
-              <div className="space-y-4">
-                <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl opacity-50 scale-95 origin-left hover:opacity-70 transition-opacity duration-300">
-                  <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Como você postava</p>
-                  <p className="text-zinc-600 text-sm line-through">"Caso de reabilitação oral com facetas em disilicato de lítio e aumento de DVO..."</p>
-                </div>
-
-                <div className="flex justify-center -my-2 relative z-10">
-                  <div className="bg-zinc-800 p-2 rounded-full border border-zinc-700 text-zinc-400 hover:text-brand-teal hover:border-brand-teal/50 transition-all duration-300 cursor-pointer group">
-                    <RefreshCw className="w-4 h-4 group-hover:animate-spin" />
-                  </div>
-                </div>
-
-                <div className="p-6 bg-brand-teal/5 border border-brand-teal/30 rounded-xl shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] hover-glow hover:scale-[1.02] transition-all duration-300">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-4 h-4 text-brand-teal animate-pulse" />
-                    <p className="text-xs text-brand-teal uppercase font-bold">Como a IA cria</p>
-                  </div>
-                  <p className="text-white font-medium text-lg">"Parece mágica, mas é ciência: devolvemos anos de juventude ao seu rosto apenas ajustando o formato do seu sorriso."</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
