@@ -1739,7 +1739,7 @@ const Wizard: React.FC<{
         format: selectedFormat // 'reels' or 'carousel'
       };
 
-      console.log('✅ Criando projeto...');
+      console.log('✅ Criando projeto com formato:', selectedFormat);
       onComplete(newProject);
 
       // Recarrega contador de trials após criar projeto
