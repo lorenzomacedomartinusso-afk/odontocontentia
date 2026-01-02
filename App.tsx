@@ -533,7 +533,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         onClick={onLogin}
         className="px-3 py-1.5 md:px-6 md:py-2 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-xs md:text-sm font-medium hover:scale-105 active:scale-95"
       >
-        Área do Cliente
+        Entrar
       </button>
     </header>
 
