@@ -773,54 +773,86 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         </div>
       </section >
 
-      {/* SECTION 6: Impactful Script */}
-      < section className="py-24 px-4 relative" >
+
+      {/* SECTION 6: Workflow Transformation */}
+      <section className="py-24 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(45,212,191,0.02)_50%,transparent_75%,transparent_100%)] bg-[length:250%_250%] animate-[gradient_15s_ease_infinite]" />
 
-        <div className="max-w-4xl mx-auto relative z-10">
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <Reveal>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Roteiros que prendem até o fim.</h2>
-              <p className="text-zinc-400 text-base md:text-lg leading-relaxed max-w-4xl mx-auto text-justify">
-                A metodologia da Odontocontent combina arquitetura narrativa jornalística, análise cultural e engenharia de engajamento para transformar qualquer ideia em um mini-documentário em formato de carrossel. Cada etapa — da tese à legenda final — é guiada por regras rígidas de clareza, ritmo e provocação baseada em fatos, não em slogans. Essa estrutura garante que o conteúdo avance com fluidez, traduza tendências complexas em narrativas acessíveis e gere identificação imediata com o público. O impacto vem do equilíbrio entre investigação cultural e linguagem natural, capaz de transformar informação em percepção — e percepção em resultado para quem produz conteúdo.
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Roteiros que prendem até o fim.</h2>
+              <p className="text-zinc-400 text-base md:text-lg leading-relaxed max-w-4xl mx-auto">
+                A metodologia da Odontocontent combina arquitetura narrativa jornalística, análise cultural e engenharia de engajamento para transformar qualquer ideia em um mini-documentário em formato de carrossel.
               </p>
             </Reveal>
           </div>
 
           <Reveal delay={200} direction="up">
-            <div className="bg-zinc-900 rounded-2xl border border-zinc-800 shadow-2xl relative overflow-hidden group hover:border-brand-teal/30 transition-colors duration-500 hover-glow">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-teal via-teal-600 to-emerald-500 animate-gradient-shift" style={{ backgroundSize: '200% 100%' }} />
-              <div className="flex border-b border-zinc-800 bg-zinc-950/50 backdrop-blur">
-                <div className="px-6 py-3 text-xs font-mono text-brand-teal border-r border-zinc-800 flex items-center gap-2">
-                  <PlayCircle className="w-3 h-3 animate-pulse" /> SCRIPT.DOC
+            <div className="flex flex-col lg:flex-row items-stretch gap-6 lg:gap-8">
+              {/* Image 1: Edit Structure */}
+              <div className="flex-1 group">
+                <div className="mb-4 text-center lg:text-left">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900/80 border border-zinc-800 rounded-full text-sm font-medium text-zinc-300">
+                    <span className="w-2 h-2 bg-brand-teal rounded-full animate-pulse"></span>
+                    Passo 1: Edite sua Narrativa
+                  </span>
                 </div>
-                <div className="px-6 py-3 text-xs font-mono text-zinc-500">
-                  LEITURA ESTIMADA: 45s
+                <div className="relative rounded-2xl overflow-hidden border-2 border-zinc-800 group-hover:border-brand-teal/50 transition-all duration-500 shadow-2xl shadow-black/50">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"></div>
+                  <img
+                    src="/landing-script-edit.png"
+                    alt="Edite a Estrutura da Narrativa"
+                    className="w-full h-auto transform group-hover:scale-[1.02] transition-transform duration-700"
+                  />
                 </div>
               </div>
 
-              <div className="p-4 md:p-6 bg-[#0A0A0A] flex items-center justify-center">
-                <div className="flex flex-col md:flex-row items-center gap-4 w-full">
-                  <img
-                    src="/landing-script-edit.png"
-                    alt="Edite a Estrutura"
-                    className="w-full md:w-[45%] h-auto rounded-lg border border-zinc-800 shadow-lg hover:border-brand-teal/50 transition-all duration-500"
-                  />
+              {/* Arrow Connector */}
+              <div className="flex items-center justify-center py-4 lg:py-0">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="hidden lg:flex flex-col items-center gap-1">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-brand-teal to-emerald-500 flex items-center justify-center shadow-lg shadow-brand-teal/30 animate-pulse">
+                      <ChevronRight className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-xs text-zinc-500 font-medium mt-2">IA Transforma</span>
+                  </div>
+                  <div className="lg:hidden flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-brand-teal to-emerald-500 flex items-center justify-center shadow-lg shadow-brand-teal/30 animate-pulse">
+                      <ChevronRight className="w-5 h-5 text-white rotate-90" />
+                    </div>
+                    <span className="text-xs text-zinc-500 font-medium">IA Transforma</span>
+                  </div>
+                </div>
+              </div>
 
-                  <ChevronRight className="w-6 h-6 text-zinc-600 hidden md:block shrink-0" />
-                  <ChevronRight className="w-6 h-6 text-zinc-600 md:hidden shrink-0 rotate-90" />
-
+              {/* Image 2: Final Content */}
+              <div className="flex-1 group">
+                <div className="mb-4 text-center lg:text-right">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-brand-teal/10 border border-brand-teal/30 rounded-full text-sm font-medium text-brand-teal">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Passo 2: Roteiro Pronto
+                  </span>
+                </div>
+                <div className="relative rounded-2xl overflow-hidden border-2 border-zinc-800 group-hover:border-brand-teal/50 transition-all duration-500 shadow-2xl shadow-black/50">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"></div>
                   <img
                     src="/landing-script-final.png"
-                    alt="Conteúdo Final"
-                    className="w-full md:w-[45%] h-auto rounded-lg border border-zinc-800 shadow-lg hover:border-brand-teal/50 transition-all duration-500"
+                    alt="Conteúdo Final Gerado"
+                    className="w-full h-auto transform group-hover:scale-[1.02] transition-transform duration-700"
                   />
                 </div>
               </div>
             </div>
           </Reveal>
+
+          <div className="mt-12 text-center">
+            <p className="text-zinc-500 text-sm">
+              Da estrutura narrativa ao roteiro completo — em segundos.
+            </p>
+          </div>
         </div>
-      </section >
+      </section>
 
       {/* SECTION 7: Benefits Grid */}
       < section className="py-24 px-4" >
