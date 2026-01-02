@@ -25,7 +25,8 @@ export const projectService = {
             selected_hook: project.selectedHook,
             selected_headline: project.selectedHeadline,
             narrative: project.narrative,
-            final_assets: project.finalAssets
+            final_assets: project.finalAssets,
+            format: project.format
         };
 
         const { data, error } = await supabase
@@ -47,6 +48,7 @@ export const projectService = {
         if (updates.selectedHeadline) dbUpdates.selected_headline = updates.selectedHeadline;
         if (updates.narrative) dbUpdates.narrative = updates.narrative;
         if (updates.finalAssets) dbUpdates.final_assets = updates.finalAssets;
+        if (updates.format) dbUpdates.format = updates.format;
 
         const { data, error } = await supabase
             .from('projects')
@@ -79,6 +81,7 @@ function mapToProject(data: any): Project {
         selectedHook: data.selected_hook,
         selectedHeadline: data.selected_headline,
         narrative: data.narrative as NarrativeStructure,
-        finalAssets: data.final_assets as FinalAssets
+        finalAssets: data.final_assets as FinalAssets,
+        format: data.format
     };
 }
