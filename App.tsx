@@ -1752,7 +1752,7 @@ const Wizard: React.FC<{
   }
 
   return (
-    <div className="flex flex-col h-full max-w-7xl mx-auto">
+    <div className="flex flex-col h-full w-full max-w-[95%] xl:max-w-[90%] 2xl:max-w-[85%] mx-auto">
       {/* Trial Counter Banner */}
       {/* Trial Counter Banner */}
       {/* Trial Counter Banner */}
