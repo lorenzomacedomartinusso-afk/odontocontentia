@@ -7,6 +7,47 @@ import * as SubscriptionService from './services/subscriptionService';
 import PaywallModal from './components/PaywallModal';
 import { useSubscription } from './hooks/useSubscription';
 
+// Componente de Carrossel Simples para a Landing Page
+const LandingCarousel = ({ images }: { images: string[] }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 2000); // Troca a cada 2 segundos
+
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  return (
+    <div className="relative w-full h-full overflow-hidden rounded-xl bg-[#0D0E12]">
+      {images.map((src, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+        >
+          <img
+            src={src}
+            alt={`Slide ${index + 1}`}
+            className="w-full h-auto object-cover"
+          />
+        </div>
+      ))}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        {images.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-brand-teal w-6' : 'bg-zinc-600 hover:bg-zinc-500'
+              }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // --- Constants ---
 const MOCK_USER: User = {
   id: '1',
@@ -616,28 +657,12 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
               </Reveal>
             </div>
 
-            <div className="relative">
-              {/* Visual Representation of "Translation" */}
-              <div className="space-y-4">
-                <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl opacity-50 scale-95 origin-left hover:opacity-70 transition-opacity duration-300">
-                  <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Como você postava</p>
-                  <p className="text-zinc-600 text-sm line-through">"Caso de reabilitação oral com facetas em disilicato de lítio e aumento de DVO..."</p>
-                </div>
-
-                <div className="flex justify-center -my-2 relative z-10">
-                  <div className="bg-zinc-800 p-2 rounded-full border border-zinc-700 text-zinc-400 hover:text-brand-teal hover:border-brand-teal/50 transition-all duration-300 cursor-pointer group">
-                    <RefreshCw className="w-4 h-4 group-hover:animate-spin" />
-                  </div>
-                </div>
-
-                <div className="p-6 bg-brand-teal/5 border border-brand-teal/30 rounded-xl shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] hover-glow hover:scale-[1.02] transition-all duration-300">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-4 h-4 text-brand-teal animate-pulse" />
-                    <p className="text-xs text-brand-teal uppercase font-bold">Como a IA cria</p>
-                  </div>
-                  <p className="text-white font-medium text-lg">"Parece mágica, mas é ciência: devolvemos anos de juventude ao seu rosto apenas ajustando o formato do seu sorriso."</p>
-                </div>
-              </div>
+            <div className="relative flex items-center justify-center">
+              <img
+                src="/landing-narrativa-gerador.png"
+                alt="Gerador de Narrativas Magnéticas"
+                className="w-full h-auto rounded-xl shadow-[0_0_50px_-10px_rgba(45,212,191,0.2)] border border-brand-teal/20 hover:scale-[1.02] transition-transform duration-500"
+              />
             </div>
           </div>
         </div>
@@ -661,56 +686,11 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           </div>
 
           <MockBrowserWindow className="max-w-5xl mx-auto transform hover:scale-[1.005] transition-transform duration-700 shadow-[0_0_50px_-10px_rgba(45,212,191,0.15)] border-brand-teal/20">
-            <div className="bg-[#0D0D0D] p-2 md:p-8 flex flex-col md:flex-row gap-8 min-h-[500px]">
-              {/* Sidebar Mock */}
-              <div className="w-full md:w-1/3 space-y-4">
-                <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
-                  <div className="flex items-center gap-2 mb-3 text-brand-teal">
-                    <Sparkles className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Gerador IA</span>
-                  </div>
-                  <p className="text-zinc-500 text-[10px] uppercase font-bold mb-2">Tema Atual</p>
-                  <div className="p-3 bg-black rounded border border-zinc-800 text-white font-medium text-sm">
-                    Lentes de Contato Dental
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs text-zinc-500 px-2">
-                    <span>Opções Geradas</span>
-                    <span>2/5</span>
-                  </div>
-                  <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
-                    <div className="h-full w-2/5 bg-brand-teal"></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Content Mock */}
-              <div className="flex-1 space-y-4">
-                <h3 className="text-zinc-400 text-sm font-medium mb-4">Selecione a abordagem que melhor se adapta à sua clínica:</h3>
-
-                <div className="bg-gradient-to-r from-zinc-900 to-zinc-900/50 p-5 rounded-xl border border-brand-teal/30 hover:border-brand-teal transition-colors cursor-pointer group relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-2 bg-brand-teal/10 text-brand-teal text-[10px] font-bold rounded-bl-xl border-l border-b border-brand-teal/20">RECOMENDADO</div>
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-white font-bold text-base group-hover:text-brand-teal transition-colors">1. O Mito da Perfeição Simétrica</h4>
-                  </div>
-                  <p className="text-zinc-400 text-sm leading-relaxed mb-4">
-                    "Muitos pacientes chegam pedindo dentes brancos e retos como teclas de piano. Mas a natureza é imperfeita. Vamos falar sobre como a microtextura e a translucidez criam um sorriso que parece que você 'nasceu assim'?"
-                  </p>
-                  <button className="text-xs font-bold text-brand-teal flex items-center gap-2 group-hover:gap-3 transition-all">
-                    Usar este gancho <ChevronRight className="w-3 h-3" />
-                  </button>
-                </div>
-
-                <div className="bg-zinc-900/30 p-5 rounded-xl border border-zinc-800 hover:border-zinc-600 transition-colors cursor-pointer group opacity-60 hover:opacity-100">
-                  <h4 className="text-white font-bold text-base mb-2">2. Rejuvenescimento Facial via Sorriso</h4>
-                  <p className="text-zinc-500 text-sm leading-relaxed">
-                    Abordagem focada em pacientes 40+. Como o desgaste natural dos dentes diminui o terço inferior da face e como as lentes devolvem suporte labial.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <img
+              src="/landing-narrativa-escolha.png"
+              alt="Interface de Seleção de Narrativas"
+              className="w-full h-auto opacity-90 hover:opacity-100 transition-opacity duration-500"
+            />
           </MockBrowserWindow>
 
           <div className="mt-12 flex justify-center">
@@ -737,61 +717,19 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           </div>
 
           <MockBrowserWindow title="Planejamento Editorial - Dr. Andre Silva">
-            <div className="bg-[#0D0E12] p-6 grid grid-cols-1 md:grid-cols-4 gap-4 overflow-hidden relative">
-              {/* Background Grid */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.05] pointer-events-none"></div>
-
-              {[
-                { title: 'Ideia', count: 5, color: 'bg-zinc-500' },
-                { title: 'Roteirizado', count: 2, color: 'bg-zinc-400' },
-                { title: 'Produção', count: 1, color: 'bg-teal-700' },
-                { title: 'Publicado', count: 12, color: 'bg-brand-teal' }
-              ].map((col, i) => (
-                <div key={col.title} className={`bg-zinc-900/40 rounded-xl p-3 border border-zinc-800/50 flex flex-col gap-3 min-h-[300px] hover:border-zinc-700 transition-all duration-300 stagger-${i + 1}`} style={{ animation: 'fade-in-up 0.6s ease forwards', animationDelay: `${i * 0.15}s`, opacity: 0 }}>
-                  <div className="flex justify-between items-center px-1">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${col.color}`} />
-                      <span className="text-xs font-bold text-zinc-300 uppercase tracking-wide">{col.title}</span>
-                    </div>
-                    <span className="bg-zinc-800 text-[10px] px-2 py-0.5 rounded-full text-zinc-500">{col.count}</span>
-                  </div>
-
-                  {/* Card Mockup */}
-                  <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-800 hover:border-brand-teal/50 cursor-pointer shadow-sm group transition-all">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] bg-brand-teal/10 text-brand-teal px-1.5 py-0.5 rounded border border-brand-teal/20">Reels</span>
-                      <span className="text-[10px] bg-zinc-800 text-zinc-500 px-1.5 py-0.5 rounded">Alta Prioridade</span>
-                    </div>
-                    <p className="text-sm text-white font-medium mb-3 group-hover:text-brand-teal transition-colors">
-                      {i === 0 ? "Medo de Anestesia" : i === 1 ? "Invisalign vs. Fixo" : "Clareamento e Sensibilidade"}
-                    </p>
-                    <div className="flex items-center justify-between border-t border-zinc-800 pt-3">
-                      <div className="flex -space-x-2">
-                        <div className="w-6 h-6 rounded-full bg-zinc-700 border-2 border-zinc-900 flex items-center justify-center text-[8px] text-white">DR</div>
-                        <div className="w-6 h-6 rounded-full bg-zinc-600 border-2 border-zinc-900 flex items-center justify-center text-[8px] text-white">SM</div>
-                      </div>
-                      <div className="flex items-center gap-1 text-zinc-500 text-[10px]">
-                        <CalendarIcon className="w-3 h-3" />
-                        <span>23 Dez</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {i === 1 && (
-                    <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-800 opacity-60">
-                      <div className="w-1/3 h-2 bg-zinc-800 rounded mb-2"></div>
-                      <div className="w-3/4 h-3 bg-zinc-700 rounded mb-3"></div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <LandingCarousel
+              images={[
+                '/landing-kanban-1.png',
+                '/landing-kanban-2.png'
+              ]}
+            />
           </MockBrowserWindow>
+
         </div>
-      </section>
+      </section >
 
       {/* SECTION 5: Wizard Steps */}
-      <section className="py-24 px-4">
+      < section className="py-24 px-4" >
         <div className="max-w-5xl mx-auto">
           <Reveal>
             <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8">
@@ -825,69 +763,18 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
           <Reveal delay={300}>
             <MockBrowserWindow className="max-w-4xl mx-auto border-brand-teal/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
-              <div className="bg-zinc-950 p-6 md:p-8">
-                <div className="flex items-center justify-between mb-8 pb-4 border-b border-zinc-900">
-                  <div>
-                    <h4 className="text-lg font-bold text-white flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-brand-teal" /> Estratégia Aprovada
-                    </h4>
-                    <p className="text-xs text-zinc-500 mt-1">Gerando ativos finais...</p>
-                  </div>
-                  <span className="px-3 py-1 bg-brand-teal/10 text-brand-teal text-xs font-bold rounded-full border border-brand-teal/20">IA Generativa Ativa</span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Script Card */}
-                  <div className="p-5 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-brand-teal/30 transition-all group">
-                    <div className="flex gap-3 mb-4">
-                      <div className="p-2 bg-brand-teal/10 rounded-lg text-brand-teal group-hover:scale-110 transition-transform"><PlayCircle className="w-5 h-5" /></div>
-                      <div>
-                        <p className="text-sm font-bold text-white">Roteiro de Vídeo</p>
-                        <p className="text-[10px] text-zinc-500">Otimizado para retenção</p>
-                      </div>
-                    </div>
-                    <div className="space-y-3 font-mono text-xs">
-                      <p className="text-zinc-500">[00:00 - GANCHO VISUAL]</p>
-                      <p className="text-zinc-300 pl-2 border-l-2 border-zinc-700">Segure uma xícara de café, olhe para ela e depois sorria para a câmera.</p>
-                      <p className="text-zinc-500 mt-2">[00:05 - FALADO]</p>
-                      <p className="text-white pl-2 border-l-2 border-brand-teal">"Você ama isso aqui, né? Mas morre de medo do que ele faz com a cor do seu sorriso..."</p>
-                    </div>
-                  </div>
-
-                  {/* Caption Card */}
-                  <div className="p-5 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-brand-teal/30 transition-all group">
-                    <div className="flex gap-3 mb-4">
-                      <div className="p-2 bg-brand-teal/10 rounded-lg text-brand-teal group-hover:scale-110 transition-transform"><FileText className="w-5 h-5" /></div>
-                      <div>
-                        <p className="text-sm font-bold text-white">Legenda Pronta</p>
-                        <p className="text-zinc-500">Com SEO e Disclaimer</p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-zinc-400 leading-relaxed mb-4 line-clamp-4">
-                      O café não é o vilão. O vilão é a porosidade do esmalte desprotegido. ☕✨
-                      <br /><br />
-                      Muita gente deixa de viver pequenos prazeres por vergonha dos dentes. Mas a odontologia moderna permite blindar seu sorriso.
-                    </p>
-                    <div className="flex gap-2">
-                      <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-500">#clareamento</span>
-                      <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-500">#autoestima</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-end mt-6">
-                  <Button variant="gradient" className="py-2 h-10 text-sm shadow-lg shadow-brand-teal/20">
-                    <Sparkles className="w-4 h-4 mr-2" /> Gerar Conteúdo Completo
-                  </Button>
-                </div>
-              </div>
+              <img
+                src="/landing-roteiro.png"
+                alt="Roteiro Gerado pela IA"
+                className="w-full h-auto opacity-95 hover:opacity-100 transition-opacity duration-500"
+              />
             </MockBrowserWindow>
           </Reveal>
         </div>
-      </section>
+      </section >
 
       {/* SECTION 6: Impactful Script */}
-      <section className="py-24 px-4 relative">
+      < section className="py-24 px-4 relative" >
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(45,212,191,0.02)_50%,transparent_75%,transparent_100%)] bg-[length:250%_250%] animate-[gradient_15s_ease_infinite]" />
 
         <div className="max-w-4xl mx-auto relative z-10">
@@ -912,42 +799,31 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
                 </div>
               </div>
 
-              <div className="p-8 md:p-10 font-mono text-sm leading-loose text-zinc-300 bg-[#0A0A0A]">
-                <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity duration-500">
-                  <span className="text-teal-400">INT. CONSULTÓRIO - DIA</span>
-                  <br />
-                  <span className="text-zinc-600 italic">O Dr. olha para a câmera. Luz dramática, foco suave ao fundo.</span>
-                </div>
+              <div className="p-4 md:p-6 bg-[#0A0A0A] flex items-center justify-center">
+                <div className="flex flex-col md:flex-row items-center gap-4 w-full">
+                  <img
+                    src="/landing-script-edit.png"
+                    alt="Edite a Estrutura"
+                    className="w-full md:w-[45%] h-auto rounded-lg border border-zinc-800 shadow-lg hover:border-brand-teal/50 transition-all duration-500"
+                  />
 
-                <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal group-hover:pl-6 transition-all duration-300">
-                  <strong className="text-white block mb-1">DR. ANDRE</strong>
-                  "Você já deixou de sorrir numa foto por achar que seus dentes não estavam 'brancos o suficiente'?"
-                </p>
+                  <ChevronRight className="w-6 h-6 text-zinc-600 hidden md:block shrink-0" />
+                  <ChevronRight className="w-6 h-6 text-zinc-600 md:hidden shrink-0 rotate-90" />
 
-                <div className="mb-6 opacity-50 group-hover:opacity-100 transition-opacity duration-500">
-                  <span className="text-teal-400">CORTE PARA:</span>
-                  <span className="text-zinc-600 italic"> Close-up extremo de café caindo no leite. Câmera lenta.</span>
-                </div>
-
-                <p className="mb-6 border-l-2 border-zinc-800 pl-4 group-hover:border-brand-teal group-hover:pl-6 transition-all duration-300">
-                  <strong className="text-white block mb-1">NARRADOR (VO)</strong>
-                  "Essa pressão estética é real. Mas o branco 'geladeira' ficou no passado. O novo luxo é a translucidez natural."
-                </p>
-
-                <div className="mt-8 pt-8 border-t border-zinc-900 flex justify-between items-center">
-                  <span className="text-xs text-zinc-600">Gerado por IA Cultural</span>
-                  <Button variant="ghost" className="text-xs h-8 hover:bg-zinc-800 group/btn">
-                    <Copy className="w-3 h-3 mr-2 group-hover/btn:scale-110 transition-transform" /> Copiar Texto
-                  </Button>
+                  <img
+                    src="/landing-script-final.png"
+                    alt="Conteúdo Final"
+                    className="w-full md:w-[45%] h-auto rounded-lg border border-zinc-800 shadow-lg hover:border-brand-teal/50 transition-all duration-500"
+                  />
                 </div>
               </div>
             </div>
           </Reveal>
         </div>
-      </section>
+      </section >
 
       {/* SECTION 7: Benefits Grid */}
-      <section className="py-24 px-4">
+      < section className="py-24 px-4" >
         <div className="max-w-6xl mx-auto">
           <Reveal>
             <h2 className="text-3xl md:text-5xl font-bold text-white text-center mb-16">Por que +800 dentistas<br />escolheram a OdontoContent?</h2>
@@ -972,10 +848,10 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* SECTION 9: Testimonials */}
-      <section className="py-24 px-4 overflow-hidden relative">
+      < section className="py-24 px-4 overflow-hidden relative" >
         <style>{`
           @keyframes scroll {
             0% { transform: translateX(0); }
@@ -1054,12 +930,12 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             </Button>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* SECTION 8: Pricing Table - Wide Horizontal */}
-      <section className="py-20 md:py-24 px-4 relative">
+      < section className="py-20 md:py-24 px-4 relative" >
         {/* Background accent */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-teal/5 rounded-full blur-[150px] pointer-events-none" />
+        < div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-teal/5 rounded-full blur-[150px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <Reveal>
@@ -1128,10 +1004,10 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             </div>
           </Reveal>
         </div>
-      </section>
+      </section >
 
       {/* SECTION 10: Final CTA */}
-      <section className="py-32 px-4 relative overflow-hidden">
+      < section className="py-32 px-4 relative overflow-hidden" >
         <div className="absolute inset-0 z-0"></div>
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand-teal/50 to-transparent animate-shimmer"></div>
 
@@ -1169,10 +1045,10 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
-    </main>
-  </div>
+    </main >
+  </div >
 );
 
 const AuthScreen: React.FC<{ onAuth: () => void }> = ({ onAuth }) => (
