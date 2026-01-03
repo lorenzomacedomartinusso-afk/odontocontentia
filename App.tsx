@@ -561,9 +561,8 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       .stagger-5 { animation-delay: 0.5s; }
     `}</style>
     {/* Background Effects - Fixed to persist during scroll */}
-    <div className="fixed top-[-10%] left-[-10%] w-[600px] h-[600px] bg-brand-teal/15 rounded-full blur-[150px] pointer-events-none z-0" />
-    <div className="fixed bottom-[-10%] right-[-10%] w-[700px] h-[700px] bg-emerald-600/15 rounded-full blur-[180px] pointer-events-none z-0" />
-    <div className="fixed top-[30%] right-[15%] w-[450px] h-[450px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none z-0" />
+    <div className="fixed top-[-20%] left-[-15%] w-[600px] h-[600px] bg-brand-teal/15 rounded-full blur-[150px] pointer-events-none z-0" />
+    <div className="fixed bottom-[-20%] right-[-15%] w-[700px] h-[700px] bg-emerald-600/15 rounded-full blur-[180px] pointer-events-none z-0" />
     <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-teal/10 via-transparent to-transparent pointer-events-none z-0 opacity-70" />
 
     <header className="flex justify-between items-center p-4 md:px-12 md:py-8 w-full z-10 relative">
