@@ -565,14 +565,14 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
     <div className="fixed bottom-[-30%] md:bottom-[-20%] right-[-40%] md:right-[-15%] w-[350px] md:w-[700px] h-[350px] md:h-[700px] bg-emerald-600/15 rounded-full blur-[120px] md:blur-[180px] pointer-events-none z-0" />
     <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-teal/10 via-transparent to-transparent pointer-events-none z-0 opacity-70" />
 
-    <header className="flex justify-between items-center p-4 md:px-12 md:py-8 w-full z-10 relative">
+    <header className="flex justify-between items-center p-4 md:px-20 lg:px-28 md:py-8 w-full z-10 relative">
       <div className="flex items-center gap-2">
-        <Sparkles className="w-8 h-8 md:w-9 md:h-9 text-brand-teal shrink-0" />
-        <span className="text-2xl md:text-2xl font-bold tracking-tight text-white whitespace-nowrap"><span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">Odonto</span>Content <span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">IA</span></span>
+        <Sparkles className="w-8 h-8 md:w-10 md:h-10 text-brand-teal shrink-0" />
+        <span className="text-2xl md:text-[1.7rem] font-bold tracking-tight text-white whitespace-nowrap"><span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">Odonto</span>Content <span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">IA</span></span>
       </div>
       <button
         onClick={onLogin}
-        className="px-3 py-1.5 md:px-6 md:py-2 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-xs md:text-sm font-medium hover:scale-105 active:scale-95"
+        className="px-3 py-1.5 md:px-7 md:py-2.5 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-xs md:text-base font-medium hover:scale-105 active:scale-95"
       >
         Entrar
       </button>
