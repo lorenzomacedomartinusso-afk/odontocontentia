@@ -2759,6 +2759,8 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
   });
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   // Persistence
@@ -2929,16 +2931,47 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
               />
             </div>
 
-            {/* Mobile: Apenas ícone de lupa */}
-            <button
-              className="md:hidden w-9 h-9 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 hover:border-brand-teal transition-colors"
-              onClick={() => {
-                const query = prompt('Buscar projeto:');
-                if (query !== null) setSearchQuery(query);
-              }}
-            >
-              <Search className="w-4 h-4 text-zinc-400" />
-            </button>
+            {/* Mobile: Input expansível */}
+            <div className="md:hidden flex items-center gap-2">
+              {isMobileSearchOpen ? (
+                <div className="flex items-center gap-2 animate-fade-in">
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
+                    <input
+                      ref={mobileSearchRef}
+                      type="text"
+                      placeholder="Buscar..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onBlur={() => {
+                        if (!searchQuery) setIsMobileSearchOpen(false);
+                      }}
+                      autoFocus
+                      className="bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-3 py-2 text-sm text-white focus:border-brand-teal outline-none w-40"
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setIsMobileSearchOpen(false);
+                    }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 hover:border-brand-teal transition-colors"
+                  onClick={() => {
+                    setIsMobileSearchOpen(true);
+                    setTimeout(() => mobileSearchRef.current?.focus(), 100);
+                  }}
+                >
+                  <Search className="w-4 h-4 text-zinc-400" />
+                </button>
+              )}
+            </div>
 
             <div className="flex items-center gap-3 pl-2 border-l border-zinc-800 relative">
               <div className="hidden md:block text-right">
