@@ -2919,16 +2919,49 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
             </button>
           </div>
           <div className="flex gap-2 items-center">
-            {/* Desktop: Input de busca */}
+            {/* Desktop: Input de busca com dropdown */}
             <div className="relative hidden md:block">
-              <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 z-10" />
               <input
                 type="text"
                 placeholder="Buscar..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsMobileSearchOpen(true)}
+                onBlur={() => setTimeout(() => setIsMobileSearchOpen(false), 200)}
                 className="bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:border-brand-teal outline-none w-64 transition-all focus:w-72"
               />
+              {/* Dropdown de resultados */}
+              {isMobileSearchOpen && searchQuery && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
+                  {filteredProjects.length > 0 ? (
+                    <>
+                      <p className="px-4 py-2 text-xs text-zinc-500 border-b border-zinc-800">
+                        {filteredProjects.length} resultado(s)
+                      </p>
+                      {filteredProjects.slice(0, 8).map(project => (
+                        <button
+                          key={project.id}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setSelectedProject(project);
+                            setSearchQuery('');
+                            setView('KANBAN');
+                          }}
+                          className="w-full text-left px-4 py-3 hover:bg-zinc-800 transition-colors border-b border-zinc-800/50 last:border-b-0"
+                        >
+                          <p className="text-white text-sm font-medium truncate">{project.topic}</p>
+                          <p className="text-zinc-500 text-xs truncate">{project.selectedHeadline || 'Sem headline'}</p>
+                        </button>
+                      ))}
+                    </>
+                  ) : (
+                    <p className="px-4 py-4 text-sm text-zinc-500 text-center">
+                      Nenhum projeto encontrado
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Mobile: Ícone de lupa que abre modal */}
