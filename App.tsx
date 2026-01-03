@@ -2760,6 +2760,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isDesktopSearchOpen, setIsDesktopSearchOpen] = useState(false);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -2927,12 +2928,12 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
                 placeholder="Buscar..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setIsMobileSearchOpen(true)}
-                onBlur={() => setTimeout(() => setIsMobileSearchOpen(false), 200)}
+                onFocus={() => setIsDesktopSearchOpen(true)}
+                onBlur={() => setTimeout(() => setIsDesktopSearchOpen(false), 200)}
                 className="bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:border-brand-teal outline-none w-64 transition-all focus:w-72"
               />
               {/* Dropdown de resultados */}
-              {isMobileSearchOpen && searchQuery && (
+              {isDesktopSearchOpen && searchQuery && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
                   {filteredProjects.length > 0 ? (
                     <>
