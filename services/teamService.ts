@@ -1,4 +1,5 @@
-import { supabase } from './supabaseClient';
+import { createClient } from '@supabase/supabase-js';
+import { supabase, supabaseUrl, supabaseKey } from './supabaseClient';
 import { User } from '../types';
 
 export interface TeamMember {
@@ -110,11 +111,16 @@ export const teamService = {
     },
 
     /**
-     * Add a new team member (creates Supabase Auth account)
+     * Add a new team member (creates Supabase Auth account and saves to database)
+     */
+    /**
+     * Add a new team member (creates Supabase Auth account and saves to database)
      */
     async addTeamMember(name: string, role: string, email: string, password: string): Promise<User> {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('User not authenticated');
+
+        const ownerId = user.id;
 
         // Check limit (max 3 members including owner)
         const count = await this.getTeamCount();
@@ -122,18 +128,14 @@ export const teamService = {
             throw new Error('Limite de 3 membros atingido. Faça upgrade para adicionar mais.');
         }
 
-        // Create user account in Supabase Auth
-        // Note: This requires service role key or email confirmation disabled
-        // For now, we just store the member - they'll need to sign up separately
-        // TODO: Use Edge Function with service role to create user
-
+        // Step 1: Insert into team_members table FIRST
         const avatar = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
-        const { data, error } = await supabase
+        const { data: memberData, error: insertError } = await supabase
             .from('team_members')
             .insert({
-                owner_id: user.id,
-                member_user_id: null, // Will be linked when user signs up
+                owner_id: ownerId,
+                member_user_id: null,
                 name,
                 role,
                 email,
@@ -142,14 +144,54 @@ export const teamService = {
             .select()
             .single();
 
-        if (error) {
-            if (error.code === '23505') { // Unique violation
+        if (insertError) {
+            if (insertError.code === '23505') {
                 throw new Error('Este e-mail já está cadastrado na equipe.');
             }
-            throw error;
+            throw insertError;
         }
 
-        return mapToUser(data);
+        // Step 2: Create user account using ISOLATED client (prevents logout)
+        // We create a temporary client that does NOT persist the session to localStorage
+        const tempSupabase = createClient(supabaseUrl, supabaseKey, {
+            auth: {
+                persistSession: false, // Critical: don't save this session
+                autoRefreshToken: false,
+                detectSessionInUrl: false
+            }
+        });
+
+        const { data: signUpData, error: signUpError } = await tempSupabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    name,
+                    role,
+                    team_owner_id: ownerId
+                }
+            }
+        });
+
+        if (signUpError) {
+            // Rollback
+            await supabase.from('team_members').delete().eq('id', memberData.id);
+
+            if (signUpError.message.includes('already registered')) {
+                throw new Error('Este e-mail já está cadastrado no sistema.');
+            }
+            throw new Error(signUpError.message);
+        }
+
+        // Step 3: Update team_members with the new auth user ID
+        if (signUpData.user?.id) {
+            await supabase
+                .from('team_members')
+                .update({ member_user_id: signUpData.user.id })
+                .eq('id', memberData.id);
+        }
+
+        return mapToUser(memberData);
     },
 
     /**

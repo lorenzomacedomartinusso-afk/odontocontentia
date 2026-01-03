@@ -279,7 +279,18 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
         }
       }
     } catch (err: any) {
-      setError(err.message || 'Ocorreu um erro.');
+      // Translate common Supabase errors to Portuguese
+      const errorMessage = err.message || 'Ocorreu um erro.';
+      const translations: Record<string, string> = {
+        'Invalid login credentials': 'E-mail ou senha incorretos.',
+        'Email not confirmed': 'E-mail não confirmado. Verifique sua caixa de entrada.',
+        'User already registered': 'Este e-mail já está cadastrado.',
+        'Password should be at least 6 characters': 'A senha deve ter pelo menos 6 caracteres.',
+        'Signup requires a valid password': 'A senha é obrigatória.',
+        'To signup, please provide your email': 'O e-mail é obrigatório.',
+        'Email rate limit exceeded': 'Muitas tentativas. Aguarde alguns minutos.',
+      };
+      setError(translations[errorMessage] || errorMessage);
     } finally {
       setLoading(false);
     }
