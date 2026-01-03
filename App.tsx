@@ -2907,8 +2907,8 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
   return (
     <div className="h-screen flex flex-col bg-brand-black text-zinc-200 relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute top-[-10%] left-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-brand-teal/15 md:bg-brand-teal/10 rounded-full blur-[80px] md:blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-emerald-600/15 md:bg-emerald-600/10 rounded-full blur-[80px] md:blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-brand-teal/25 md:bg-brand-teal/10 rounded-full blur-[80px] md:blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-emerald-600/25 md:bg-emerald-600/10 rounded-full blur-[80px] md:blur-[120px] pointer-events-none" />
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full pb-20 z-10">
