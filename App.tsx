@@ -2975,12 +2975,14 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
                   {searchQuery ? (
                     filteredProjects.length > 0 ? (
                       <div className="space-y-2">
+                        <p className="text-xs text-zinc-500 mb-3">{filteredProjects.length} resultado(s) encontrado(s)</p>
                         {filteredProjects.slice(0, 10).map(project => (
                           <button
                             key={project.id}
                             onClick={() => {
                               setSelectedProject(project);
                               setIsMobileSearchOpen(false);
+                              setSearchQuery('');
                             }}
                             className="w-full text-left p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:border-brand-teal/30 transition-colors"
                           >
@@ -2991,12 +2993,14 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
                       </div>
                     ) : (
                       <div className="text-center py-8 text-zinc-500">
-                        Nenhum projeto encontrado
+                        <p>Nenhum projeto encontrado para "{searchQuery}"</p>
+                        <p className="text-xs mt-2">Você tem {projects.length} projeto(s) no total</p>
                       </div>
                     )
                   ) : (
                     <div className="text-center py-8 text-zinc-500">
-                      Digite para buscar seus projetos
+                      <p>Digite para buscar seus projetos</p>
+                      <p className="text-xs mt-2">Você tem {projects.length} projeto(s)</p>
                     </div>
                   )}
                 </div>
