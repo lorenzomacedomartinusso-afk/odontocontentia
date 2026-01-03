@@ -2950,6 +2950,12 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
                       placeholder="Buscar projetos..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && filteredProjects.length > 0) {
+                          setSelectedProject(filteredProjects[0]);
+                          setIsMobileSearchOpen(false);
+                        }
+                      }}
                       autoFocus
                       className="w-full bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-3 text-white focus:border-brand-teal outline-none"
                     />
