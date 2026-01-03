@@ -6,6 +6,7 @@ import { projectService } from './services/projectService';
 import * as SubscriptionService from './services/subscriptionService';
 import PaywallModal from './components/PaywallModal';
 import { useSubscription } from './hooks/useSubscription';
+import { teamService } from './services/teamService';
 
 // Componente de Carrossel Simples para a Landing Page
 const LandingCarousel = ({ images }: { images: string[] }) => {
@@ -2446,56 +2447,163 @@ const CalendarView: React.FC<{
 };
 
 const TeamView: React.FC<{
-  team: User[];
-  onAddMember: (member: User) => void;
-  onRemoveMember: (id: string) => void;
-}> = ({ team, onAddMember, onRemoveMember }) => {
+  currentUser: User;
+}> = ({ currentUser }) => {
+  const [team, setTeam] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
-  const [newMember, setNewMember] = useState({ name: '', role: '', email: '' });
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [newMember, setNewMember] = useState({ name: '', role: '', email: '', password: '' });
+  const [ownerInfo, setOwnerInfo] = useState<{ isOwner: boolean; ownerName?: string; ownerEmail?: string }>({ isOwner: true });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newMember.name && newMember.role && newMember.email) {
-      onAddMember({
-        id: Date.now().toString(),
-        name: newMember.name,
-        role: newMember.role,
-        email: newMember.email,
-        avatar: newMember.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
-      });
-      setIsAdding(false);
-      setNewMember({ name: '', role: '', email: '' });
+  // Load team members from database
+  useEffect(() => {
+    loadTeam();
+  }, []);
+
+  const loadTeam = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Ensure owner is in team first
+      await teamService.ensureOwnerInTeam();
+
+      // Load team members
+      const members = await teamService.fetchTeamMembers();
+      setTeam(members);
+
+      // Get owner info
+      const info = await teamService.getTeamOwnerInfo();
+      setOwnerInfo(info);
+    } catch (err) {
+      console.error('Error loading team:', err);
+      setError('Erro ao carregar equipe');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMember.name || !newMember.role || !newMember.email) return;
+
+    try {
+      setIsSaving(true);
+      setError(null);
+
+      await teamService.addTeamMember(
+        newMember.name,
+        newMember.role,
+        newMember.email,
+        newMember.password
+      );
+
+      // Reload team
+      await loadTeam();
+
+      setIsAdding(false);
+      setNewMember({ name: '', role: '', email: '', password: '' });
+    } catch (err: any) {
+      console.error('Error adding member:', err);
+      setError(err.message || 'Erro ao adicionar membro');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleRemove = async (id: string) => {
+    if (!confirm('Remover membro da equipe?')) return;
+
+    try {
+      setError(null);
+      await teamService.removeTeamMember(id);
+      await loadTeam();
+    } catch (err: any) {
+      console.error('Error removing member:', err);
+      setError(err.message || 'Erro ao remover membro');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-teal" />
+      </div>
+    );
+  }
+
   return (
-    <div className="h-full overflow-hidden flex flex-col max-w-4xl mx-auto w-full">
-      <div className="flex justify-between items-center mb-6 px-1">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Users className="w-6 h-6 text-brand-teal" />
-          Equipe da Clínica
-        </h2>
-        <Button onClick={() => setIsAdding(true)} className="text-xs h-9">
-          <Plus className="w-4 h-4" /> Novo Membro
-        </Button>
+    <div className="h-full overflow-hidden flex flex-col max-w-4xl mx-auto w-full px-4 md:px-0">
+      {/* Header */}
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Users className="w-6 h-6 text-brand-teal" />
+            Equipe da Clínica
+          </h2>
+          {ownerInfo.isOwner && team.length < 3 && (
+            <Button onClick={() => setIsAdding(true)} className="text-xs h-9">
+              <Plus className="w-4 h-4" /> Novo Membro
+            </Button>
+          )}
+        </div>
+
+        {/* Member team banner */}
+        {!ownerInfo.isOwner && (
+          <div className="bg-brand-teal/10 border border-brand-teal/30 rounded-xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-brand-teal/20 flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-brand-teal" />
+            </div>
+            <div>
+              <p className="text-sm text-white font-medium">Você faz parte da equipe de:</p>
+              <p className="text-brand-teal font-bold">{ownerInfo.ownerName}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Limit info */}
+        {ownerInfo.isOwner && (
+          <p className="text-zinc-500 text-sm">
+            {team.length}/3 membros • {3 - team.length} vaga{3 - team.length !== 1 ? 's' : ''} disponível{3 - team.length !== 1 ? 'eis' : ''}
+          </p>
+        )}
+
+        {/* Error message */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 flex items-center gap-2 text-red-400 text-sm">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            {error}
+          </div>
+        )}
       </div>
 
+      {/* Team grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto pb-20">
-        {team.map(member => (
+        {team.map((member, index) => (
           <div key={member.id} className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex items-center justify-between group">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700 font-bold text-zinc-400">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center border font-bold ${index === 0 ? 'bg-brand-teal/20 border-brand-teal/50 text-brand-teal' : 'bg-zinc-800 border-zinc-700 text-zinc-400'
+                }`}>
                 {member.avatar || member.name.substring(0, 2).toUpperCase()}
               </div>
               <div>
-                <h3 className="text-white font-bold">{member.name}</h3>
+                <h3 className="text-white font-bold flex items-center gap-2">
+                  {member.name}
+                  {index === 0 && (
+                    <span className="text-[10px] bg-brand-teal/20 text-brand-teal px-2 py-0.5 rounded-full">
+                      Admin
+                    </span>
+                  )}
+                </h3>
                 <p className="text-zinc-500 text-xs">{member.role}</p>
                 <p className="text-zinc-600 text-[10px]">{member.email}</p>
               </div>
             </div>
-            {member.id !== '1' && (
+            {ownerInfo.isOwner && index !== 0 && (
               <button
-                onClick={() => { if (confirm('Remover membro?')) onRemoveMember(member.id); }}
+                onClick={() => handleRemove(member.id)}
                 className="p-2 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
               >
                 <Trash2 className="w-5 h-5" />
@@ -2505,15 +2613,28 @@ const TeamView: React.FC<{
         ))}
       </div>
 
+      {/* Add member modal */}
       {isAdding && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <Card className="w-full max-w-md bg-zinc-950 border-zinc-800">
-            <h3 className="text-xl font-bold text-white mb-4">Adicionar Membro</h3>
+            <h3 className="text-xl font-bold text-white mb-2">Adicionar Membro</h3>
+            <p className="text-zinc-500 text-sm mb-4">
+              O membro poderá acessar a plataforma com o e-mail e senha definidos abaixo.
+            </p>
+
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 flex items-center gap-2 text-red-400 text-sm mb-4">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {error}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase block mb-1">Nome</label>
+                <label className="text-xs font-bold text-zinc-500 uppercase block mb-1">Nome Completo</label>
                 <input
                   required
+                  placeholder="Ex: Maria Silva"
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
                   value={newMember.name}
                   onChange={e => setNewMember({ ...newMember, name: e.target.value })}
@@ -2523,24 +2644,57 @@ const TeamView: React.FC<{
                 <label className="text-xs font-bold text-zinc-500 uppercase block mb-1">Cargo</label>
                 <input
                   required
+                  placeholder="Ex: Social Media"
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
                   value={newMember.role}
                   onChange={e => setNewMember({ ...newMember, role: e.target.value })}
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-zinc-500 uppercase block mb-1">E-mail</label>
+                <label className="text-xs font-bold text-zinc-500 uppercase block mb-1">E-mail de Acesso</label>
                 <input
                   required
                   type="email"
+                  placeholder="membro@email.com"
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
                   value={newMember.email}
                   onChange={e => setNewMember({ ...newMember, email: e.target.value })}
                 />
               </div>
+              <div>
+                <label className="text-xs font-bold text-zinc-500 uppercase block mb-1">
+                  <Lock className="w-3 h-3 inline mr-1" />
+                  Senha de Acesso
+                </label>
+                <input
+                  required
+                  type="password"
+                  minLength={6}
+                  placeholder="Mínimo 6 caracteres"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                  value={newMember.password}
+                  onChange={e => setNewMember({ ...newMember, password: e.target.value })}
+                />
+                <p className="text-zinc-600 text-[10px] mt-1">
+                  O membro usará este e-mail e senha para fazer login.
+                </p>
+              </div>
               <div className="flex justify-end gap-2 mt-6">
-                <Button type="button" variant="ghost" onClick={() => setIsAdding(false)}>Cancelar</Button>
-                <Button type="submit">Salvar</Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setIsAdding(false);
+                    setError(null);
+                    setNewMember({ name: '', role: '', email: '', password: '' });
+                  }}
+                  disabled={isSaving}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isSaving}>
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Adicionar Membro'}
+                </Button>
               </div>
             </form>
           </Card>
@@ -3169,7 +3323,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
               onUpdateProject={handleUpdateProject}
             />
           )}
-          {view === 'TEAM' && <TeamView team={team} onAddMember={handleAddMember} onRemoveMember={handleRemoveMember} />}
+          {view === 'TEAM' && <TeamView currentUser={user} />}
           {view === 'SUBSCRIPTION' && <SubscriptionPage user={user} />}
         </div>
       </main>
