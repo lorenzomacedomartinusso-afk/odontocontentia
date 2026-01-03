@@ -2951,9 +2951,9 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter' && filteredProjects.length > 0) {
-                          setSelectedProject(filteredProjects[0]);
+                        if (e.key === 'Enter') {
                           setIsMobileSearchOpen(false);
+                          // Mantém o searchQuery aplicado no Kanban
                         }
                       }}
                       autoFocus
