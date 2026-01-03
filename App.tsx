@@ -3016,6 +3016,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
                               setSelectedProject(project);
                               setIsMobileSearchOpen(false);
                               setSearchQuery('');
+                              setView('KANBAN');
                             }}
                             className="w-full text-left p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:border-brand-teal/30 transition-colors"
                           >
