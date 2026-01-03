@@ -608,8 +608,12 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
               Começar Teste Grátis
               <ChevronRight className="w-5 h-5" />
             </Button>
-            <Button variant="secondary" onClick={onLogin} className="w-full sm:w-auto hover:bg-zinc-800">
-              <PlayCircle className="w-5 h-5 text-zinc-400" /> Ver Demonstração
+            <Button
+              variant="secondary"
+              onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' })}
+              className="w-full sm:w-auto hover:bg-zinc-800"
+            >
+              <Info className="w-5 h-5 text-zinc-400" /> Como Funciona
             </Button>
           </div>
         </Reveal>
@@ -632,7 +636,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       </section>
 
       {/* SECTION 2: System Explanation (Moved up) */}
-      <section className="py-24 px-4 relative overflow-hidden">
+      <section id="como-funciona" className="py-24 px-4 relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-brand-teal/5 blur-[100px] rounded-full pointer-events-none" />
 
         <div className="max-w-5xl mx-auto relative z-10">
