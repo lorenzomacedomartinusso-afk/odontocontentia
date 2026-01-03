@@ -2975,7 +2975,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
             {/* Mobile Search Modal */}
             {isMobileSearchOpen && (
-              <div className="md:hidden fixed inset-0 z-50 bg-brand-black/95 backdrop-blur-sm flex flex-col p-4">
+              <div className="fixed inset-0 z-[100] bg-brand-black flex flex-col p-4">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="relative flex-1">
                     <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
