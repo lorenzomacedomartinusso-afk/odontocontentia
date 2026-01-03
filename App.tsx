@@ -1683,7 +1683,7 @@ const Wizard: React.FC<{
           </div>
         </div>
       )}
-      <Card className="flex-1 min-h-0 flex flex-col relative overflow-hidden">
+      <div className="flex-1 min-h-0 flex flex-col relative overflow-hidden">
         {loading && (
           <div className="absolute inset-0 bg-brand-surface/95 backdrop-blur-md z-50 flex flex-col items-center justify-center text-center p-4">
             <Loader2 className="w-10 h-10 md:w-12 md:h-12 text-brand-teal animate-spin mb-4" />
@@ -2116,7 +2116,7 @@ const Wizard: React.FC<{
             </div>
           )}
         </div>
-      </Card >
+      </div>
     </div >
   );
 };
