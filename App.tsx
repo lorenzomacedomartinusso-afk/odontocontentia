@@ -1723,7 +1723,7 @@ const Wizard: React.FC<{
                   <div className="flex justify-between items-center mb-4">
                     <p className="text-zinc-400 text-sm uppercase font-bold tracking-wider flex items-center gap-2">
                       <Lightbulb className="w-4 h-4 text-brand-teal" />
-                      Sugestões em Alta
+                      Ideias IA
                     </p>
                     <button
                       onClick={refreshSuggestions}
