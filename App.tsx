@@ -1701,7 +1701,7 @@ const Wizard: React.FC<{
                       <Sparkles className="w-5 h-5 md:w-5 md:h-5 text-brand-teal" />
                     </div>
                     {/* Responsive Text Size: Base xl (Small Phones), 2xl (Min 350px), 3xl (Regular), 5xl (Desktop) */}
-                    <h2 className="text-xl min-[350px]:text-2xl min-[400px]:text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight md:whitespace-nowrap text-center md:text-left tracking-tighter md:tracking-normal w-full md:w-auto px-1">
+                    <h2 className="text-2xl min-[350px]:text-3xl min-[400px]:text-4xl sm:text-4xl md:text-5xl font-bold text-white leading-tight md:whitespace-nowrap text-center md:text-left tracking-tighter md:tracking-normal w-full md:w-auto px-1">
                       Gerador de Narrativas<br className="block md:hidden" /> Magnéticas
                     </h2>
                   </div>
@@ -2912,7 +2912,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full pb-20 z-10">
-        <header className="h-20 border-b border-zinc-800 flex items-center justify-between px-4 md:px-8 bg-brand-black/50 backdrop-blur-md z-30 shrink-0">
+        <header className="h-20 border-b border-zinc-800 flex items-center justify-between px-4 md:px-8 bg-brand-black md:bg-brand-black/50 md:backdrop-blur-md z-30 shrink-0">
           <div className="flex items-center gap-3">
             <button onClick={() => setView('CREATE')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <Sparkles className="w-7 h-7 md:w-9 md:h-9 text-brand-teal shrink-0" />
