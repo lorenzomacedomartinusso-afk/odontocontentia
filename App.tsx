@@ -2931,13 +2931,71 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
               />
             </div>
 
-            {/* Mobile: Apenas ícone de lupa */}
+            {/* Mobile: Ícone de lupa que abre modal */}
             <button
               className="md:hidden w-9 h-9 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 hover:border-brand-teal transition-colors"
-              onClick={() => setView('CREATE')}
+              onClick={() => setIsMobileSearchOpen(true)}
             >
               <Search className="w-4 h-4 text-zinc-400" />
             </button>
+
+            {/* Mobile Search Modal */}
+            {isMobileSearchOpen && (
+              <div className="md:hidden fixed inset-0 z-50 bg-brand-black/95 backdrop-blur-sm flex flex-col p-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Buscar projetos..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      autoFocus
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-3 text-white focus:border-brand-teal outline-none"
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      setIsMobileSearchOpen(false);
+                    }}
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Resultados da busca */}
+                <div className="flex-1 overflow-y-auto">
+                  {searchQuery ? (
+                    filteredProjects.length > 0 ? (
+                      <div className="space-y-2">
+                        {filteredProjects.slice(0, 10).map(project => (
+                          <button
+                            key={project.id}
+                            onClick={() => {
+                              setSelectedProject(project);
+                              setIsMobileSearchOpen(false);
+                            }}
+                            className="w-full text-left p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:border-brand-teal/30 transition-colors"
+                          >
+                            <p className="text-white font-medium truncate">{project.topic}</p>
+                            <p className="text-zinc-500 text-sm truncate">{project.selectedHeadline || 'Sem headline'}</p>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-zinc-500">
+                        Nenhum projeto encontrado
+                      </div>
+                    )
+                  ) : (
+                    <div className="text-center py-8 text-zinc-500">
+                      Digite para buscar seus projetos
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="flex items-center gap-3 pl-2 border-l border-zinc-800 relative">
               <div className="hidden md:block text-right">
