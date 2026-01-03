@@ -2918,14 +2918,23 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
           </div>
           <div className="flex gap-2 items-center">
             <div className="relative">
-              <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
+              <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5 md:block" />
               <input
                 type="text"
                 placeholder="Buscar..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:border-brand-teal outline-none w-24 md:w-64 transition-all focus:w-40 md:focus:w-72"
+                className="hidden md:block bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:border-brand-teal outline-none w-64 transition-all focus:w-72"
               />
+              <button
+                className="md:hidden w-9 h-9 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 hover:border-brand-teal transition-colors"
+                onClick={() => {
+                  const query = prompt('Buscar projeto:');
+                  if (query !== null) setSearchQuery(query);
+                }}
+              >
+                <Search className="w-4 h-4 text-zinc-400" />
+              </button>
             </div>
 
             <div className="flex items-center gap-3 pl-2 border-l border-zinc-800 relative">
@@ -2936,11 +2945,9 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
               <button
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700 hover:border-brand-teal transition-colors focus:outline-none focus:ring-2 focus:ring-brand-teal/50"
+                className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700 hover:border-brand-teal transition-colors focus:outline-none focus:ring-2 focus:ring-brand-teal/50"
               >
-                <span className="text-xs font-bold text-white">
-                  {user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                </span>
+                <Settings className="w-4 h-4 text-zinc-400" />
               </button>
 
               {isProfileMenuOpen && (
