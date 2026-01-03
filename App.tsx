@@ -645,7 +645,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
               <Reveal direction="left">
                 <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
                   Um redator sênior <br />
-                  <span className="text-zinc-500">que estudou odontologia.</span>
+                  <span className="text-sky-500">que estudou odontologia.</span>
                 </h2>
                 <div className="space-y-6">
                   <p className="text-zinc-400 text-lg leading-relaxed">
