@@ -2917,25 +2917,28 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
             </button>
           </div>
           <div className="flex gap-2 items-center">
-            <div className="relative">
-              <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5 md:block" />
+            {/* Desktop: Input de busca completo */}
+            <div className="relative hidden md:block">
+              <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
               <input
                 type="text"
                 placeholder="Buscar..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="hidden md:block bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:border-brand-teal outline-none w-64 transition-all focus:w-72"
+                className="bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:border-brand-teal outline-none w-64 transition-all focus:w-72"
               />
-              <button
-                className="md:hidden w-9 h-9 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 hover:border-brand-teal transition-colors"
-                onClick={() => {
-                  const query = prompt('Buscar projeto:');
-                  if (query !== null) setSearchQuery(query);
-                }}
-              >
-                <Search className="w-4 h-4 text-zinc-400" />
-              </button>
             </div>
+
+            {/* Mobile: Apenas ícone de lupa */}
+            <button
+              className="md:hidden w-9 h-9 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 hover:border-brand-teal transition-colors"
+              onClick={() => {
+                const query = prompt('Buscar projeto:');
+                if (query !== null) setSearchQuery(query);
+              }}
+            >
+              <Search className="w-4 h-4 text-zinc-400" />
+            </button>
 
             <div className="flex items-center gap-3 pl-2 border-l border-zinc-800 relative">
               <div className="hidden md:block text-right">
