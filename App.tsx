@@ -2973,75 +2973,6 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
               <Search className="w-4 h-4 text-zinc-400" />
             </button>
 
-            {/* Mobile Search Modal */}
-            {isMobileSearchOpen && (
-              <div className="fixed inset-0 z-[100] bg-brand-black flex flex-col p-4">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="relative flex-1">
-                    <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      placeholder="Buscar projetos..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          setIsMobileSearchOpen(false);
-                          // Mantém o searchQuery aplicado no Kanban
-                        }
-                      }}
-                      autoFocus
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-3 text-white focus:border-brand-teal outline-none"
-                    />
-                  </div>
-                  <button
-                    onClick={() => {
-                      setIsMobileSearchOpen(false);
-                    }}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                {/* Resultados da busca */}
-                <div className="flex-1 overflow-y-auto">
-                  {searchQuery ? (
-                    filteredProjects.length > 0 ? (
-                      <div className="space-y-2">
-                        <p className="text-xs text-zinc-500 mb-3">{filteredProjects.length} resultado(s) encontrado(s)</p>
-                        {filteredProjects.slice(0, 10).map(project => (
-                          <button
-                            key={project.id}
-                            onClick={() => {
-                              setSelectedProject(project);
-                              setIsMobileSearchOpen(false);
-                              setSearchQuery('');
-                              setView('KANBAN');
-                            }}
-                            className="w-full text-left p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:border-brand-teal/30 transition-colors"
-                          >
-                            <p className="text-white font-medium truncate">{project.topic}</p>
-                            <p className="text-zinc-500 text-sm truncate">{project.selectedHeadline || 'Sem headline'}</p>
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 text-zinc-500">
-                        <p>Nenhum projeto encontrado para "{searchQuery}"</p>
-                        <p className="text-xs mt-2">Você tem {projects.length} projeto(s) no total</p>
-                      </div>
-                    )
-                  ) : (
-                    <div className="text-center py-8 text-zinc-500">
-                      <p>Digite para buscar seus projetos</p>
-                      <p className="text-xs mt-2">Você tem {projects.length} projeto(s)</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
             <div className="flex items-center gap-3 pl-2 border-l border-zinc-800 relative">
               <div className="hidden md:block text-right">
                 <p className="text-xs font-bold text-white">{user.name}</p>
@@ -3096,6 +3027,78 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
             </div>
           </div>
         </header>
+
+        {/* Mobile Search Modal - Outside header for proper full-screen coverage */}
+        {isMobileSearchOpen && (
+          <div className="md:hidden fixed inset-0 z-[100] bg-brand-black flex flex-col p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Buscar projetos..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && filteredProjects.length > 0) {
+                      setSelectedProject(filteredProjects[0]);
+                      setIsMobileSearchOpen(false);
+                      setSearchQuery('');
+                      setView('KANBAN');
+                    }
+                  }}
+                  autoFocus
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-3 text-white focus:border-brand-teal outline-none"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  setIsMobileSearchOpen(false);
+                  setSearchQuery('');
+                }}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Resultados da busca */}
+            <div className="flex-1 overflow-y-auto">
+              {searchQuery ? (
+                filteredProjects.length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-xs text-zinc-500 mb-3">{filteredProjects.length} resultado(s) encontrado(s)</p>
+                    {filteredProjects.slice(0, 10).map(project => (
+                      <button
+                        key={project.id}
+                        onClick={() => {
+                          setSelectedProject(project);
+                          setIsMobileSearchOpen(false);
+                          setSearchQuery('');
+                          setView('KANBAN');
+                        }}
+                        className="w-full text-left p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:border-brand-teal/30 transition-colors"
+                      >
+                        <p className="text-white font-medium truncate">{project.topic}</p>
+                        <p className="text-zinc-500 text-sm truncate">{project.selectedHeadline || 'Sem headline'}</p>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-zinc-500">
+                    <p>Nenhum projeto encontrado para "{searchQuery}"</p>
+                    <p className="text-xs mt-2">Você tem {projects.length} projeto(s) no total</p>
+                  </div>
+                )
+              ) : (
+                <div className="text-center py-8 text-zinc-500">
+                  <p>Digite para buscar seus projetos</p>
+                  <p className="text-xs mt-2">Você tem {projects.length} projeto(s)</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="flex-1 overflow-hidden p-4 md:p-6 relative">
           {view === 'CREATE' && (
