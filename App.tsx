@@ -239,6 +239,10 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [cro, setCro] = useState('');
+  const [specialty, setSpecialty] = useState('');
+  const [clinicName, setClinicName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -254,6 +258,14 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              name: fullName,
+              cro,
+              specialty,
+              clinicName
+            }
+          }
         });
         if (error) throw error;
         // Auto login after signup if session exists, or notify to check email
@@ -311,6 +323,59 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
         {error && <div className="bg-red-500/10 text-red-500 text-sm p-3 rounded-lg mb-4 text-center">{error}</div>}
 
         <form onSubmit={handleAuth} className="space-y-4">
+          {mode === 'signup' && (
+            <>
+              <div>
+                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">Nome Completo</label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                  placeholder="Seu nome"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">CRO</label>
+                  <input
+                    type="text"
+                    value={cro}
+                    onChange={e => setCro(e.target.value)}
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                    placeholder="12345-UF"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">Especialidade</label>
+                  <input
+                    type="text"
+                    value={specialty}
+                    onChange={e => setSpecialty(e.target.value)}
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                    placeholder="Ex: Ortodontia"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">Nome da Clínica</label>
+                <input
+                  type="text"
+                  value={clinicName}
+                  onChange={e => setClinicName(e.target.value)}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                  placeholder="Sua Clínica"
+                  required
+                />
+              </div>
+            </>
+          )}
+
           <div>
             <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">E-mail</label>
             <input
