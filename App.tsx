@@ -595,14 +595,14 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       {/* SECTION 1: HERO */}
       <section className="flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto mb-20 md:mb-32 pt-2 md:pt-10">
         <Reveal delay={100}>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-brand-teal/5 border border-brand-teal/20 text-brand-teal mt-2 mb-2 md:mt-0 md:mb-8 shadow-[0_0_20px_-10px_rgba(45,212,191,0.3)]">
+          <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-brand-teal/5 border border-brand-teal/20 text-brand-teal mt-2 mb-2 md:mt-0 md:mb-8 shadow-[0_0_20px_-10px_rgba(45,212,191,0.3)]">
             <ShieldCheck className="w-3 h-3 md:w-4 md:h-4" />
             <span className="text-xs md:text-sm font-medium">100% Compatível com Normas do CFO</span>
           </div>
         </Reveal>
 
         <Reveal delay={200}>
-          <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6 text-white leading-tight tracking-tight">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4 md:mb-6 text-white leading-tight tracking-tighter">
             Vire referência na <br />
             <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent">Odontologia.</span>
           </h1>
@@ -616,14 +616,14 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
         <Reveal delay={400}>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0">
-            <Button onClick={onLogin} variant="gradient" className="text-base md:text-lg px-8 w-full sm:w-auto transform hover:scale-105 transition-transform duration-200">
+            <Button onClick={onLogin} variant="gradient" className="text-lg md:text-lg py-4 md:py-3 px-8 w-full sm:w-auto transform hover:scale-105 transition-transform duration-200">
               Começar Teste Grátis
               <ChevronRight className="w-5 h-5" />
             </Button>
             <Button
               variant="secondary"
               onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' })}
-              className="w-full sm:w-auto hover:bg-zinc-800"
+              className="w-full sm:w-auto hover:bg-zinc-800 text-lg py-4 md:py-3"
             >
               <Info className="w-5 h-5 text-zinc-400" /> Como Funciona
             </Button>
