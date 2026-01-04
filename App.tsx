@@ -1065,7 +1065,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
                   <div className="p-8 pt-16 md:pt-8 md:p-10 md:w-[30%] md:border-r border-zinc-800/50">
                     <p className="text-zinc-500 text-sm font-medium mb-2">Plano Pro Odonto</p>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-4xl md:text-5xl font-bold text-white">R$ 34,90</span>
+                      <span className="text-4xl md:text-5xl font-bold text-white">R$ 29,90</span>
                       <span className="text-zinc-500 font-medium">/mês</span>
                     </div>
                   </div>
