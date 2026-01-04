@@ -3174,8 +3174,8 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
             <div className="flex items-center gap-3 pl-2 border-l border-zinc-800 relative">
               <div className="hidden md:block text-right">
-                <p className="text-xs font-bold text-white">{user.name}</p>
-                <p className="text-[10px] text-zinc-500">{user.role}</p>
+                <p className="text-xs font-bold text-white max-w-[150px] truncate">{user.name}</p>
+                <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{user.specialty || user.role}</p>
               </div>
 
               <button
@@ -3194,7 +3194,7 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
                   <div className="absolute top-12 right-0 w-56 bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl z-50 p-2 animate-fade-in flex flex-col gap-1">
                     <div className="px-3 py-2 border-b border-zinc-800 mb-1 md:hidden">
                       <p className="text-sm font-bold text-white truncate">{user.name}</p>
-                      <p className="text-xs text-zinc-500 truncate">{user.role}</p>
+                      <p className="text-xs text-zinc-500 truncate">{user.specialty || user.role}</p>
                     </div>
                     <button
                       onClick={() => {
@@ -3445,9 +3445,11 @@ const App: React.FC = () => {
       if (session?.user) {
         setUser({
           id: session.user.id,
-          name: session.user.email?.split('@')[0] || 'Usuário',
-          role: 'DENTISTA_DONO',
-          email: session.user.email || ''
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário',
+          role: session.user.user_metadata?.role || 'DENTISTA_DONO',
+          email: session.user.email || '',
+          specialty: session.user.user_metadata?.specialty || '',
+          cro: session.user.user_metadata?.cro || ''
         });
         loadSubscriptionInfo(session.user.id);
       } else {
@@ -3462,9 +3464,11 @@ const App: React.FC = () => {
       if (session?.user) {
         setUser({
           id: session.user.id,
-          name: session.user.email?.split('@')[0] || 'Usuário',
-          role: 'DENTISTA_DONO',
-          email: session.user.email || ''
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário',
+          role: session.user.user_metadata?.role || 'DENTISTA_DONO',
+          email: session.user.email || '',
+          specialty: session.user.user_metadata?.specialty || '',
+          cro: session.user.user_metadata?.cro || ''
         });
         loadSubscriptionInfo(session.user.id);
       } else {
