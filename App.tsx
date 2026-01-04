@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Sparkles, LayoutDashboard, LogOut, Plus, Search, Calendar as CalendarIcon, ClipboardList, CheckCircle2, PlayCircle, Share2, FileText, Copy, ShieldCheck, ChevronRight, User as UserIcon, Loader2, X, Users, AlertCircle, Check, RefreshCw, Lightbulb, Edit2, Save, RotateCcw, Pencil, Trash2, ChevronLeft, CalendarDays, Mail, Settings, Building2, Bell, Lock, GripVertical, Clock, TrendingUp, Target, BarChart3, Star, Quote, Info, MessageCircle } from 'lucide-react';
+import { Sparkles, LayoutDashboard, LogOut, Plus, Search, Calendar as CalendarIcon, ClipboardList, CheckCircle2, PlayCircle, Share2, FileText, Copy, ShieldCheck, ChevronRight, User as UserIcon, Loader2, X, Users, AlertCircle, Check, RefreshCw, Lightbulb, Edit2, Save, RotateCcw, Pencil, Trash2, ChevronLeft, CalendarDays, Mail, Settings, Building2, Bell, Lock, GripVertical, Clock, TrendingUp, Target, BarChart3, Star, Quote, Info, MessageCircle, LogIn, ArrowLeft, MoreVertical } from 'lucide-react';
 import { Project, ContentStatus, WizardStep, NarrativeStructure, FinalAssets, User } from './types';
 import * as GeminiService from './services/geminiService';
 import { projectService } from './services/projectService';
@@ -635,9 +635,10 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
       </div>
       <button
         onClick={onLogin}
-        className="px-3 py-1.5 md:px-7 md:py-2.5 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-xs md:text-base font-medium hover:scale-105 active:scale-95"
+        className="px-3 py-1.5 md:px-7 md:py-2.5 rounded-full border border-brand-teal/30 text-brand-teal hover:bg-brand-teal/5 hover:border-brand-teal/50 transition-all duration-300 text-xs md:text-base font-medium hover:scale-105 active:scale-95 flex items-center gap-2"
       >
-        Entrar
+        <LogIn className="w-4 h-4 md:w-5 md:h-5" />
+        Acesso
       </button>
     </header>
 
