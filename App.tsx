@@ -242,7 +242,6 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
   const [fullName, setFullName] = useState('');
   const [cro, setCro] = useState('');
   const [specialty, setSpecialty] = useState('');
-  const [clinicName, setClinicName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -262,8 +261,7 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
             data: {
               name: fullName,
               cro,
-              specialty,
-              clinicName
+              specialty
             }
           }
         });
@@ -360,18 +358,6 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
                     required
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">Nome da Clínica</label>
-                <input
-                  type="text"
-                  value={clinicName}
-                  onChange={e => setClinicName(e.target.value)}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
-                  placeholder="Sua Clínica"
-                  required
-                />
               </div>
             </>
           )}
@@ -1376,7 +1362,6 @@ const SettingsView: React.FC<{ user: User; onBack: () => void }> = ({ user, onBa
     email: user.email,
     cro: '12345-SP',
     specialty: 'Implantodontia',
-    clinicName: 'Clínica Sorriso Modelo',
     notifications: true
   });
 
@@ -1449,23 +1434,7 @@ const SettingsView: React.FC<{ user: User; onBack: () => void }> = ({ user, onBa
           </div>
         </Card>
 
-        {/* Clinic Info */}
-        <Card>
-          <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-brand-teal" /> Dados da Clínica
-          </h3>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-zinc-500 uppercase">Nome da Clínica / Consultório</label>
-              <input
-                type="text"
-                value={formData.clinicName}
-                onChange={(e) => setFormData({ ...formData, clinicName: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-brand-teal focus:outline-none transition-colors"
-              />
-            </div>
-          </div>
-        </Card>
+
 
         {/* Preferences */}
         <Card>

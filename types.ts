@@ -35,7 +35,6 @@ export interface User {
   avatar?: string; // Iniciais ou URL
   cro?: string;
   specialty?: string;
-  clinicName?: string;
 }
 
 export enum WizardStep {
