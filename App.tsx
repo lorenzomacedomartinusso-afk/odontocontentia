@@ -655,8 +655,8 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
         <Reveal delay={200}>
           <h1 className="text-[2.5rem] leading-[1.1] md:text-7xl font-bold mb-4 md:mb-6 text-white tracking-tighter">
-            Vire referência na <br />
-            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent">Odontologia.</span>
+            Não seja apenas um dentista. Seja uma <br />
+            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent">Referência Absoluta.</span>
           </h1>
         </Reveal>
 
@@ -742,13 +742,12 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <Reveal>
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-                Um sistema de criação de <br />
-                conteúdo especializado para <span className="text-brand-teal">atrair pacientes.</span>
+                A inteligência que traduz Odontologia para a <span className="text-brand-teal">linguagem do desejo.</span>
               </h2>
             </Reveal>
             <Reveal delay={200}>
               <p className="text-zinc-400 text-lg leading-relaxed">
-                A maioria dos dentistas cria conteúdo para impressionar outros dentistas — linguagem técnica, posts engessados e distantes da realidade. A OdontoContent ajuda você a falar a língua de quem compra.
+                Não é apenas um gerador de textos. É um sistema que entende a anatomia da venda. Você escolhe o tema, e nós entregamos a estrutura psicológica completa para atrair o paciente que paga.
               </p>
             </Reveal>
           </div>
@@ -776,10 +775,10 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
           <div className="text-center mb-16">
             <Reveal>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Crie, organize e publique conteúdos Odontológicos que geram resultado
+                Crie, organize e publique conteúdos Odontológicos que <span className="text-brand-teal">geram tratamentos</span>
               </h2>
               <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-                Organize seu conteúdo com visualizações em Kanban ou Calendário, tudo integrado ao processo de criação com Inteligência Artificial.
+                O OdontoContent elimina a fadiga de decisão. Planeje um mês inteiro de conteúdo em menos tempo do que você leva para fazer uma profilaxia. Do roteiro à legenda, tudo pronto para postar.
               </p>
             </Reveal>
           </div>
@@ -849,7 +848,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <Reveal>
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Roteiros que prendem até o fim.</h2>
+              <h2 className="text-3xl md:text-5xl font-bold text-brand-teal mb-6">A diferença entre um post que 'curtem' e um vídeo que 'agendam'.</h2>
               <p className="text-zinc-400 text-base md:text-lg leading-relaxed max-w-4xl mx-auto">
                 A metodologia da Odontocontent combina arquitetura narrativa jornalística, análise cultural e engenharia de engajamento para transformar qualquer ideia em um mini-documentário em formato de carrossel.
               </p>
