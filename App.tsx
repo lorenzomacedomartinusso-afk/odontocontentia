@@ -602,7 +602,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         </Reveal>
 
         <Reveal delay={200}>
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 md:mb-6 text-white leading-tight tracking-tighter">
+          <h1 className="text-[2.5rem] leading-[1.1] md:text-7xl font-bold mb-4 md:mb-6 text-white tracking-tighter">
             Vire referência na <br />
             <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent">Odontologia.</span>
           </h1>
@@ -616,14 +616,14 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
         <Reveal delay={400}>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0">
-            <Button onClick={onLogin} variant="gradient" className="text-lg md:text-lg py-4 md:py-3 px-8 w-full sm:w-auto transform hover:scale-105 transition-transform duration-200">
+            <Button onClick={onLogin} variant="gradient" className="text-base md:text-lg py-3.5 md:py-3 px-8 w-full sm:w-auto transform hover:scale-105 transition-transform duration-200">
               Começar Teste Grátis
               <ChevronRight className="w-5 h-5" />
             </Button>
             <Button
               variant="secondary"
               onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' })}
-              className="w-full sm:w-auto hover:bg-zinc-800 text-lg py-4 md:py-3"
+              className="w-full sm:w-auto hover:bg-zinc-800 text-base py-3.5 md:py-3"
             >
               <Info className="w-5 h-5 text-zinc-400" /> Como Funciona
             </Button>
