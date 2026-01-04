@@ -2004,8 +2004,8 @@ const Wizard: React.FC<{
                     <button
                       onClick={() => setSelectedFormat('reels')}
                       className={`flex-1 max-w-[200px] flex items-center justify-center gap-3 p-4 rounded-xl border-2 transition-all ${selectedFormat === 'reels'
-                        ? 'border-brand-teal bg-brand-teal/10 text-brand-teal'
-                        : 'border-zinc-700 text-zinc-400 hover:border-zinc-600 hover:text-white'
+                        ? 'border-blue-500 bg-blue-500/10 text-blue-500 shadow-[0_0_20px_-5px_rgba(59,130,246,0.3)]'
+                        : 'border-zinc-700 text-zinc-400 hover:border-blue-500/50 hover:text-blue-500/80'
                         }`}
                     >
                       <PlayCircle className="w-6 h-6" />
@@ -2014,8 +2014,8 @@ const Wizard: React.FC<{
                     <button
                       onClick={() => setSelectedFormat('carousel')}
                       className={`flex-1 max-w-[200px] flex items-center justify-center gap-3 p-4 rounded-xl border-2 transition-all ${selectedFormat === 'carousel'
-                        ? 'border-brand-teal bg-brand-teal/10 text-brand-teal'
-                        : 'border-zinc-700 text-zinc-400 hover:border-zinc-600 hover:text-white'
+                        ? 'border-orange-500 bg-orange-500/10 text-orange-500 shadow-[0_0_20px_-5px_rgba(249,115,22,0.3)]'
+                        : 'border-zinc-700 text-zinc-400 hover:border-orange-500/50 hover:text-orange-500/80'
                         }`}
                     >
                       <ClipboardList className="w-6 h-6" />
