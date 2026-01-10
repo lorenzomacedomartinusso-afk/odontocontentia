@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Tooth outline based on generic molar shape -->
+  <path d="M7 21c.5-2.5 0-5.5-2-7-1.5-1-3-3-3-5a6 6 0 0 1 12 0c0 2-1.5 4-3 5-2 1.5-2.5 4.5-2 7h0Z" />
+  
+  <!-- Cursor/Pointer inside (approximated position based on user image) -->
+  <path d="M12 11l2.5 7.5L16 17l4 4 1.5-1.5-4-4 3-1.5Z" fill="#2DD4BF" stroke="none" />
+  <!-- Adding stroke to cursor manually if needed or keeping it solid fill as per image style. 
+       User wanted thick strokes. The image shows an outline tooth but solid cursor? 
+       Let's look at Step 99 image again. 
+       Tooth is OUTLINE. Cursor is SOLID FILL with OUTLINE? Or just OUTLINE?
+       It looks like the cursor is an outline in the previous image (Step 48), effectively.
+       But in the user's reference (Step 99) it looks like a filled cursor or thick outline.
+       Let's make it an OUTLINE cursor to match the style of the tooth. -->
+       
+  <!-- Cursor Outline replacement -->
+  <path d="M11 9l2 7l1.5-1.5l3.5 3.5l1.5-1.5l-3.5-3.5l1.5-1.5Z" />
+</svg>
