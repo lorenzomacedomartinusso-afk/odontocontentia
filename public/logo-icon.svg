@@ -1,17 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Tooth outline based on generic molar shape -->
-  <path d="M7 21c.5-2.5 0-5.5-2-7-1.5-1-3-3-3-5a6 6 0 0 1 12 0c0 2-1.5 4-3 5-2 1.5-2.5 4.5-2 7h0Z" />
-  
-  <!-- Cursor/Pointer inside (approximated position based on user image) -->
-  <path d="M12 11l2.5 7.5L16 17l4 4 1.5-1.5-4-4 3-1.5Z" fill="#2DD4BF" stroke="none" />
-  <!-- Adding stroke to cursor manually if needed or keeping it solid fill as per image style. 
-       User wanted thick strokes. The image shows an outline tooth but solid cursor? 
-       Let's look at Step 99 image again. 
-       Tooth is OUTLINE. Cursor is SOLID FILL with OUTLINE? Or just OUTLINE?
-       It looks like the cursor is an outline in the previous image (Step 48), effectively.
-       But in the user's reference (Step 99) it looks like a filled cursor or thick outline.
-       Let's make it an OUTLINE cursor to match the style of the tooth. -->
-       
-  <!-- Cursor Outline replacement -->
-  <path d="M11 9l2 7l1.5-1.5l3.5 3.5l1.5-1.5l-3.5-3.5l1.5-1.5Z" />
+<svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2dd4bf;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#34d399;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Tooth outline -->
+  <path d="M9.19807 4.45825C8.55418 4.22291 7.94427 4 7 4C5 4 4 6 4 8.5C4 10.0985 4.40885 11.0838 4.83441 12.1093C5.0744 12.6877 5.31971 13.2788 5.5 14C5.649 14.596 5.7092 15.4584 5.77321 16.3755C5.92401 18.536 6.096 21 7.5 21C8.39898 21 8.79286 19.5857 9.22652 18.0286C9.75765 16.1214 10.3485 14 12 14C13.6515 14 14.2423 16.1214 14.7735 18.0286C15.2071 19.5857 15.601 21 16.5 21C17.904 21 18.076 18.536 18.2268 16.3755C18.2908 15.4584 18.351 14.596 18.5 14C18.6803 13.2788 18.9256 12.6877 19.1656 12.1093C19.5912 11.0838 20 10.0985 20 8.5C20 6 19 4 17 4C16.0557 4 15.4458 4.22291 14.8019 4.45825C14.082 4.72136 13.3197 5 12 5C10.6803 5 9.91796 4.72136 9.19807 4.45825Z" stroke="url(#tealGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Cursor pointer -->
+  <path d="M10 8L10 15L12 13L14 17L15.5 16L13.5 12L16 12L10 8Z" fill="url(#tealGradient)" stroke="url(#tealGradient)" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
