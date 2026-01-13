@@ -296,11 +296,25 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
         'Email not confirmed': 'E-mail não confirmado. Verifique sua caixa de entrada.',
         'User already registered': 'Este e-mail já está cadastrado.',
         'Password should be at least 6 characters': 'A senha deve ter pelo menos 6 caracteres.',
+        'Password should be at least 6 characters.': 'A senha deve ter pelo menos 6 caracteres.',
         'Signup requires a valid password': 'A senha é obrigatória.',
         'To signup, please provide your email': 'O e-mail é obrigatório.',
         'Email rate limit exceeded': 'Muitas tentativas. Aguarde alguns minutos.',
       };
-      setError(translations[errorMessage] || errorMessage);
+
+      // Check for exact match first, then check for partial matches
+      let translatedError = translations[errorMessage];
+      if (!translatedError) {
+        // Check for partial matches
+        if (errorMessage.toLowerCase().includes('password') && errorMessage.toLowerCase().includes('6')) {
+          translatedError = 'A senha deve ter pelo menos 6 caracteres.';
+        } else if (errorMessage.toLowerCase().includes('invalid') && errorMessage.toLowerCase().includes('credentials')) {
+          translatedError = 'E-mail ou senha incorretos.';
+        } else {
+          translatedError = errorMessage;
+        }
+      }
+      setError(translatedError);
     } finally {
       setLoading(false);
     }
