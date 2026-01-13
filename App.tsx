@@ -3291,6 +3291,15 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
                     >
                       <Sparkles className="w-4 h-4" /> Assinatura
                     </button>
+                    <a
+                      href="https://wa.me/5511991117171?text=Olá! Preciso de ajuda com o OdontoContent IA"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-lg flex items-center gap-2 transition-colors"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      <MessageCircle className="w-4 h-4" /> Suporte
+                    </a>
                     <button
                       onClick={onLogout}
                       className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg flex items-center gap-2 transition-colors"
