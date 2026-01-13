@@ -1808,7 +1808,7 @@ const Wizard: React.FC<{
       )}
       <div className="flex-1 min-h-0 flex flex-col relative overflow-hidden">
         {loading && (
-          <div className="fixed inset-0 z-50 flex flex-col items-center justify-center text-center p-4 bg-black/60 backdrop-blur-md">
+          <div className="fixed top-20 left-0 right-0 bottom-0 z-50 flex flex-col items-center justify-center text-center p-4 bg-black/60 backdrop-blur-md">
             <Loader2 className="w-12 h-12 md:w-14 md:h-14 text-brand-teal animate-spin mb-4" />
             <p className="text-brand-teal font-medium animate-pulse text-base md:text-lg">Consultando base de conhecimento clínico...</p>
           </div>
