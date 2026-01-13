@@ -707,7 +707,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
     <header className="flex justify-between items-center p-4 md:px-20 lg:px-28 md:py-8 w-full z-10 relative">
       <div className="flex items-center gap-2">
-        <Sparkles className="w-10 h-10 md:w-12 md:h-12 text-brand-teal shrink-0" />
+        <Sparkles className="w-8 h-8 md:w-10 md:h-10 text-brand-teal shrink-0" />
         <span className="text-2xl md:text-[1.7rem] font-bold tracking-tight text-white whitespace-nowrap"><span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">Odonto</span>Content <span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">IA</span></span>
       </div>
       <button
