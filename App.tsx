@@ -1139,7 +1139,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
                   {/* Column 1: Price */}
                   <div className="p-8 pt-16 md:pt-8 md:p-10 md:w-[30%] md:border-r border-zinc-800/50">
-                    <p className="text-zinc-500 text-sm font-medium mb-2">Plano Pro Odonto</p>
+                    <p className="text-zinc-500 text-sm font-medium mb-2">Plano Odontocontentia Pro</p>
                     <div className="flex items-baseline gap-1">
                       <span className="text-4xl md:text-5xl font-bold text-white">R$ 29,90</span>
                       <span className="text-zinc-500 font-medium">/mês</span>
@@ -2893,7 +2893,7 @@ const SubscriptionPage: React.FC<{ user: User }> = ({ user }) => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-bold text-white mb-2">
-                {isSubscriber ? 'Plano Premium Ativo' : 'Plano Gratuito'}
+                {isSubscriber ? 'Plano Pro Ativo' : 'Plano Gratuito'}
               </h2>
               <p className="text-zinc-400 text-sm">
                 {isSubscriber
@@ -2956,7 +2956,7 @@ const SubscriptionPage: React.FC<{ user: User }> = ({ user }) => {
         <div className="p-6">
           <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
             <Star className="w-5 h-5 text-brand-teal" />
-            O que você ganha com o Premium
+            O que você ganha com o Pro
           </h3>
           <div className="grid gap-3">
             {[
