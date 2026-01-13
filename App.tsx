@@ -245,6 +245,8 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showLoginSuccess, setShowLoginSuccess] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState<any>(null);
 
   if (!isOpen) return null;
 
@@ -286,8 +288,13 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
         });
         if (error) throw error;
         if (data.session) {
-          onSuccess(data.user);
-          onClose();
+          // Show success animation before closing
+          setLoggedInUser(data.user);
+          setShowLoginSuccess(true);
+          setTimeout(() => {
+            onSuccess(data.user);
+            onClose();
+          }, 1500); // 1.5s animation delay
         }
       }
     } catch (err: any) {
@@ -324,100 +331,139 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-zinc-900 border border-zinc-700 p-6 rounded-2xl w-full max-w-sm shadow-2xl relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white"><X className="w-5 h-5" /></button>
+      <div className={`bg-zinc-900 border border-zinc-700 p-6 rounded-2xl w-full max-w-sm shadow-2xl relative transition-all duration-500 ${showLoginSuccess ? 'scale-105' : ''}`}>
+        {!showLoginSuccess && <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white"><X className="w-5 h-5" /></button>}
 
-        <div className="text-center mb-6">
-          <div className="w-12 h-12 bg-brand-teal/20 rounded-full flex items-center justify-center mx-auto mb-3 text-brand-teal">
-            <UserIcon className="w-6 h-6" />
+        {showLoginSuccess ? (
+          /* Success Animation Screen */
+          <div className="text-center py-8 animate-fade-in">
+            <style>{`
+              @keyframes checkmark-draw {
+                0% { stroke-dashoffset: 50; }
+                100% { stroke-dashoffset: 0; }
+              }
+              @keyframes circle-grow {
+                0% { transform: scale(0); opacity: 0; }
+                50% { transform: scale(1.1); }
+                100% { transform: scale(1); opacity: 1; }
+              }
+              @keyframes pulse-glow {
+                0%, 100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.4); }
+                50% { box-shadow: 0 0 0 20px rgba(45, 212, 191, 0); }
+              }
+              .success-circle {
+                animation: circle-grow 0.4s ease-out forwards, pulse-glow 1s ease-in-out 0.4s;
+              }
+              .success-check {
+                stroke-dasharray: 50;
+                stroke-dashoffset: 50;
+                animation: checkmark-draw 0.4s ease-out 0.3s forwards;
+              }
+            `}</style>
+            <div className="w-20 h-20 bg-gradient-to-br from-brand-teal to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 success-circle">
+              <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" className="success-check" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">Bem-vindo!</h2>
+            <p className="text-zinc-400 text-sm">Entrando no sistema...</p>
           </div>
-          <h2 className="text-xl font-bold text-white">{mode === 'login' ? 'Área do Cliente' : 'Novo Cadastro'}</h2>
-        </div>
+        ) : (
+          /* Normal Login/Signup Form */
+          <>
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-brand-teal/20 rounded-full flex items-center justify-center mx-auto mb-3 text-brand-teal">
+                <UserIcon className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl font-bold text-white">{mode === 'login' ? 'Área do Cliente' : 'Novo Cadastro'}</h2>
+            </div>
 
-        {error && <div className="bg-red-500/10 text-red-500 text-sm p-3 rounded-lg mb-4 text-center">{error}</div>}
-        {successMessage && <div className="bg-emerald-500/10 text-emerald-500 text-sm p-3 rounded-lg mb-4 text-center">{successMessage}</div>}
+            {error && <div className="bg-red-500/10 text-red-500 text-sm p-3 rounded-lg mb-4 text-center">{error}</div>}
+            {successMessage && <div className="bg-emerald-500/10 text-emerald-500 text-sm p-3 rounded-lg mb-4 text-center">{successMessage}</div>}
 
-        <form onSubmit={handleAuth} className="space-y-4">
-          {mode === 'signup' && (
-            <>
+            <form onSubmit={handleAuth} className="space-y-4">
+              {mode === 'signup' && (
+                <>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">Nome Completo</label>
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={e => setFullName(e.target.value)}
+                      className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                      placeholder="Seu nome"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">CRO</label>
+                      <input
+                        type="text"
+                        value={cro}
+                        onChange={e => setCro(e.target.value)}
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                        placeholder="12345-UF"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">Especialidade</label>
+                      <input
+                        type="text"
+                        value={specialty}
+                        onChange={e => setSpecialty(e.target.value)}
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                        placeholder="Ex: Ortodontia"
+                        required
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
               <div>
-                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">Nome Completo</label>
+                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">E-mail</label>
                 <input
-                  type="text"
-                  value={fullName}
-                  onChange={e => setFullName(e.target.value)}
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
                   className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
-                  placeholder="Seu nome"
+                  placeholder="seu@email.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">Senha</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
+                  placeholder="******"
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">CRO</label>
-                  <input
-                    type="text"
-                    value={cro}
-                    onChange={e => setCro(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
-                    placeholder="12345-UF"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">Especialidade</label>
-                  <input
-                    type="text"
-                    value={specialty}
-                    onChange={e => setSpecialty(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
-                    placeholder="Ex: Ortodontia"
-                    required
-                  />
-                </div>
-              </div>
-            </>
-          )}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (mode === 'login' ? 'Entrar' : 'Criar Conta')}
+              </Button>
+            </form>
 
-          <div>
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">E-mail</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
-              placeholder="seu@email.com"
-              required
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1 block">Senha</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:border-brand-teal outline-none"
-              placeholder="******"
-              required
-            />
-          </div>
-
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (mode === 'login' ? 'Entrar' : 'Criar Conta')}
-          </Button>
-        </form>
-
-        <div className="mt-6 pt-4 border-t border-zinc-800 text-center">
-          <p className="text-sm text-zinc-400">
-            {mode === 'login' ? 'Não tem uma conta?' : 'Já possui conta?'}
-            <button
-              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(null); setSuccessMessage(null); }}
-              className="text-brand-teal font-bold ml-1 hover:underline"
-            >
-              {mode === 'login' ? 'Cadastre-se' : 'Fazer Login'}
-            </button>
-          </p>
-        </div>
+            <div className="mt-6 pt-4 border-t border-zinc-800 text-center">
+              <p className="text-sm text-zinc-400">
+                {mode === 'login' ? 'Não tem uma conta?' : 'Já possui conta?'}
+                <button
+                  onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(null); setSuccessMessage(null); }}
+                  className="text-brand-teal font-bold ml-1 hover:underline"
+                >
+                  {mode === 'login' ? 'Cadastre-se' : 'Fazer Login'}
+                </button>
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -2314,7 +2360,7 @@ const CalendarView: React.FC<{
     const map: Record<string, Project[]> = {};
     projects.forEach(p => {
       if (p.scheduledDate) {
-        // BUG FIX: Ensure we only use the date part if it contains time info, 
+        // BUG FIX: Ensure we only use the date part if it contains time info,
         // or just use the string if it is already YYYY-MM-DD
         const dateKey = p.scheduledDate.includes('T') ? p.scheduledDate.split('T')[0] : p.scheduledDate;
         if (!map[dateKey]) map[dateKey] = [];
