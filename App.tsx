@@ -630,7 +630,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
     <header className="flex justify-between items-center p-4 md:px-20 lg:px-28 md:py-8 w-full z-10 relative">
       <div className="flex items-center gap-2">
-        <img src="/logo-icon.svg" alt="Logo" className="w-8 h-8 md:w-10 md:h-10 object-contain shrink-0" />
+        <img src="/logo-icon.png" alt="Logo" className="w-14 h-14 md:w-16 md:h-16 object-contain shrink-0 -mr-2" />
         <span className="text-2xl md:text-[1.7rem] font-bold tracking-tight text-white whitespace-nowrap"><span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">Odonto</span>Content <span className="bg-gradient-to-r from-brand-teal to-cyan-400 bg-clip-text text-transparent">IA</span></span>
       </div>
       <button
