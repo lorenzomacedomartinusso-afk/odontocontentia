@@ -1814,9 +1814,9 @@ const Wizard: React.FC<{
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto pb-12">
+        <div className="flex-1 overflow-y-auto pb-4">
           {step === WizardStep.TOPIC_INPUT && (
-            <div className="flex flex-col min-h-full px-4 md:px-8 pb-8 pt-0">
+            <div className="flex flex-col min-h-full px-4 md:px-8 pb-2 pt-0">
               <div className="w-full">
                 <div className="flex flex-col items-center justify-center gap-3 mb-8 max-w-5xl mx-auto w-full">
                   <div className="flex flex-col md:flex-row items-center justify-center w-full gap-3 md:gap-4">
@@ -1842,7 +1842,7 @@ const Wizard: React.FC<{
                   autoFocus
                 />
 
-                <div className="mb-8">
+                <div className="mb-4">
                   <div className="flex justify-between items-center mb-4">
                     <p className="text-zinc-400 text-sm uppercase font-bold tracking-wider flex items-center gap-2">
                       <Lightbulb className="w-4 h-4 text-brand-teal" />
