@@ -235,7 +235,7 @@ const Badge: React.FC<{ status: ContentStatus }> = ({ status }) => {
 import { supabase } from './services/supabaseClient';
 
 // --- Auth Component ---
-const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (user: any) => void }> = ({ isOpen, onClose, onSuccess }) => {
+const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (user: any) => void; onAnimationStart?: () => void; onAnimationCancel?: () => void }> = ({ isOpen, onClose, onSuccess, onAnimationStart, onAnimationCancel }) => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -282,24 +282,38 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
           setPassword('');
         }
       } else {
+        // Block onAuthStateChange from setting user immediately - MUST be before signInWithPassword
+        onAnimationStart?.();
+
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
+
+        if (error) {
+          // If login fails, we need to unblock
+          throw error;
+        }
+
         if (data.session) {
           // Show success animation before closing
+          setLoading(false);
           setLoggedInUser(data.user);
           setShowLoginSuccess(true);
           setTimeout(() => {
             onSuccess(data.user);
             onClose();
-          }, 1500); // 1.5s animation delay
+          }, 2000); // 2s animation delay
+          return; // Exit early, don't run finally
         }
       }
     } catch (err: any) {
       // Translate common Supabase errors to Portuguese
       const errorMessage = err.message || 'Ocorreu um erro.';
+
+      // Cancel animation blocking if login failed
+      onAnimationCancel?.();
+
       const translations: Record<string, string> = {
         'Invalid login credentials': 'E-mail ou senha incorretos.',
         'Email not confirmed': 'E-mail não confirmado. Verifique sua caixa de entrada.',
@@ -3499,9 +3513,14 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [loginAnimationActive, setLoginAnimationActive] = useState(false);
   const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionService.SubscriptionCheckResult | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallReason, setPaywallReason] = useState<'trial_exhausted' | 'subscription_expired'>('trial_exhausted');
+
+  // Ref to block onAuthStateChange from setting user immediately during animation
+  const loginAnimationRef = useRef(false);
+  const pendingUserRef = useRef<any>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -3525,15 +3544,22 @@ const App: React.FC = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        setUser({
+        const userData = {
           id: session.user.id,
           name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário',
           role: session.user.user_metadata?.role || 'DENTISTA_DONO',
           email: session.user.email || '',
           specialty: session.user.user_metadata?.specialty || '',
           cro: session.user.user_metadata?.cro || ''
-        });
-        loadSubscriptionInfo(session.user.id);
+        };
+
+        // If login animation is active, store pending user and don't set yet
+        if (loginAnimationRef.current) {
+          pendingUserRef.current = userData;
+        } else {
+          setUser(userData);
+          loadSubscriptionInfo(session.user.id);
+        }
       } else {
         setUser(null);
         setSubscriptionInfo(null);
@@ -3558,7 +3584,7 @@ const App: React.FC = () => {
     setSubscriptionInfo(null);
   };
 
-  if (user) {
+  if (user && !loginAnimationActive && !showAuthModal) {
     return (
       <>
         <Workspace user={user} onLogout={handleLogout} />
@@ -3578,8 +3604,37 @@ const App: React.FC = () => {
       <LandingPage onLogin={() => setShowAuthModal(true)} />
       <AuthModal
         isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        onSuccess={() => setShowAuthModal(false)}
+        onClose={() => {
+          setShowAuthModal(false);
+          setLoginAnimationActive(false);
+          loginAnimationRef.current = false;
+          // Process pending user if any
+          if (pendingUserRef.current) {
+            setUser(pendingUserRef.current);
+            loadSubscriptionInfo(pendingUserRef.current.id);
+            pendingUserRef.current = null;
+          }
+        }}
+        onSuccess={() => {
+          setShowAuthModal(false);
+          setLoginAnimationActive(false);
+          loginAnimationRef.current = false;
+          // Process pending user if any
+          if (pendingUserRef.current) {
+            setUser(pendingUserRef.current);
+            loadSubscriptionInfo(pendingUserRef.current.id);
+            pendingUserRef.current = null;
+          }
+        }}
+        onAnimationStart={() => {
+          loginAnimationRef.current = true;
+          setLoginAnimationActive(true);
+        }}
+        onAnimationCancel={() => {
+          loginAnimationRef.current = false;
+          setLoginAnimationActive(false);
+          pendingUserRef.current = null;
+        }}
       />
     </>
   );
