@@ -2944,7 +2944,7 @@ const SubscriptionPage: React.FC<{ user: User }> = ({ user }) => {
             >
               <span className="flex items-center justify-center gap-2">
                 <Sparkles className="w-5 h-5" />
-                Assinar Plano Premium - R$ 29,90/mês
+                Assinar Plano Pro - R$ 29,90/mês
               </span>
             </a>
           )}
