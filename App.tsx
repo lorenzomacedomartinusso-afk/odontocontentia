@@ -2993,8 +2993,83 @@ const SubscriptionPage: React.FC<{ user: User }> = ({ user }) => {
   );
 };
 
+const SupportPage: React.FC = () => {
+  return (
+    <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6 overflow-y-auto h-full pb-24">
+      <div className="flex items-center gap-3 mb-6">
+        <MessageCircle className="w-8 h-8 text-brand-teal" />
+        <h1 className="text-2xl md:text-3xl font-bold text-white">Central de Ajuda</h1>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* WhatsApp Card */}
+        <Card className="bg-zinc-900/50 border-zinc-800 hover:border-brand-teal/50 transition-colors group">
+          <div className="p-6 flex flex-col items-center text-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-[#25D366]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <MessageCircle className="w-8 h-8 text-[#25D366]" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white mb-2">Via WhatsApp</h3>
+              <p className="text-zinc-400 text-sm">
+                Fale diretamente com nosso time de suporte via WhatsApp. Tempo médio de resposta: 10 minutos.
+              </p>
+            </div>
+            <a
+              href="https://wa.me/5511991117171?text=Olá! Preciso de ajuda com o OdontoContent IA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full mt-4 bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold py-3 px-6 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+            >
+              <MessageCircle className="w-5 h-5" /> Iniciar Conversa
+            </a>
+          </div>
+        </Card>
+
+        {/* Email Card */}
+        <Card className="bg-zinc-900/50 border-zinc-800 hover:border-brand-teal/50 transition-colors group">
+          <div className="p-6 flex flex-col items-center text-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-brand-teal/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Mail className="w-8 h-8 text-brand-teal" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white mb-2">Via E-mail</h3>
+              <p className="text-zinc-400 text-sm">
+                Envie sua dúvida detalhada ou relate problemas técnicos. Respondemos em até 24 horas úteis.
+              </p>
+            </div>
+            <a
+              href="mailto:suporte@odontocontent.com.br"
+              className="w-full mt-4 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 px-6 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+            >
+              <Mail className="w-5 h-5" /> Enviar E-mail
+            </a>
+          </div>
+        </Card>
+      </div>
+
+      <div className="mt-8 p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
+        <h3 className="text-lg font-bold text-white mb-4">Perguntas Frequentes</h3>
+        <div className="space-y-4">
+          <div className="p-4 rounded-xl bg-zinc-950/50 border border-zinc-800/50">
+            <h4 className="font-bold text-white mb-2 text-sm">Como cancelo minha assinatura?</h4>
+            <p className="text-zinc-400 text-xs leading-relaxed">
+              Você pode gerenciar ou cancelar sua assinatura diretamente na aba "Assinatura" nas configurações do seu perfil.
+            </p>
+          </div>
+          <div className="p-4 rounded-xl bg-zinc-950/50 border border-zinc-800/50">
+            <h4 className="font-bold text-white mb-2 text-sm">O conteúdo gerado é exclusivo?</h4>
+            <p className="text-zinc-400 text-xs leading-relaxed">
+              Sim! Nossa IA gera variações únicas para cada usuário baseadas no seu tom de voz e especialidade.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLogout }) => {
-  const [view, setView] = useState<'KANBAN' | 'CREATE' | 'CALENDAR' | 'TEAM' | 'SETTINGS' | 'SUBSCRIPTION'>('CREATE');
+  const [view, setView] = useState<'KANBAN' | 'CREATE' | 'CALENDAR' | 'TEAM' | 'SETTINGS' | 'SUBSCRIPTION' | 'SUPPORT'>('CREATE');
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -3291,15 +3366,15 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
                     >
                       <Sparkles className="w-4 h-4" /> Assinatura
                     </button>
-                    <a
-                      href="https://wa.me/5511991117171?text=Olá! Preciso de ajuda com o OdontoContent IA"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => {
+                        setView('SUPPORT');
+                        setIsProfileMenuOpen(false);
+                      }}
                       className="w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-lg flex items-center gap-2 transition-colors"
-                      onClick={() => setIsProfileMenuOpen(false)}
                     >
                       <MessageCircle className="w-4 h-4" /> Suporte
-                    </a>
+                    </button>
                     <button
                       onClick={onLogout}
                       className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg flex items-center gap-2 transition-colors"
@@ -3457,6 +3532,9 @@ const Workspace: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
           {view === 'TEAM' && <TeamView currentUser={user} />}
           {view === 'SUBSCRIPTION' && <SubscriptionPage user={user} />}
         </div>
+        {view === 'SUPPORT' && (
+          <SupportPage />
+        )}
       </main>
 
       {/* Bottom Navigation */}
