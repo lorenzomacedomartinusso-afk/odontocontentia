@@ -244,6 +244,7 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
   const [specialty, setSpecialty] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -274,8 +275,9 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
           // Actually, standard supabase requires email confirmation by default.
           // But user asked for "functional" login. If confirmation is on, this might block.
           // I will assume standard flow and notify user.
-          alert('Cadastro realizado! Por favor, faça login.');
+          setSuccessMessage('Cadastro realizado! Por favor, faça login.');
           setMode('login');
+          setPassword('');
         }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -333,6 +335,7 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
         </div>
 
         {error && <div className="bg-red-500/10 text-red-500 text-sm p-3 rounded-lg mb-4 text-center">{error}</div>}
+        {successMessage && <div className="bg-emerald-500/10 text-emerald-500 text-sm p-3 rounded-lg mb-4 text-center">{successMessage}</div>}
 
         <form onSubmit={handleAuth} className="space-y-4">
           {mode === 'signup' && (
@@ -408,7 +411,7 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
           <p className="text-sm text-zinc-400">
             {mode === 'login' ? 'Não tem uma conta?' : 'Já possui conta?'}
             <button
-              onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(null); setSuccessMessage(null); }}
               className="text-brand-teal font-bold ml-1 hover:underline"
             >
               {mode === 'login' ? 'Cadastre-se' : 'Fazer Login'}
