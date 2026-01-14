@@ -739,7 +739,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
     <main className="flex-1 flex flex-col w-full z-10 relative">
 
       {/* SECTION 1: HERO */}
-      <section className="flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto mb-20 md:mb-32 pt-12 md:pt-10">
+      <section className="relative flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto mb-20 md:mb-32 pt-12 md:pt-10">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <span className="w-2 h-2 bg-brand-teal/50 rounded-full animate-float-particles" style={{ top: '20%', left: '10%' }}></span>
           <span className="w-2 h-2 bg-brand-teal/50 rounded-full animate-float-particles" style={{ top: '50%', left: '70%' }}></span>
@@ -755,7 +755,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         <Reveal delay={200}>
           <h1 className="text-[2.5rem] leading-[1.1] md:text-7xl font-bold mb-4 md:mb-6 text-white tracking-tighter">
             Não seja apenas um dentista. Seja uma <br />
-            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent whitespace-nowrap">Referência Absoluta.</span>
+            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent whitespace-nowrap inline-block overflow-hidden animate-typewriter" style={{ width: '0ch' }}>Referência Absoluta.</span>
           </h1>
         </Reveal>
 
