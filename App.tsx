@@ -350,37 +350,54 @@ const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: (us
 
         {showLoginSuccess ? (
           /* Success Animation Screen */
-          <div className="text-center py-8 animate-fade-in">
+          <div className="text-center py-8 animate-fade-in relative overflow-hidden">
             <style>{`
-              @keyframes checkmark-draw {
-                0% { stroke-dashoffset: 50; }
-                100% { stroke-dashoffset: 0; }
-              }
-              @keyframes circle-grow {
-                0% { transform: scale(0); opacity: 0; }
-                50% { transform: scale(1.1); }
+              @keyframes scale-pulse {
+                0% { transform: scale(0.8); opacity: 0; }
+                50% { transform: scale(1.1); opacity: 1; }
                 100% { transform: scale(1); opacity: 1; }
               }
-              @keyframes pulse-glow {
-                0%, 100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.4); }
-                50% { box-shadow: 0 0 0 20px rgba(45, 212, 191, 0); }
+              @keyframes spin-slow {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
               }
-              .success-circle {
-                animation: circle-grow 0.4s ease-out forwards, pulse-glow 1s ease-in-out 0.4s;
+              @keyframes shimmer-text {
+                0% { background-position: -200% center; }
+                100% { background-position: 200% center; }
               }
-              .success-check {
-                stroke-dasharray: 50;
-                stroke-dashoffset: 50;
-                animation: checkmark-draw 0.4s ease-out 0.3s forwards;
+              .premium-icon {
+                animation: scale-pulse 0.6s cubic-bezier(0.17, 0.55, 0.55, 1) forwards;
+              }
+              .spin-ring {
+                animation: spin-slow 8s linear infinite;
+              }
+              .shimmering-text {
+                background: linear-gradient(90deg, #fff 0%, #2dd4bf 50%, #fff 100%);
+                background-size: 200% auto;
+                color: transparent;
+                -webkit-background-clip: text;
+                background-clip: text;
+                animation: shimmer-text 3s linear infinite;
               }
             `}</style>
-            <div className="w-20 h-20 bg-gradient-to-br from-brand-teal to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 success-circle">
-              <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" className="success-check" />
-              </svg>
+
+            {/* Background Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-brand-teal/20 blur-[60px] rounded-full pointer-events-none" />
+
+            {/* Icon Container */}
+            <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+              {/* Spinning Ring */}
+              <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-brand-teal border-r-brand-teal/50 spin-ring" />
+              <div className="absolute inset-2 rounded-full border border-zinc-700/50" />
+
+              {/* Center Brand Icon */}
+              <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center relative z-10 premium-icon border border-zinc-800 shadow-[0_0_30px_-5px_rgba(45,212,191,0.3)]">
+                <Sparkles className="w-8 h-8 text-brand-teal" />
+              </div>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Bem-vindo!</h2>
-            <p className="text-zinc-400 text-sm">Entrando no sistema...</p>
+
+            <h2 className="text-2xl font-bold text-white mb-2 shimmering-text">Bem-vindo ao Futuro</h2>
+            <p className="text-zinc-400 text-sm">Preparando seu consultório digital...</p>
           </div>
         ) : (
           /* Normal Login/Signup Form */
