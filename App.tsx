@@ -755,7 +755,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         <Reveal delay={200}>
           <h1 className="text-[2.5rem] leading-[1.1] md:text-7xl font-bold mb-4 md:mb-6 text-white tracking-tighter">
             Não seja apenas um dentista. Seja uma <br />
-            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent whitespace-nowrap inline-block overflow-hidden animate-typewriter" style={{ width: '0ch' }}>Referência Absoluta.</span>
+            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent whitespace-nowrap">Referência Absoluta.</span>
           </h1>
         </Reveal>
 
