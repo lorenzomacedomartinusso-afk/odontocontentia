@@ -740,6 +740,11 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
 
       {/* SECTION 1: HERO */}
       <section className="flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto mb-20 md:mb-32 pt-12 md:pt-10">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <span className="w-2 h-2 bg-brand-teal/50 rounded-full animate-float-particles" style={{ top: '20%', left: '10%' }}></span>
+          <span className="w-2 h-2 bg-brand-teal/50 rounded-full animate-float-particles" style={{ top: '50%', left: '70%' }}></span>
+          <span className="w-2 h-2 bg-brand-teal/50 rounded-full animate-float-particles" style={{ top: '80%', left: '30%' }}></span>
+        </div>
         <Reveal delay={100}>
           <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-brand-teal/5 border border-brand-teal/20 text-brand-teal mt-2 mb-2 md:mt-0 md:mb-8 shadow-[0_0_20px_-10px_rgba(45,212,191,0.3)]">
             <ShieldCheck className="w-3 h-3 md:w-4 md:h-4" />

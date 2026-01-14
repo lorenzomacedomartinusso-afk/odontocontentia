@@ -1,69 +1,100 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>odontoContent IA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Outfit', 'sans-serif'],
-            },
-            colors: {
-              brand: {
-                black: '#010204',
-                teal: '#2dd4bf',
-                tealDark: '#115e59',
-                surface: '#0d0e12',
-                border: '#1f2937'
-              }
-            },
-            animation: {
-              'fade-in': 'fadeIn 0.5s ease-out',
-              'slide-up': 'slideUp 0.5s ease-out',
-            },
-            keyframes: {
-              fadeIn: {
-                '0%': { opacity: '0' },
-                '100%': { opacity: '1' },
-              },
-              slideUp: {
-                '0%': { transform: 'translateY(20px)', opacity: '0' },
-                '100%': { transform: 'translateY(0)', opacity: '1' },
-              }
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>odontoContent IA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              black: '#010204',
+              teal: '#2dd4bf',
+              tealDark: '#115e59',
+              surface: '#0d0e12',
+              border: '#1f2937'
             }
           },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'slide-up': 'slideUp 0.5s ease-out',
+            'typewriter': 'typewriter 3s steps(30) forwards',
+            'float-particles': 'floatParticles 10s linear infinite',
+            'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+            'scale-rotate': 'scaleRotate 0.6s ease-out forwards',
+            'gradient-shift': 'gradientShift 8s ease infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            typewriter: {
+              '0%': { width: '0ch', opacity: '1' },
+              '100%': { width: '30ch', opacity: '1' },
+            },
+            floatParticles: {
+              '0%': { transform: 'translateY(0) rotate(0deg)' },
+              '100%': { transform: 'translateY(-100vh) rotate(360deg)' },
+            },
+            glowPulse: {
+              '0%, 100%': { boxShadow: '0 0 8px #2dd4bf' },
+              '50%': { boxShadow: '0 0 20px #2dd4bf' },
+            },
+            scaleRotate: {
+              '0%': { transform: 'scale(0.9) rotate(-3deg)', opacity: '0' },
+              '100%': { transform: 'scale(1) rotate(0deg)', opacity: '1' },
+            },
+            gradientShift: {
+              '0%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+              '100%': { backgroundPosition: '0% 50%' },
+            },
+          },
         },
-      }
-    </script>
-    <style>
-      body {
-        background-color: #010204;
-        color: #e2e8f0;
-        font-family: 'Outfit', sans-serif;
-      }
-      /* Custom scrollbar for dark mode luxury feel */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #010204; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #1f2937; 
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #2dd4bf; 
-      }
-    </style>
+      },
+    }
+  </script>
+  <style>
+    body {
+      background-color: #010204;
+      color: #e2e8f0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Custom scrollbar for dark mode luxury feel */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #010204;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #1f2937;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2dd4bf;
+    }
+  </style>
   <script type="importmap">
 {
   "imports": {
@@ -75,10 +106,12 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
-  <body>
-    <div id="root"></div>
+
+<body>
+  <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>
