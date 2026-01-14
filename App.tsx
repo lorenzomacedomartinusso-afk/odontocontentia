@@ -155,7 +155,7 @@ const Reveal: React.FC<{ children: React.ReactNode; className?: string; directio
   return (
     <div
       ref={ref}
-      className={`transition-all duration-1000 cubic-bezier(0.17, 0.55, 0.55, 1) ${className} ${isVisible ? 'opacity-100 translate-x-0 translate-y-0' : `opacity-0 ${getDirectionClass()}`}`}
+      className={`transition-all duration-1000 cubic-bezier(0.17, 0.55, 0.55, 1) ${className} ${isVisible ? 'opacity-100 translate-x-0 translate-y-0 scale-100' : `opacity-0 scale-95 ${getDirectionClass()}`}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
@@ -750,7 +750,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
         <Reveal delay={200}>
           <h1 className="text-[2.5rem] leading-[1.1] md:text-7xl font-bold mb-4 md:mb-6 text-white tracking-tighter">
             Não seja apenas um dentista. Seja uma <br />
-            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent whitespace-nowrap">Referência Absoluta.</span>
+            <span className="bg-gradient-to-r from-brand-teal via-white to-emerald-400 bg-clip-text text-transparent whitespace-nowrap animate-gradient-shift bg-[length:200%_auto]">Referência Absoluta.</span>
           </h1>
         </Reveal>
 
@@ -783,7 +783,7 @@ const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
             { icon: LayoutDashboard, title: "Gestão Integrada", desc: "Do roteiro à publicação com Kanban e Calendário editorial inteligentes." }
           ].map((item, i) => (
             <Reveal key={i} delay={500 + (i * 150)} direction="up" className="h-full">
-              <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6 hover:bg-zinc-900/60 hover:border-brand-teal/20 transition-all duration-300 group h-full">
+              <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6 hover:bg-zinc-900/80 hover:border-brand-teal/50 hover:shadow-[0_0_30px_-5px_rgba(45,212,191,0.2)] transition-all duration-500 group h-full hover:-translate-y-2">
                 <item.icon className="w-8 h-8 text-brand-teal mb-4 group-hover:scale-110 transition-transform duration-300" />
                 <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
                 <p className="text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
