@@ -35,6 +35,54 @@ REGRAS DE OURO:
 7. Evite linguagem de marketing. Nenhuma narrativa deve parecer autopromoção do dentista. Ela deve gerar valor intelectual e emocional, fazendo o leitor pensar: 'nunca tinha visto assim'.
 `;
 
+// ========================================
+// KNOWLEDGE BASE (CÉREBRO)
+// ========================================
+const loadKnowledgeBase = (): string => {
+  try {
+    // Import all .txt, .md (raw strings) and .pdf (modules via plugin)
+    const rawFiles = import.meta.glob('../knowledge/*.{txt,md}', { as: 'raw', eager: true });
+    const pdfFiles = import.meta.glob('../knowledge/*.pdf', { eager: true });
+
+    let context = "";
+
+    // Process Raw Files (TXT/MD)
+    const rawPaths = Object.keys(rawFiles);
+    if (rawPaths.length > 0) {
+      context += "\n\n========================================\n";
+      context += "CONTEXTO ADICIONAL (DOCUMENTOS DE TEXTO):\n";
+      context += "========================================\n\n";
+      rawPaths.forEach((path) => {
+        const fileName = path.split('/').pop();
+        const content = rawFiles[path] as string;
+        context += `--- ARQUIVO: ${fileName} ---\n${content}\n----------------\n\n`;
+      });
+    }
+
+    // Process PDF Files
+    const pdfPaths = Object.keys(pdfFiles);
+    if (pdfPaths.length > 0) {
+      context += "\n\n========================================\n";
+      context += "CONTEXTO ADICIONAL (DOCUMENTOS PDF):\n";
+      context += "========================================\n\n";
+      pdfPaths.forEach((path) => {
+        const fileName = path.split('/').pop();
+        // The PDF plugin returns a module with a default export containing the text
+        const module = pdfFiles[path] as { default: string };
+        const content = module.default;
+        context += `--- ARQUIVO: ${fileName} ---\n${content}\n----------------\n\n`;
+      });
+    }
+
+    return context;
+  } catch (error) {
+    console.warn("Erro ao carregar base de conhecimento:", error);
+    return "";
+  }
+};
+
+const FULL_SYSTEM_INSTRUCTION = SYSTEM_INSTRUCTION + loadKnowledgeBase();
+
 async function callGroq(prompt: string, schema?: any, isJson = false, onWait?: (msg: string) => void): Promise<string> {
   const url = `${BASE_URL}/chat/completions`;
 
@@ -46,7 +94,7 @@ async function callGroq(prompt: string, schema?: any, isJson = false, onWait?: (
   };
 
   const messages = [
-    { role: "system", content: SYSTEM_INSTRUCTION },
+    { role: "system", content: FULL_SYSTEM_INSTRUCTION },
     { role: "user", content: prompt }
   ];
 
